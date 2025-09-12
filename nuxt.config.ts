@@ -3,7 +3,18 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   nitro: {
-    preset: 'netlify'
+    preset: 'netlify',
+    experimental: {
+      wasm: true
+    }
+  },
+  vite: {
+    define: {
+      global: 'globalThis'
+    },
+    optimizeDeps: {
+      include: ['crypto-js']
+    }
   },
   modules: ['@nuxt/eslint', '@nuxt/image', '@nuxt/ui', '@pinia/nuxt', '@nuxtjs/supabase'],
   css: ['~/assets/css/main.css'],
@@ -15,6 +26,7 @@ export default defineNuxtConfig({
     firebaseServiceAccountKey: process.env.FIREBASE_SERVICE_ACCOUNT_KEY,
     firebaseProjectId: process.env.FIREBASE_PROJECT_ID,
     public: {
+      baseUrl: process.env.BASE_URL || 'http://localhost:3000',
       supabaseUrl: process.env.SUPABASE_URL,
       supabaseKey: process.env.SUPABASE_ANON_KEY,
       firebaseConfig: {

@@ -2,8 +2,12 @@
   "name": "nuxt-app",
   "type": "module",
   "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
-    "build": "nuxt build",
+    "build": "rm -rf .nuxt .output && nuxt build",
+    "build:netlify": "rm -rf .nuxt .output node_modules/.cache && nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
