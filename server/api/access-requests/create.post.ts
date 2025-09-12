@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
 import { sendMulticastNotification } from '../../utils/firebase'
 import { sendAccessRequestNotification, sendAccessRequestConfirmation } from '../../utils/email'
+import { logAccessRequest } from '../../utils/access-logger'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -150,6 +151,16 @@ export default defineEventHandler(async (event) => {
         statusMessage: 'Failed to create access request'
       })
     }
+
+    // Log the access request creation
+    await logAccessRequest(
+      config,
+      request.id,
+      property_id,
+      request.requester_name,
+      request.requester_phone || request.requester_email,
+      'EMAIL_REQUEST'
+    )
 
     // 6. Generate verification code (6-digit)
     const verificationCode = Math.floor(100000 + Math.random() * 900000).toString()

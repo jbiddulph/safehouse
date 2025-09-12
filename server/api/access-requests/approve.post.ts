@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { logAccessEvent } from '../../utils/access-logger'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -88,7 +89,20 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // 5. If approved, log the access
+    // 5. Log the approval/denial event
+    await logAccessEvent(config, {
+      property_id: request.property_id,
+      used_by_name: request.requester_name || 'Unknown',
+      used_by_contact: request.requester_phone || request.requester_email,
+      access_method: action === 'approve' ? 'REQUEST_APPROVED' : 'REQUEST_DENIED',
+      request_id: request.id,
+      additional_data: { 
+        approved_by: approved_by_user_id,
+        action: action 
+      }
+    })
+
+    // 6. If approved, log the access code usage
     if (action === 'approve') {
       // Find the access code that was used
       const { data: accessCode } = await supabase
@@ -99,18 +113,16 @@ export default defineEventHandler(async (event) => {
         .single()
 
       if (accessCode) {
-        // Log the access
-        await supabase
-          .from('safehouse_access_logs_new')
-          .insert({
-            access_code_id: accessCode.id,
-            property_id: request.property_id,
-            used_by_name: request.requester_name || 'Unknown',
-            used_by_contact: request.requester_phone || request.requester_email,
-            access_method: 'QR_SCAN_VERIFIED',
-            location_data: request.location_data,
-            used_at: new Date().toISOString()
-          })
+        // Log the access code usage
+        await logAccessEvent(config, {
+          access_code_id: accessCode.id,
+          property_id: request.property_id,
+          used_by_name: request.requester_name || 'Unknown',
+          used_by_contact: request.requester_phone || request.requester_email,
+          access_method: 'QR_SCAN_VERIFIED',
+          location_data: request.location_data,
+          request_id: request.id
+        })
 
         // Increment use count
         await supabase

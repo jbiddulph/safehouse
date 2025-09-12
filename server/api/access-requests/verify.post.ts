@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { logAccessVerification, logAccessCodeUsage } from '../../utils/access-logger'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -126,6 +127,38 @@ export default defineEventHandler(async (event) => {
 
     if (updateError) {
       console.error('Request update error:', updateError)
+    }
+
+    // 8. Log the verification event
+    await logAccessVerification(
+      config,
+      request.id,
+      request.property_id,
+      request.requester_name,
+      request.requester_phone || request.requester_email
+    )
+
+    // 9. Log the access code usage (since they entered the correct code)
+    if (request.access_code_entered) {
+      // Find the access code that was used
+      const { data: accessCode } = await supabase
+        .from('safehouse_access_codes')
+        .select('id')
+        .eq('access_code', request.access_code_entered)
+        .eq('property_id', request.property_id)
+        .single()
+
+      if (accessCode) {
+        await logAccessCodeUsage(
+          config,
+          accessCode.id,
+          request.property_id,
+          request.requester_name,
+          request.requester_phone || request.requester_email,
+          'EMAIL_VERIFICATION',
+          request.location_data
+        )
+      }
     }
 
     // 8. TODO: Send approval notification to property owner
