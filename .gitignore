@@ -28,8 +28,15 @@ logs
 
 /app/generated/prisma
 
-# Firebase service account keys
+# Firebase service account keys and credentials
 *.json
+!package.json
+!package-lock.json
+!tsconfig.json
+!eslint.config.mjs
 firebase_key*.txt
+firebase-adminsdk-*.json
+service-account-*.json
+credentials*.json
 .env.local
 .env.production
