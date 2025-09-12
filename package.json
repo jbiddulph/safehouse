@@ -7,8 +7,9 @@
   },
   "scripts": {
     "build": "rm -rf .nuxt .output && nuxt build",
-    "build:netlify": "rm -rf .nuxt .output node_modules/.cache && nuxt build && npm run copy:functions",
+    "build:netlify": "rm -rf .nuxt .output node_modules/.cache && nuxt build && npm run copy:functions && npm run copy:public",
     "copy:functions": "mkdir -p .netlify/functions && cp -r .netlify/functions-internal/server .netlify/functions/",
+    "copy:public": "mkdir -p .output && cp -r dist .output/public",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
