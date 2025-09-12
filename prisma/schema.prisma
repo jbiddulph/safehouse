@@ -352,6 +352,9 @@ model auth_users {
   @@index([is_anonymous])
   @@map("users")
   @@schema("auth")
+  
+  // Relations to SafeHouse models
+  granted_access_codes safehouse_access_codes[]
 }
 
 model Category {
@@ -957,6 +960,7 @@ model safehouse_profiles {
   email      String?    @unique
   full_name  String?
   avatar_url String?
+  fcm_token  String?    // Firebase Cloud Messaging token for push notifications
   created_at DateTime   @default(now()) @db.Timestamptz(6)
   updated_at DateTime   @default(now()) @db.Timestamptz(6)
   users      auth_users @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction)
@@ -1874,4 +1878,189 @@ enum one_time_token_type {
   phone_change_token
 
   @@schema("auth")
+}
+
+// SafeHouse Property Management Models
+model safehouse_properties {
+  id                      String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id                 String   @db.Uuid
+  property_name           String
+  address                 String
+  city                    String
+  state                   String?
+  postal_code             String?
+  country                 String   @default("US")
+  property_type           String   @default("residential")
+  qr_code                 String?  @unique
+  nfc_id                  String?  @unique
+  emergency_access_enabled Boolean @default(true)
+  created_at              DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at              DateTime? @default(now()) @db.Timestamptz(6)
+  access_codes            safehouse_access_codes[]
+  access_logs             safehouse_access_logs_new[]
+  property_contacts       safehouse_property_contacts[]
+  tenant_contacts         safehouse_contacts[]
+  access_requests         safehouse_access_requests[]
+
+  @@index([user_id])
+  @@index([qr_code])
+  @@index([nfc_id])
+  @@schema("public")
+}
+
+model safehouse_contacts {
+  id                      String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id                 String   @db.Uuid
+  contact_name            String
+  email                   String
+  phone                   String?
+  relationship            String
+  is_primary              Boolean @default(false)
+  is_tenant               Boolean @default(false)
+  tenant_property_id      String? @db.Uuid
+  emergency_access_level  String @default("standard")
+  notification_preferences Json?   @default("{\"email\": true, \"sms\": false, \"push\": true}")
+  fcm_token               String?  // Firebase Cloud Messaging token for push notifications
+  created_at              DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at              DateTime? @default(now()) @db.Timestamptz(6)
+  property_contacts       safehouse_property_contacts[]
+  tenant_property         safehouse_properties? @relation(fields: [tenant_property_id], references: [id], onDelete: SetNull)
+  granted_access_codes    safehouse_access_codes[] // Access codes this contact has granted
+
+  @@index([user_id])
+  @@index([tenant_property_id])
+  @@index([is_tenant])
+  @@schema("public")
+}
+
+model safehouse_property_contacts {
+  id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  property_id         String   @db.Uuid
+  contact_id          String   @db.Uuid
+  relationship_type   String   @default("emergency_contact")
+  can_grant_access    Boolean  @default(false)
+  notification_priority Int @default(1)
+  created_at          DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime? @default(now()) @db.Timestamptz(6)
+  property            safehouse_properties @relation(fields: [property_id], references: [id], onDelete: Cascade)
+  contact             safehouse_contacts @relation(fields: [contact_id], references: [id], onDelete: Cascade)
+
+  @@unique([property_id, contact_id])
+  @@index([property_id])
+  @@index([contact_id])
+  @@index([relationship_type])
+  @@schema("public")
+}
+
+// Secure access codes table - separate from property data
+model safehouse_access_codes {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  property_id       String    @db.Uuid
+  access_code       String    @unique // Encrypted/hashed access code
+  code_type         String    @default("emergency") // emergency, maintenance, guest, etc.
+  access_granted_to String?   // Who the code was granted to
+  access_reason     String?   // Reason for access
+  granted_by_user_id String?  @db.Uuid // Who granted the access
+  granted_by_contact_id String? @db.Uuid // Or granted by a contact
+  expires_at        DateTime  @db.Timestamptz(6)
+  used_at           DateTime? @db.Timestamptz(6)
+  is_active         Boolean   @default(true) // Can be revoked without deletion
+  max_uses          Int?      // Optional usage limit
+  use_count         Int       @default(0) // Track actual uses
+  created_at        DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime? @default(now()) @db.Timestamptz(6)
+  
+  // Relations
+  property          safehouse_properties @relation(fields: [property_id], references: [id], onDelete: Cascade)
+  granted_by_user   auth_users? @relation(fields: [granted_by_user_id], references: [id], onDelete: SetNull)
+  granted_by_contact safehouse_contacts? @relation(fields: [granted_by_contact_id], references: [id], onDelete: SetNull)
+  
+  // Access logs for this code
+  access_logs       safehouse_access_logs_new[]
+
+  @@index([property_id])
+  @@index([access_code])
+  @@index([is_active])
+  @@index([expires_at])
+  @@index([code_type])
+  @@schema("public")
+}
+
+// Access logs - tracks when codes are actually used
+model safehouse_access_logs_new {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  access_code_id    String    @db.Uuid // Reference to the access code
+  property_id       String    @db.Uuid // Denormalized for easier querying
+  used_by_name      String?   // Who actually used the code
+  used_by_contact   String?   // Contact info if available
+  access_method     String    // QR scan, NFC, manual entry, etc.
+  location_data     Json?     // GPS coordinates, device info, etc.
+  used_at           DateTime  @default(now()) @db.Timestamptz(6)
+  
+  // Relations
+  access_code       safehouse_access_codes @relation(fields: [access_code_id], references: [id], onDelete: Cascade)
+  property          safehouse_properties @relation(fields: [property_id], references: [id], onDelete: Cascade)
+
+  @@index([access_code_id])
+  @@index([property_id])
+  @@index([used_at])
+  @@schema("public")
+}
+
+// Access requests - tracks who is requesting access
+model safehouse_access_requests {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  property_id       String    @db.Uuid
+  requester_phone   String?   // Phone number of requester
+  requester_email   String?   // Email of requester
+  requester_name    String?   // Name provided by requester
+  access_code_entered String? // The access code they entered
+  verification_token String?  // One-time verification token
+  verification_code String?   // SMS/Email verification code
+  status            String    @default("pending") // pending, verified, approved, denied, expired
+  ip_address        String?   // IP address of requester
+  user_agent        String?   // Browser/device info
+  location_data     Json?     // GPS coordinates if available
+  expires_at        DateTime  @db.Timestamptz(6) // Request expires after 15 minutes
+  verified_at       DateTime? @db.Timestamptz(6)
+  approved_at       DateTime? @db.Timestamptz(6)
+  created_at        DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime? @default(now()) @db.Timestamptz(6)
+
+  // Relations
+  property          safehouse_properties @relation(fields: [property_id], references: [id], onDelete: Cascade)
+  verification_codes safehouse_verification_codes[]
+
+  @@index([property_id])
+  @@index([verification_token])
+  @@index([status])
+  @@index([expires_at])
+  @@index([requester_phone])
+  @@index([requester_email])
+  @@schema("public")
+}
+
+// Verification codes for SMS/Email
+model safehouse_verification_codes {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  request_id        String    @db.Uuid
+  phone_number      String?   // Phone number for SMS
+  email_address     String?   // Email address
+  verification_code String    // 6-digit code
+  code_type         String    // sms, email
+  attempts          Int       @default(0) // Number of attempts
+  max_attempts      Int       @default(3)
+  expires_at        DateTime  @db.Timestamptz(6) // Code expires after 10 minutes
+  verified_at       DateTime? @db.Timestamptz(6)
+  created_at        DateTime? @default(now()) @db.Timestamptz(6)
+
+  // Relations
+  request           safehouse_access_requests @relation(fields: [request_id], references: [id], onDelete: Cascade)
+
+  @@index([request_id])
+  @@index([verification_code])
+  @@index([expires_at])
+  @@index([phone_number])
+  @@index([email_address])
+  @@schema("public")
 }
