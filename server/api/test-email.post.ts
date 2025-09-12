@@ -1,4 +1,5 @@
 import { sendAccessRequestConfirmation } from '../utils/email'
+import { initializeEmail } from '../utils/email'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -12,6 +13,33 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
+    // First, test email initialization
+    const emailTransporter = initializeEmail()
+    if (!emailTransporter) {
+      return {
+        success: false,
+        error: 'Email transporter not initialized. Check credentials.',
+        debug: {
+          hasUsername: !!process.env.MAILTRAP_USERNAME,
+          hasPassword: !!process.env.MAILTRAP_PASSWORD,
+          username: process.env.MAILTRAP_USERNAME ? process.env.MAILTRAP_USERNAME.substring(0, 3) + '***' : 'Not set'
+        }
+      }
+    }
+
+    // Test the transporter directly
+    try {
+      await emailTransporter.verify()
+      console.log('Email transporter verified successfully')
+    } catch (verifyError) {
+      console.error('Email transporter verification failed:', verifyError)
+      return {
+        success: false,
+        error: 'Email transporter verification failed',
+        details: verifyError.message
+      }
+    }
+
     if (testType === 'confirmation') {
       // Test access code confirmation email
       const success = await sendAccessRequestConfirmation(
@@ -27,7 +55,8 @@ export default defineEventHandler(async (event) => {
         return {
           success: true,
           message: 'Test confirmation email sent successfully!',
-          email: toEmail
+          email: toEmail,
+          timestamp: new Date().toISOString()
         }
       } else {
         throw new Error('Failed to send test email')
@@ -48,7 +77,8 @@ export default defineEventHandler(async (event) => {
         return {
           success: true,
           message: 'Test notification email sent successfully!',
-          email: toEmail
+          email: toEmail,
+          timestamp: new Date().toISOString()
         }
       } else {
         throw new Error('Failed to send test email')
@@ -56,9 +86,11 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     console.error('Test email error:', error)
-    throw createError({
-      statusCode: 500,
-      statusMessage: `Failed to send test email: ${error.message}`
-    })
+    return {
+      success: false,
+      error: error.message,
+      details: error.toString(),
+      timestamp: new Date().toISOString()
+    }
   }
 })
