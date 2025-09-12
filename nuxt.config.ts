@@ -3,10 +3,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   nitro: {
-    preset: 'netlify',
-    experimental: {
-      wasm: true
-    }
+    preset: 'netlify'
   },
   vite: {
     define: {
