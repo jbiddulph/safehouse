@@ -27,3 +27,9 @@ logs
 .cursor/
 
 /app/generated/prisma
+
+# Firebase service account keys
+*.json
+firebase_key*.txt
+.env.local
+.env.production
