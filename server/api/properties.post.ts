@@ -64,6 +64,37 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Generate a default access code for the new property
+    try {
+      const accessCode = randomBytes(4).toString('hex').toUpperCase()
+      const expiresAt = new Date()
+      expiresAt.setFullYear(expiresAt.getFullYear() + 1) // Expires in 1 year
+
+      const { error: accessCodeError } = await supabase
+        .from('safehouse_access_codes')
+        .insert({
+          property_id: data.id,
+          access_code: accessCode,
+          code_type: 'emergency',
+          access_granted_to: 'Property Owner',
+          access_reason: 'Default emergency access code for property',
+          granted_by_user_id: user_id,
+          expires_at: expiresAt.toISOString(),
+          max_uses: null, // Unlimited uses
+          is_active: true
+        })
+
+      if (accessCodeError) {
+        console.error('Access code creation error:', accessCodeError)
+        // Don't fail property creation if access code fails
+      } else {
+        console.log(`Generated default access code ${accessCode} for property ${data.property_name}`)
+      }
+    } catch (accessCodeError) {
+      console.error('Failed to generate access code for new property:', accessCodeError)
+      // Don't fail property creation if access code fails
+    }
+
     return { success: true, property: data }
   } catch (error) {
     console.error('Property creation error:', error)

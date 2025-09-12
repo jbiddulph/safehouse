@@ -252,6 +252,9 @@
                           <button @click.stop="showQRCode(property)" class="text-green-600 hover:text-green-800 text-sm font-medium">
                             QR Code
                           </button>
+                          <button @click.stop="showAccessCode(property)" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                            Access Code
+                          </button>
                           <button @click.stop="deleteProperty(property.id)" class="text-red-600 hover:text-red-800 text-sm font-medium">
                             Delete
                           </button>
@@ -689,6 +692,79 @@
         </div>
       </div>
     </div>
+
+    <!-- Access Code Modal -->
+    <div v-if="showAccessCodeModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-gray-900">Access Code for {{ selectedAccessCodeProperty?.property_name }}</h3>
+            <button @click="showAccessCodeModal = false" class="text-gray-400 hover:text-gray-600">
+              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          
+          <div v-if="accessCodeLoading" class="text-center py-8">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            <p class="mt-2 text-sm text-gray-500">Loading access codes...</p>
+          </div>
+          
+          <div v-else-if="accessCodes.length > 0" class="space-y-4">
+            <div v-for="code in accessCodes" :key="code.id" class="bg-gray-50 p-4 rounded-lg">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-gray-700">{{ code.code_type }}</span>
+                <span v-if="code.is_active" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  Active
+                </span>
+                <span v-else class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                  Inactive
+                </span>
+              </div>
+              <div class="text-center">
+                <div class="text-2xl font-mono font-bold text-gray-900 mb-2">{{ code.access_code }}</div>
+                <p class="text-xs text-gray-500 mb-2">{{ code.access_reason }}</p>
+                <p class="text-xs text-gray-400">
+                  Expires: {{ new Date(code.expires_at).toLocaleDateString() }}
+                  <span v-if="code.max_uses" class="ml-2">• Max uses: {{ code.max_uses }}</span>
+                </p>
+              </div>
+            </div>
+            
+            <div class="mt-4 text-xs text-gray-500">
+              <p class="mb-2">Share this access code with people who need emergency access to this property.</p>
+              <p class="text-gray-400">They can use this code when scanning the QR code to request access.</p>
+            </div>
+            
+            <div class="mt-4 flex space-x-2">
+              <button 
+                @click="generateNewAccessCode" 
+                class="flex-1 bg-indigo-600 text-white px-3 py-2 rounded-md text-sm hover:bg-indigo-700"
+              >
+                Generate New Code
+              </button>
+              <button 
+                @click="copyAccessCode" 
+                class="flex-1 bg-gray-600 text-white px-3 py-2 rounded-md text-sm hover:bg-gray-700"
+              >
+                Copy Code
+              </button>
+            </div>
+          </div>
+          
+          <div v-else class="text-center py-8">
+            <p class="text-sm text-gray-500 mb-4">No access codes found for this property.</p>
+            <button 
+              @click="generateNewAccessCode" 
+              class="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700"
+            >
+              Generate Access Code
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -708,6 +784,10 @@ const showQRModal = ref(false)
 const qrCodeLoading = ref(false)
 const qrCodeData = ref(null)
 const selectedQRProperty = ref(null)
+const showAccessCodeModal = ref(false)
+const accessCodeLoading = ref(false)
+const accessCodes = ref([])
+const selectedAccessCodeProperty = ref(null)
 const selectedProperty = ref(null)
 const propertyContacts = ref([])
 const creatingProperty = ref(false)
@@ -944,7 +1024,7 @@ async function createProperty() {
         country: 'US',
         property_type: 'residential'
       }
-      alert('Property created successfully!')
+      alert('Property created successfully! A default access code has been generated for this property.')
     }
   } catch (error) {
     console.error('Failed to create property:', error)
@@ -1229,6 +1309,74 @@ async function copyQRUrl() {
     document.execCommand('copy')
     document.body.removeChild(textArea)
     alert('QR code URL copied to clipboard!')
+  }
+}
+
+async function showAccessCode(property) {
+  selectedAccessCodeProperty.value = property
+  showAccessCodeModal.value = true
+  accessCodeLoading.value = true
+  accessCodes.value = []
+  
+  try {
+    const { accessCodes: codes } = await $fetch(`/api/access-codes/property/${property.id}`)
+    accessCodes.value = codes || []
+  } catch (error) {
+    console.error('Failed to load access codes:', error)
+    accessCodes.value = []
+  } finally {
+    accessCodeLoading.value = false
+  }
+}
+
+async function generateNewAccessCode() {
+  if (!selectedAccessCodeProperty.value) return
+  
+  try {
+    const { success, accessCode } = await $fetch('/api/access-codes/generate', {
+      method: 'POST',
+      body: {
+        propertyId: selectedAccessCodeProperty.value.id,
+        codeType: 'emergency',
+        accessGrantedTo: 'Property Owner',
+        accessReason: 'Manual access code generation',
+        expiresInHours: 24 * 365, // 1 year
+        maxUses: null
+      }
+    })
+    
+    if (success) {
+      accessCodes.value.unshift(accessCode)
+      alert('New access code generated successfully!')
+    }
+  } catch (error) {
+    console.error('Failed to generate access code:', error)
+    alert('Failed to generate access code')
+  }
+}
+
+async function copyAccessCode() {
+  if (accessCodes.value.length === 0) return
+  
+  const activeCode = accessCodes.value.find(code => code.is_active)
+  if (!activeCode) {
+    alert('No active access code to copy')
+    return
+  }
+  
+  try {
+    await navigator.clipboard.writeText(activeCode.access_code)
+    alert('Access code copied to clipboard!')
+  } catch (error) {
+    console.error('Failed to copy access code:', error)
+    // Fallback for older browsers
+    const textArea = document.createElement('textarea')
+    textArea.value = activeCode.access_code
+    document.body.appendChild(textArea)
+    textArea.select()
+    document.execCommand('copy')
+    document.body.removeChild(textArea)
+    alert('Access code copied to clipboard!')
   }
 }
 
