@@ -664,7 +664,22 @@
               <p class="text-sm font-mono text-gray-800 break-all">{{ qrCodeData.qr_code }}</p>
             </div>
             <div class="mt-4 text-xs text-gray-500">
-              <p>Scan this QR code to request emergency access to this property.</p>
+              <p class="mb-2">Scan this QR code to request emergency access to this property.</p>
+              <p class="text-gray-400">When scanned, users will be prompted to enter their email address and access code.</p>
+            </div>
+            <div class="mt-4 flex space-x-2">
+              <button 
+                @click="downloadQRCode" 
+                class="flex-1 bg-indigo-600 text-white px-3 py-2 rounded-md text-sm hover:bg-indigo-700"
+              >
+                Download QR Code
+              </button>
+              <button 
+                @click="copyQRUrl" 
+                class="flex-1 bg-gray-600 text-white px-3 py-2 rounded-md text-sm hover:bg-gray-700"
+              >
+                Copy URL
+              </button>
             </div>
           </div>
           
@@ -1184,6 +1199,36 @@ async function showQRCode(property) {
     console.error('Failed to generate QR code:', error)
   } finally {
     qrCodeLoading.value = false
+  }
+}
+
+function downloadQRCode() {
+  if (!qrCodeData.value?.qr_data_url) return
+  
+  const link = document.createElement('a')
+  link.href = qrCodeData.value.qr_data_url
+  link.download = `qr-code-${selectedQRProperty.value?.property_name?.replace(/\s+/g, '-').toLowerCase() || 'property'}.png`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
+
+async function copyQRUrl() {
+  if (!qrCodeData.value?.qr_code) return
+  
+  try {
+    await navigator.clipboard.writeText(qrCodeData.value.qr_code)
+    alert('QR code URL copied to clipboard!')
+  } catch (error) {
+    console.error('Failed to copy URL:', error)
+    // Fallback for older browsers
+    const textArea = document.createElement('textarea')
+    textArea.value = qrCodeData.value.qr_code
+    document.body.appendChild(textArea)
+    textArea.select()
+    document.execCommand('copy')
+    document.body.removeChild(textArea)
+    alert('QR code URL copied to clipboard!')
   }
 }
 

@@ -23,6 +23,7 @@
     "@pinia/nuxt": "^0.11.2",
     "@prisma/client": "^6.16.1",
     "@supabase/supabase-js": "^2.57.4",
+    "@types/nodemailer": "^7.0.1",
     "@types/qrcode": "^1.5.5",
     "eslint": "^9.35.0",
     "firebase": "^12.2.1",

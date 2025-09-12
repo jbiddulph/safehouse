@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
 import { sendMulticastNotification } from '../../utils/firebase'
+import { sendAccessRequestNotification, sendAccessRequestConfirmation } from '../../utils/email'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -191,6 +192,68 @@ export default defineEventHandler(async (event) => {
     } catch (fcmError) {
       console.error('Failed to send FCM notification:', fcmError)
       // Don't fail the request if FCM fails
+    }
+
+    // 10. Send email notifications to property owner and emergency contacts
+    try {
+      // Get property owner's email
+      const { data: propertyOwner } = await supabase
+        .from('safehouse_profiles')
+        .select('email')
+        .eq('id', property.user_id)
+        .single()
+
+      // Get emergency contacts' emails
+      const { data: emergencyContacts } = await supabase
+        .from('safehouse_contacts')
+        .select('email')
+        .eq('user_id', property.user_id)
+        .eq('is_primary', true)
+        .not('email', 'is', null)
+
+      // Send email to property owner
+      if (propertyOwner?.email) {
+        await sendAccessRequestNotification(
+          propertyOwner.email,
+          request.requester_name || 'Unknown',
+          request.requester_email || 'Not provided',
+          property.property_name,
+          property.address,
+          request.id
+        )
+      }
+
+      // Send email to emergency contacts
+      if (emergencyContacts && emergencyContacts.length > 0) {
+        for (const contact of emergencyContacts) {
+          if (contact.email) {
+            await sendAccessRequestNotification(
+              contact.email,
+              request.requester_name || 'Unknown',
+              request.requester_email || 'Not provided',
+              property.property_name,
+              property.address,
+              request.id
+            )
+          }
+        }
+      }
+
+      // Send confirmation email to requester
+      if (request.requester_email) {
+        await sendAccessRequestConfirmation(
+          request.requester_email,
+          request.requester_name || 'there',
+          property.property_name,
+          property.address,
+          request.id
+        )
+      }
+
+      console.log('Email notifications sent successfully')
+    } catch (emailError) {
+      console.error('Failed to send email notifications:', emailError)
+      // Don't fail the request if email fails
     }
 
     return {
