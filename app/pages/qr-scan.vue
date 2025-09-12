@@ -84,29 +84,30 @@
               />
             </div>
 
-            <div>
-              <label for="access_code" class="block text-sm font-medium text-gray-700">
-                Access Code *
-              </label>
-              <input
-                id="access_code"
-                v-model="requestForm.access_code_entered"
-                type="text"
-                required
-                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Enter the access code from the property"
-              />
-              <p class="mt-1 text-xs text-gray-500">
-                This code should be displayed near the QR code
-              </p>
+            <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <h3 class="text-sm font-medium text-blue-800">
+                    Access Code Information
+                  </h3>
+                  <div class="mt-2 text-sm text-blue-700">
+                    <p>After submitting your request, you will receive an email with the access code for this property.</p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <button
               type="submit"
-              :disabled="submitting || !requestForm.requester_email || !requestForm.access_code_entered"
+              :disabled="submitting || !requestForm.requester_email"
               class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {{ submitting ? 'Submitting Request...' : 'Submit Access Request' }}
+              {{ submitting ? 'Submitting Request...' : 'Request Access Code' }}
             </button>
           </form>
 
@@ -127,12 +128,12 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h3 class="mt-2 text-lg font-medium text-gray-900">Request Submitted Successfully</h3>
+          <h3 class="mt-2 text-lg font-medium text-gray-900">Access Code Sent!</h3>
           <p class="text-sm text-gray-500 mt-2">
-            Your access request has been submitted to the property owner and emergency contacts.
+            We've sent you an email with the access code for this property.
           </p>
           <p class="text-xs text-gray-400 mt-2">
-            You will receive a notification once your request is reviewed.
+            Please check your email and use the access code to complete your request.
           </p>
           <div class="mt-4">
             <button
@@ -163,8 +164,7 @@ const manualQrCode = ref('')
 // Form data
 const requestForm = ref({
   requester_email: '',
-  requester_name: '',
-  access_code_entered: ''
+  requester_name: ''
 })
 
 // Process QR code (simulate scanning)
@@ -208,7 +208,6 @@ async function submitAccessRequest() {
         property_id: scannedProperty.value.id,
         requester_email: requestForm.value.requester_email,
         requester_name: requestForm.value.requester_name,
-        access_code_entered: requestForm.value.access_code_entered,
         ip_address: '127.0.0.1', // In real app, get from request
         user_agent: navigator.userAgent,
         location_data: null // In real app, get GPS coordinates
@@ -216,7 +215,12 @@ async function submitAccessRequest() {
     })
     
     if (response.success) {
-      requestSubmitted.value = true
+      // Redirect to access code verification page
+      const route = useRoute()
+      const propertyId = route.query.property || scannedProperty.value?.id
+      const requestId = response.request?.id
+      
+      await navigateTo(`/access-code-verification?property=${propertyId}&requestId=${requestId}`)
     }
   } catch (error) {
     console.error('Failed to submit access request:', error)
@@ -232,8 +236,7 @@ function resetForm() {
   requestSubmitted.value = false
   requestForm.value = {
     requester_email: '',
-    requester_name: '',
-    access_code_entered: ''
+    requester_name: ''
   }
   manualQrCode.value = ''
 }

@@ -93,7 +93,8 @@ export async function sendAccessRequestConfirmation(
   requesterName: string,
   propertyName: string,
   propertyAddress: string,
-  requestId: string
+  requestId: string,
+  accessCode: string
 ) {
   const emailTransporter = initializeEmail()
   if (!emailTransporter) {
@@ -105,27 +106,42 @@ export async function sendAccessRequestConfirmation(
     const mailOptions = {
       from: 'SafeHouse <noreply@safehouse.app>',
       to: toEmail,
-      subject: `Access Request Submitted - ${propertyName}`,
+      subject: `Access Code for ${propertyName}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #059669;">Access Request Submitted</h2>
+          <h2 style="color: #059669;">Access Code Sent</h2>
           
           <p>Hello ${requesterName || 'there'},</p>
           
-          <p>Your emergency access request has been successfully submitted:</p>
+          <p>You have requested emergency access to:</p>
           
           <div style="background-color: #f0fdf4; padding: 16px; border-radius: 8px; margin: 16px 0;">
             <p><strong>Property:</strong> ${propertyName}</p>
             <p><strong>Address:</strong> ${propertyAddress}</p>
             <p><strong>Request ID:</strong> ${requestId}</p>
-            <p><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
+            <p><strong>Requested:</strong> ${new Date().toLocaleString()}</p>
           </div>
           
-          <p>The property owner and emergency contacts have been notified. You will receive an update once your request is reviewed.</p>
+          <div style="background-color: #fef3c7; padding: 16px; border-radius: 8px; margin: 16px 0; text-align: center;">
+            <h3 style="margin-top: 0; color: #92400e;">Your Access Code</h3>
+            <div style="font-size: 24px; font-weight: bold; color: #92400e; font-family: monospace; letter-spacing: 2px; background-color: #fbbf24; padding: 12px; border-radius: 6px; display: inline-block;">
+              ${accessCode}
+            </div>
+            <p style="margin-bottom: 0; color: #92400e; font-size: 14px;">
+              Use this code to complete your access request
+            </p>
+          </div>
+          
+          <p><strong>Next Steps:</strong></p>
+          <ol style="color: #374151;">
+            <li>Return to the QR code scanning page</li>
+            <li>Enter the access code above when prompted</li>
+            <li>Your request will be processed and you'll be notified of the result</li>
+          </ol>
           
           <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
             <p style="color: #6b7280; font-size: 14px;">
-              This is an automated confirmation from SafeHouse Emergency Access System.
+              This is an automated message from SafeHouse Emergency Access System.
             </p>
           </div>
         </div>
@@ -133,10 +149,10 @@ export async function sendAccessRequestConfirmation(
     }
 
     const result = await emailTransporter.sendMail(mailOptions)
-    console.log('Confirmation email sent successfully:', result.messageId)
+    console.log('Access code email sent successfully:', result.messageId)
     return true
   } catch (error) {
-    console.error('Error sending confirmation email:', error)
+    console.error('Error sending access code email:', error)
     return false
   }
 }

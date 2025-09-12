@@ -10,16 +10,15 @@ export default defineEventHandler(async (event) => {
     requester_phone, 
     requester_email, 
     requester_name, 
-    access_code_entered,
     ip_address,
     user_agent,
     location_data 
   } = body
 
-  if (!property_id || (!requester_phone && !requester_email) || !access_code_entered) {
+  if (!property_id || (!requester_phone && !requester_email)) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Missing required fields: property_id, requester contact info, and access_code_entered'
+      statusMessage: 'Missing required fields: property_id and requester contact info'
     })
   }
 
@@ -57,20 +56,21 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // 2. Verify the access code is valid and active
+    // 2. Get an active access code for the property
     const { data: accessCode, error: codeError } = await supabase
       .from('safehouse_access_codes')
       .select('*')
-      .eq('access_code', access_code_entered)
       .eq('property_id', property_id)
       .eq('is_active', true)
       .gt('expires_at', new Date().toISOString())
+      .order('created_at', { ascending: false })
+      .limit(1)
       .single()
 
     if (codeError || !accessCode) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'Invalid or expired access code'
+        statusMessage: 'No active access code available for this property'
       })
     }
 
@@ -103,7 +103,7 @@ export default defineEventHandler(async (event) => {
         requester_phone,
         requester_email,
         requester_name,
-        access_code_entered,
+        access_code_entered: accessCode.access_code,
         verification_token: verificationToken,
         status: 'pending',
         ip_address,
@@ -239,14 +239,15 @@ export default defineEventHandler(async (event) => {
         }
       }
 
-      // Send confirmation email to requester
+      // Send access code email to requester
       if (request.requester_email) {
         await sendAccessRequestConfirmation(
           request.requester_email,
           request.requester_name || 'there',
           property.property_name,
           property.address,
-          request.id
+          request.id,
+          accessCode.access_code
         )
       }
 
@@ -267,7 +268,7 @@ export default defineEventHandler(async (event) => {
           address: property.address
         }
       },
-      message: 'Access request created. Please check your phone/email for verification code.'
+      message: 'Access code sent to your email. Please check your email and enter the code to complete your request.'
     }
   } catch (error) {
     console.error('Access request creation error:', error)
