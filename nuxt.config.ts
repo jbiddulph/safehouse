@@ -2,6 +2,9 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
+  nitro: {
+    preset: 'netlify'
+  },
   modules: ['@nuxt/eslint', '@nuxt/image', '@nuxt/ui', '@pinia/nuxt', '@nuxtjs/supabase'],
   css: ['~/assets/css/main.css'],
   runtimeConfig: {
