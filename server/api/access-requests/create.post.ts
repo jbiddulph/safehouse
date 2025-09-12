@@ -57,7 +57,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // 2. Get an active access code for the property
-    const { data: accessCode, error: codeError } = await supabase
+    let { data: accessCode, error: codeError } = await supabase
       .from('safehouse_access_codes')
       .select('*')
       .eq('property_id', property_id)
@@ -68,10 +68,39 @@ export default defineEventHandler(async (event) => {
       .single()
 
     if (codeError || !accessCode) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'No active access code available for this property'
-      })
+      // If no active access code exists, create one automatically
+      console.log('No active access code found, creating one automatically...')
+      
+      const newAccessCode = crypto.randomBytes(4).toString('hex').toUpperCase()
+      const expiresAt = new Date()
+      expiresAt.setFullYear(expiresAt.getFullYear() + 1) // Expires in 1 year
+
+      const { data: newCode, error: createCodeError } = await supabase
+        .from('safehouse_access_codes')
+        .insert({
+          property_id: property_id,
+          access_code: newAccessCode,
+          code_type: 'emergency',
+          access_granted_to: 'Emergency Access',
+          access_reason: 'Auto-generated for emergency access request',
+          granted_by_user_id: null,
+          expires_at: expiresAt.toISOString(),
+          max_uses: null, // Unlimited uses
+          is_active: true
+        })
+        .select()
+        .single()
+
+      if (createCodeError || !newCode) {
+        console.error('Failed to create emergency access code:', createCodeError)
+        throw createError({
+          statusCode: 500,
+          statusMessage: 'Failed to create access code for this property'
+        })
+      }
+
+      console.log(`Created emergency access code ${newAccessCode} for property ${property.property_name}`)
+      accessCode = newCode
     }
 
     // 3. Check if request already exists (prevent spam)
