@@ -17,16 +17,35 @@ export function initializeEmail() {
   }
 
   try {
-    transporter = nodemailer.createTransporter({
-      host: 'smtp.mailtrap.io',
-      port: 2525,
-      auth: {
-        user: config.mailtrapUser,
-        pass: config.mailtrapPass
-      }
-    })
+    // Determine email service based on username format
+    const isGmail = config.mailtrapUser.includes('@gmail.com')
+    
+    if (isGmail) {
+      // Gmail SMTP configuration
+      transporter = nodemailer.createTransporter({
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false, // true for 465, false for other ports
+        auth: {
+          user: config.mailtrapUser,
+          pass: config.mailtrapPass // Should be Gmail App Password
+        }
+      })
+      console.log('Gmail SMTP email service initialized')
+    } else {
+      // Mailtrap configuration (production)
+      transporter = nodemailer.createTransporter({
+        host: 'live.smtp.mailtrap.io', // Production Mailtrap
+        port: 587,
+        secure: false,
+        auth: {
+          user: config.mailtrapUser,
+          pass: config.mailtrapPass
+        }
+      })
+      console.log('Mailtrap production email service initialized')
+    }
 
-    console.log('Email service initialized successfully')
     return transporter
   } catch (error) {
     console.error('Failed to initialize email service:', error)
