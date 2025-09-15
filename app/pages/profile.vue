@@ -38,6 +38,16 @@
               </UButton>
             </div>
           </div>
+
+          <!-- Signed in as + Dashboard button inside the same box -->
+          <div class="pt-2 mt-2 border-t">
+            <p class="text-sm text-gray-600">Signed in as</p>
+            <p class="font-medium">{{ profile?.full_name || user?.email }}</p>
+            <p class="text-sm text-gray-600">{{ user?.email }}</p>
+            <UButton class="mt-3" color="primary" @click="navigateTo('/dashboard')">
+              Go to Dashboard
+            </UButton>
+          </div>
           
           <!-- Avatar Preview -->
           <div v-if="avatarPreview" class="space-y-2">
@@ -54,13 +64,6 @@
               </UButton>
             </div>
           </div>
-        </div>
-
-        <!-- Profile Info -->
-        <div class="rounded border p-4">
-          <p class="text-sm">Signed in as</p>
-          <p class="font-medium">{{ profile?.full_name || user?.email }}</p>
-          <p class="text-sm text-gray-600">{{ user?.email }}</p>
         </div>
         
         <UButton color="red" @click="onLogout">Logout</UButton>
