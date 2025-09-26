@@ -355,6 +355,8 @@ model auth_users {
   
   // Relations to SafeHouse models
   granted_access_codes safehouse_access_codes[]
+  allowed_domains safehouse_allowed_domains[]
+  blocked_domains safehouse_blocked_domains[]
 }
 
 model Category {
@@ -959,12 +961,15 @@ model safehouse_profiles {
   id         String     @id @db.Uuid
   email      String?    @unique
   full_name  String?
+  phone      String?    // Mobile phone number
   avatar_url String?
   fcm_token  String?    // Firebase Cloud Messaging token for push notifications
+  role       String     @default("standard") // User role: "standard" or "admin"
   created_at DateTime   @default(now()) @db.Timestamptz(6)
   updated_at DateTime   @default(now()) @db.Timestamptz(6)
   users      auth_users @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
+  @@index([role])
   @@schema("public")
 }
 
@@ -1989,7 +1994,7 @@ model safehouse_access_codes {
 // Access logs - tracks when codes are actually used
 model safehouse_access_logs_new {
   id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  access_code_id    String    @db.Uuid // Reference to the access code
+  access_code_id    String?   @db.Uuid // Reference to the access code (nullable for request logs)
   property_id       String    @db.Uuid // Denormalized for easier querying
   used_by_name      String?   // Who actually used the code
   used_by_contact   String?   // Contact info if available
@@ -1998,7 +2003,7 @@ model safehouse_access_logs_new {
   used_at           DateTime  @default(now()) @db.Timestamptz(6)
   
   // Relations
-  access_code       safehouse_access_codes @relation(fields: [access_code_id], references: [id], onDelete: Cascade)
+  access_code       safehouse_access_codes? @relation(fields: [access_code_id], references: [id], onDelete: Cascade)
   property          safehouse_properties @relation(fields: [property_id], references: [id], onDelete: Cascade)
 
   @@index([access_code_id])
@@ -2062,5 +2067,47 @@ model safehouse_verification_codes {
   @@index([expires_at])
   @@index([phone_number])
   @@index([email_address])
+  @@schema("public")
+}
+
+// Allowed domains table - domains that are explicitly allowed for access
+model safehouse_allowed_domains {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  domain      String   @unique // The domain name (e.g., "example.com", "subdomain.example.com")
+  description String?  // Optional description of why this domain is allowed
+  created_by  String?  @db.Uuid // User who added this domain
+  is_active   Boolean  @default(true) // Whether this domain is currently active
+  created_at  DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime? @default(now()) @db.Timestamptz(6)
+  expires_at  DateTime? @db.Timestamptz(6) // Optional expiration date
+
+  // Relations
+  created_by_user auth_users? @relation(fields: [created_by], references: [id], onDelete: SetNull)
+
+  @@index([domain])
+  @@index([is_active])
+  @@index([expires_at])
+  @@index([created_by])
+  @@schema("public")
+}
+
+// Blocked domains table - domains that are explicitly blocked from access
+model safehouse_blocked_domains {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  domain      String   @unique // The domain name (e.g., "malicious.com", "spam.example.com")
+  reason      String?  // Reason for blocking this domain
+  blocked_by  String?  @db.Uuid // User who blocked this domain
+  is_active   Boolean  @default(true) // Whether this block is currently active
+  created_at  DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime? @default(now()) @db.Timestamptz(6)
+  expires_at  DateTime? @db.Timestamptz(6) // Optional expiration date for temporary blocks
+
+  // Relations
+  blocked_by_user auth_users? @relation(fields: [blocked_by], references: [id], onDelete: SetNull)
+
+  @@index([domain])
+  @@index([is_active])
+  @@index([expires_at])
+  @@index([blocked_by])
   @@schema("public")
 }

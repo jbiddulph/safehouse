@@ -23,51 +23,59 @@ export default defineEventHandler(async (event) => {
   )
 
   try {
-    // Get property details
-    const { data: property, error: propertyError } = await supabase
+    const { data: property, error } = await supabase
       .from('safehouse_properties')
       .select(`
         id,
         property_name,
         address,
-        emergency_access_enabled,
+        city,
+        state,
+        postal_code,
+        country,
+        property_type,
         qr_code,
-        created_at
+        nfc_id,
+        emergency_access_enabled,
+        created_at,
+        updated_at
       `)
       .eq('id', propertyId)
       .single()
 
-    if (propertyError || !property) {
+    if (error) {
+      console.error('Error fetching property:', error)
+      if (error.code === 'PGRST116') {
+        throw createError({
+          statusCode: 404,
+          statusMessage: 'Property not found'
+        })
+      }
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'Failed to fetch property'
+      })
+    }
+
+    if (!property) {
       throw createError({
         statusCode: 404,
         statusMessage: 'Property not found'
       })
     }
 
-    // Check if emergency access is enabled
-    if (!property.emergency_access_enabled) {
-      throw createError({
-        statusCode: 403,
-        statusMessage: 'Emergency access is not enabled for this property'
-      })
-    }
-
     return {
       success: true,
-      property: {
-        id: property.id,
-        property_name: property.property_name,
-        address: property.address,
-        emergency_access_enabled: property.emergency_access_enabled,
-        qr_code: property.qr_code,
-        created_at: property.created_at
-      }
+      property
     }
   } catch (error) {
-    console.error('Property fetch error:', error)
+    console.error('Error in property API:', error)
+    if (error.statusCode) {
+      throw error
+    }
     throw createError({
-      statusCode: error.statusCode || 500,
-      statusMessage: error.message || 'Failed to fetch property'
+      statusCode: 500,
+      statusMessage: 'Failed to fetch property'
     })
   }
 })

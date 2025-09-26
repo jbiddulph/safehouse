@@ -25,10 +25,12 @@ export default defineNuxtConfig({
     databaseUrl: process.env.DATABASE_URL,
     firebaseServiceAccountKey: process.env.FIREBASE_SERVICE_ACCOUNT_KEY,
     firebaseProjectId: process.env.FIREBASE_PROJECT_ID,
+    googleApiKey: process.env.GOOGLE_API,
     public: {
       baseUrl: process.env.BASE_URL || 'http://localhost:3000',
       supabaseUrl: process.env.SUPABASE_URL,
       supabaseKey: process.env.SUPABASE_ANON_KEY,
+      googleApiKey: process.env.GOOGLE_API,
       firebaseConfig: {
         apiKey: process.env.FIREBASE_API_KEY,
         authDomain: process.env.FIREBASE_AUTH_DOMAIN,
@@ -43,10 +45,17 @@ export default defineNuxtConfig({
   supabase: {
     url: process.env.SUPABASE_URL,
     key: process.env.SUPABASE_ANON_KEY,
+    clientOptions: {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true,
+        flowType: 'implicit'
+      }
+    },
     redirectOptions: {
       login: '/auth/login',
       callback: '/dashboard',
-      home: '/dashboard',
       exclude: ['/auth/login', '/auth/register', '/auth/confirm']
     }
   }

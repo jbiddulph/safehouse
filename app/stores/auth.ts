@@ -15,43 +15,65 @@ export const useAuthStore = defineStore('auth', () => {
   })
 
   async function signInWithEmail(email: string, password: string) {
-    const { data, error } = await client.auth.signInWithPassword({ email, password })
-    if (error) {
-      console.error('Sign in error:', error)
+    try {
+      const { data, error } = await client.auth.signInWithPassword({ email, password })
+      if (error) {
+        console.error('Sign in error:', error)
+        throw error
+      }
+      return data
+    } catch (error: any) {
+      // Handle captcha-related errors
+      if (error.message?.includes('captcha') || error.message?.includes('verification')) {
+        throw new Error('Authentication failed. Please try again or contact support if the issue persists.')
+      }
       throw error
     }
-    return data
   }
 
-  async function signUpWithEmail(email: string, password: string, fullName?: string, avatarFile?: File) {
-    const { data, error } = await client.auth.signUp({ email, password })
-    if (error) {
-      console.error('Sign up error:', error)
+  async function signUpWithEmail(email: string, password: string, fullName?: string, phone?: string, avatarFile?: File) {
+    try {
+      const { data, error } = await client.auth.signUp({ 
+        email, 
+        password
+      })
+      if (error) {
+        console.error('Sign up error:', error)
+        throw error
+      }
+      
+      // Create profile if user was created and fullName is provided
+      if (data.user && fullName) {
+        try {
+          const formData = new FormData()
+          formData.append('userId', data.user.id)
+          formData.append('fullName', fullName)
+          formData.append('email', data.user.email)
+          if (phone) {
+            formData.append('phone', phone)
+          }
+          if (avatarFile) {
+            formData.append('avatarFile', avatarFile)
+          }
+
+          await $fetch('/api/auth/create-profile', {
+            method: 'POST',
+            body: formData
+          })
+        } catch (profileErr) {
+          console.error('Profile creation error:', profileErr)
+          // Don't throw here as the user was created successfully
+        }
+      }
+      
+      return data
+    } catch (error: any) {
+      // Handle captcha-related errors
+      if (error.message?.includes('captcha') || error.message?.includes('verification')) {
+        throw new Error('Registration failed. Please try again or contact support if the issue persists.')
+      }
       throw error
     }
-    
-    // Create profile if user was created and fullName is provided
-    if (data.user && fullName) {
-      try {
-        const formData = new FormData()
-        formData.append('userId', data.user.id)
-        formData.append('fullName', fullName)
-        formData.append('email', data.user.email)
-        if (avatarFile) {
-          formData.append('avatarFile', avatarFile)
-        }
-
-        await $fetch('/api/auth/create-profile', {
-          method: 'POST',
-          body: formData
-        })
-      } catch (profileErr) {
-        console.error('Profile creation error:', profileErr)
-        // Don't throw here as the user was created successfully
-      }
-    }
-    
-    return data
   }
 
   async function signOut() {

@@ -5,6 +5,7 @@ export default defineEventHandler(async (event) => {
   const userId = formData.get('userId') as string
   const fullName = formData.get('fullName') as string
   const email = formData.get('email') as string
+  const phone = formData.get('phone') as string
   const avatarFile = formData.get('avatarFile') as File
 
   if (!userId || !fullName || !email) {
@@ -68,7 +69,9 @@ export default defineEventHandler(async (event) => {
         id: userId,
         full_name: fullName,
         email: email,
-        avatar_url: avatarUrl
+        phone: phone,
+        avatar_url: avatarUrl,
+        role: 'standard' // Default role for new users
       })
       .select()
       .single()
@@ -82,7 +85,9 @@ export default defineEventHandler(async (event) => {
           .update({
             full_name: fullName,
             email: email,
-            avatar_url: avatarUrl
+            phone: phone,
+            avatar_url: avatarUrl,
+            role: 'standard' // Ensure role is set on update too
           })
           .eq('id', userId)
           .select()

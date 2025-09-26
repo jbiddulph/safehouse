@@ -1,12 +1,17 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
     <!-- Top Navigation -->
-    <nav class="bg-white shadow-sm border-b">
+    <nav class="bg-white shadow-lg border-b border-gray-200">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <!-- Logo and Title -->
           <div class="flex items-center">
-            <div class="flex-shrink-0">
+            <div class="flex-shrink-0 flex items-center space-x-3">
+              <div class="h-8 w-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
               <h1 class="text-2xl font-bold text-gray-900">SafeHouse</h1>
             </div>
           </div>
@@ -26,22 +31,22 @@
 
             <!-- Profile Dropdown -->
             <div class="relative">
-              <button @click="showProfileMenu = !showProfileMenu" class="flex items-center space-x-3 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 hover:bg-gray-50 px-3 py-2">
-                <div v-if="profile?.avatar_url" class="h-10 w-10 rounded-full overflow-hidden border-2 border-gray-200">
+              <button @click="showProfileMenu = !showProfileMenu" class="flex items-center space-x-3 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 hover:bg-gray-50 px-3 py-2 transition-colors duration-200">
+                <div v-if="profile?.avatar_url" class="h-10 w-10 rounded-full overflow-hidden border-2 border-indigo-200 shadow-sm">
                   <img :src="avatarUrl" alt="Profile" class="h-full w-full object-cover" />
                 </div>
-                <div v-else class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center border-2 border-gray-200">
-                  <svg class="h-6 w-6 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                <div v-else class="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-100 to-blue-100 flex items-center justify-center border-2 border-indigo-200 shadow-sm">
+                  <svg class="h-6 w-6 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
                   </svg>
                 </div>
-            <div class="text-left">
-              <div class="text-sm font-medium text-gray-900">{{ profile?.full_name || auth.user?.value?.email || 'User' }}</div>
-              <div class="text-xs text-gray-500">{{ auth.user?.value?.email }}</div>
-            </div>
-            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
+                <div class="text-left">
+                  <div class="text-sm font-medium text-gray-900">{{ profile?.full_name || auth.user?.value?.email || 'User' }}</div>
+                  <div class="text-xs text-gray-500">{{ auth.user?.value?.email }}</div>
+                </div>
+                <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
               </button>
 
               <!-- Dropdown Menu -->
@@ -82,115 +87,165 @@
     </nav>
 
     <!-- Main Content -->
-    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto py-8 sm:px-6 lg:px-8">
       <!-- Page Header -->
       <div class="px-4 py-6 sm:px-0">
         <div class="md:flex md:items-center md:justify-between">
           <div class="flex-1 min-w-0">
-            <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
-              Dashboard
+            <h2 class="text-3xl font-bold leading-7 text-gray-900 sm:text-4xl sm:truncate">
+              Welcome back, {{ profile?.full_name || 'User' }}! 👋
             </h2>
-            <p class="mt-1 text-sm text-gray-500">
+            <p class="mt-2 text-lg text-gray-600">
               Manage your properties and emergency contacts
             </p>
           </div>
-          <div class="mt-4 flex md:mt-0 md:ml-4">
-            <button @click="showAddProperty = true" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          <div class="mt-4 flex space-x-3 md:mt-0 md:ml-4">
+            <button @click="showAddProperty = true" class="inline-flex items-center px-6 py-3 border border-transparent rounded-lg shadow-lg text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:scale-105">
               <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
               Add Property
             </button>
+            <button @click="showAddContact = true" class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg shadow-lg text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:scale-105">
+              <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+              </svg>
+              Add Contact
+            </button>
           </div>
         </div>
       </div>
 
+      <!-- Quick Navigation -->
+      <div class="px-4 py-4 sm:px-0 mb-8">
+        <div class="flex flex-wrap gap-4">
+          <NuxtLink 
+            to="/domains" 
+            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
+          >
+            <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9" />
+            </svg>
+            Domain Management
+          </NuxtLink>
+          <NuxtLink 
+            to="/profile" 
+            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
+          >
+            <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Profile Settings
+          </NuxtLink>
+          <NuxtLink 
+            v-if="profile?.role === 'admin'"
+            to="/admin" 
+            class="inline-flex items-center px-4 py-2 border border-red-300 rounded-lg text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
+          >
+            <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            Admin Panel
+          </NuxtLink>
+        </div>
+      </div>
+
       <!-- Stats Cards -->
-      <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-          <div class="p-5">
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+        <div class="bg-white overflow-hidden shadow-xl rounded-xl border border-gray-100 hover:shadow-2xl transition-shadow duration-300">
+          <div class="p-6">
             <div class="flex items-center">
               <div class="flex-shrink-0">
-                <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
+                <div class="h-12 w-12 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-lg flex items-center justify-center">
+                  <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  </svg>
+                </div>
               </div>
               <div class="ml-5 w-0 flex-1">
                 <dl>
                   <dt class="text-sm font-medium text-gray-500 truncate">Properties</dt>
-                  <dd class="text-lg font-medium text-gray-900">{{ properties.length }}</dd>
+                  <dd class="text-2xl font-bold text-gray-900">{{ properties.length }}</dd>
                 </dl>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-          <div class="p-5">
+        <div class="bg-white overflow-hidden shadow-xl rounded-xl border border-gray-100 hover:shadow-2xl transition-shadow duration-300">
+          <div class="p-6">
             <div class="flex items-center">
               <div class="flex-shrink-0">
-                <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
+                <div class="h-12 w-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                  <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
               </div>
               <div class="ml-5 w-0 flex-1">
                 <dl>
                   <dt class="text-sm font-medium text-gray-500 truncate">Emergency Contacts</dt>
-                  <dd class="text-lg font-medium text-gray-900">{{ contacts.length }}</dd>
+                  <dd class="text-2xl font-bold text-gray-900">{{ contacts.length }}</dd>
                 </dl>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-          <div class="p-5">
+        <div class="bg-white overflow-hidden shadow-xl rounded-xl border border-gray-100 hover:shadow-2xl transition-shadow duration-300">
+          <div class="p-6">
             <div class="flex items-center">
               <div class="flex-shrink-0">
-                <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <div class="h-12 w-12 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center">
+                  <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
               </div>
               <div class="ml-5 w-0 flex-1">
                 <dl>
                   <dt class="text-sm font-medium text-gray-500 truncate">Active Access Codes</dt>
-                  <dd class="text-lg font-medium text-gray-900">{{ activeAccessCodes }}</dd>
+                  <dd class="text-2xl font-bold text-gray-900">{{ activeAccessCodes }}</dd>
                 </dl>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-          <div class="p-5">
+        <div class="bg-white overflow-hidden shadow-xl rounded-xl border border-gray-100 hover:shadow-2xl transition-shadow duration-300">
+          <div class="p-6">
             <div class="flex items-center">
               <div class="flex-shrink-0">
-                <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
+                <div class="h-12 w-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                  <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
               </div>
               <div class="ml-5 w-0 flex-1">
                 <dl>
                   <dt class="text-sm font-medium text-gray-500 truncate">Properties with Contacts</dt>
-                  <dd class="text-lg font-medium text-gray-900">{{ propertiesWithContacts }}</dd>
+                  <dd class="text-2xl font-bold text-gray-900">{{ propertiesWithContacts }}</dd>
                 </dl>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-          <div class="p-5">
+        <div class="bg-white overflow-hidden shadow-xl rounded-xl border border-gray-100 hover:shadow-2xl transition-shadow duration-300">
+          <div class="p-6">
             <div class="flex items-center">
               <div class="flex-shrink-0">
-                <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 19.5c-.77.833.192 2.5 1.732 2.5z" />
-                </svg>
+                <div class="h-12 w-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-lg flex items-center justify-center">
+                  <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 19.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
               </div>
               <div class="ml-5 w-0 flex-1">
                 <dl>
                   <dt class="text-sm font-medium text-gray-500 truncate">Emergency Access</dt>
-                  <dd class="text-lg font-medium text-green-600">Enabled</dd>
+                  <dd class="text-2xl font-bold text-green-600">Enabled</dd>
                 </dl>
               </div>
             </div>
@@ -360,6 +415,142 @@
                 <label class="block text-sm font-medium text-gray-700">Postal Code</label>
                 <input v-model="newProperty.postal_code" type="text" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
               </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Country</label>
+                <select v-model="newProperty.country" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+                  <option value="US">United States</option>
+                  <option value="CA">Canada</option>
+                  <option value="GB">United Kingdom</option>
+                  <option value="AU">Australia</option>
+                  <option value="DE">Germany</option>
+                  <option value="FR">France</option>
+                  <option value="ES">Spain</option>
+                  <option value="IT">Italy</option>
+                  <option value="NL">Netherlands</option>
+                  <option value="BE">Belgium</option>
+                  <option value="CH">Switzerland</option>
+                  <option value="AT">Austria</option>
+                  <option value="SE">Sweden</option>
+                  <option value="NO">Norway</option>
+                  <option value="DK">Denmark</option>
+                  <option value="FI">Finland</option>
+                  <option value="IE">Ireland</option>
+                  <option value="PT">Portugal</option>
+                  <option value="GR">Greece</option>
+                  <option value="PL">Poland</option>
+                  <option value="CZ">Czech Republic</option>
+                  <option value="HU">Hungary</option>
+                  <option value="SK">Slovakia</option>
+                  <option value="SI">Slovenia</option>
+                  <option value="HR">Croatia</option>
+                  <option value="RO">Romania</option>
+                  <option value="BG">Bulgaria</option>
+                  <option value="LT">Lithuania</option>
+                  <option value="LV">Latvia</option>
+                  <option value="EE">Estonia</option>
+                  <option value="LU">Luxembourg</option>
+                  <option value="MT">Malta</option>
+                  <option value="CY">Cyprus</option>
+                  <option value="JP">Japan</option>
+                  <option value="KR">South Korea</option>
+                  <option value="CN">China</option>
+                  <option value="IN">India</option>
+                  <option value="SG">Singapore</option>
+                  <option value="HK">Hong Kong</option>
+                  <option value="TW">Taiwan</option>
+                  <option value="TH">Thailand</option>
+                  <option value="MY">Malaysia</option>
+                  <option value="ID">Indonesia</option>
+                  <option value="PH">Philippines</option>
+                  <option value="VN">Vietnam</option>
+                  <option value="NZ">New Zealand</option>
+                  <option value="ZA">South Africa</option>
+                  <option value="BR">Brazil</option>
+                  <option value="AR">Argentina</option>
+                  <option value="CL">Chile</option>
+                  <option value="CO">Colombia</option>
+                  <option value="MX">Mexico</option>
+                  <option value="PE">Peru</option>
+                  <option value="UY">Uruguay</option>
+                  <option value="PY">Paraguay</option>
+                  <option value="BO">Bolivia</option>
+                  <option value="EC">Ecuador</option>
+                  <option value="VE">Venezuela</option>
+                  <option value="GT">Guatemala</option>
+                  <option value="CU">Cuba</option>
+                  <option value="JM">Jamaica</option>
+                  <option value="TT">Trinidad and Tobago</option>
+                  <option value="BB">Barbados</option>
+                  <option value="BS">Bahamas</option>
+                  <option value="BZ">Belize</option>
+                  <option value="CR">Costa Rica</option>
+                  <option value="PA">Panama</option>
+                  <option value="HN">Honduras</option>
+                  <option value="NI">Nicaragua</option>
+                  <option value="SV">El Salvador</option>
+                  <option value="DO">Dominican Republic</option>
+                  <option value="HT">Haiti</option>
+                  <option value="PR">Puerto Rico</option>
+                  <option value="EG">Egypt</option>
+                  <option value="MA">Morocco</option>
+                  <option value="TN">Tunisia</option>
+                  <option value="DZ">Algeria</option>
+                  <option value="LY">Libya</option>
+                  <option value="SD">Sudan</option>
+                  <option value="ET">Ethiopia</option>
+                  <option value="KE">Kenya</option>
+                  <option value="UG">Uganda</option>
+                  <option value="TZ">Tanzania</option>
+                  <option value="GH">Ghana</option>
+                  <option value="NG">Nigeria</option>
+                  <option value="SN">Senegal</option>
+                  <option value="CI">Ivory Coast</option>
+                  <option value="ML">Mali</option>
+                  <option value="BF">Burkina Faso</option>
+                  <option value="NE">Niger</option>
+                  <option value="TD">Chad</option>
+                  <option value="CM">Cameroon</option>
+                  <option value="CF">Central African Republic</option>
+                  <option value="CD">Democratic Republic of the Congo</option>
+                  <option value="CG">Republic of the Congo</option>
+                  <option value="GA">Gabon</option>
+                  <option value="GQ">Equatorial Guinea</option>
+                  <option value="ST">São Tomé and Príncipe</option>
+                  <option value="AO">Angola</option>
+                  <option value="ZM">Zambia</option>
+                  <option value="ZW">Zimbabwe</option>
+                  <option value="BW">Botswana</option>
+                  <option value="NA">Namibia</option>
+                  <option value="SZ">Eswatini</option>
+                  <option value="LS">Lesotho</option>
+                  <option value="MG">Madagascar</option>
+                  <option value="MU">Mauritius</option>
+                  <option value="SC">Seychelles</option>
+                  <option value="KM">Comoros</option>
+                  <option value="DJ">Djibouti</option>
+                  <option value="SO">Somalia</option>
+                  <option value="ER">Eritrea</option>
+                  <option value="SS">South Sudan</option>
+                  <option value="RW">Rwanda</option>
+                  <option value="BI">Burundi</option>
+                  <option value="MW">Malawi</option>
+                  <option value="MZ">Mozambique</option>
+                  <option value="RE">Réunion</option>
+                  <option value="YT">Mayotte</option>
+                  <option value="SH">Saint Helena</option>
+                  <option value="CV">Cape Verde</option>
+                  <option value="GW">Guinea-Bissau</option>
+                  <option value="GN">Guinea</option>
+                  <option value="SL">Sierra Leone</option>
+                  <option value="LR">Liberia</option>
+                  <option value="TG">Togo</option>
+                  <option value="BJ">Benin</option>
+                  <option value="MR">Mauritania</option>
+                  <option value="GM">Gambia</option>
+                </select>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700">Property Type</label>
                 <select v-model="newProperty.property_type" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
