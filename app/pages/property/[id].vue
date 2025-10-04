@@ -139,7 +139,8 @@
           <h3 v-else class="text-lg font-medium text-green-900 mb-2">Email Sent!</h3>
           
           <p v-if="!emailSent" class="text-sm text-gray-500 mb-6">
-            Enter your email address to receive an access request link for {{ property?.property_name }}
+            Enter your email address to receive an access request link for {{ property?.property_name }}.
+            We'll also verify you're at the property location for security.
           </p>
           <p v-else class="text-sm text-green-600 mb-6">
             We've sent an access request link to <strong>{{ emailForm.email }}</strong>. 
@@ -162,6 +163,48 @@
                 class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500"
               />
             </div>
+
+            <!-- Location Verification -->
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <label class="text-sm font-medium text-gray-700">
+                  Location Verification
+                </label>
+                <button
+                  type="button"
+                  @click="verifyLocation"
+                  :disabled="isVerifyingLocation || !emailForm.email"
+                  class="px-3 py-1 text-xs font-medium rounded-md border transition-colors"
+                  :class="{
+                    'border-gray-300 text-gray-700 bg-gray-50 hover:bg-gray-100': !locationVerification.isVerified,
+                    'border-green-300 text-green-700 bg-green-50': locationVerification.isVerified,
+                    'border-red-300 text-red-700 bg-red-50': locationVerification.error,
+                    'opacity-50 cursor-not-allowed': isVerifyingLocation || !emailForm.email
+                  }"
+                >
+                  {{ getLocationButtonText() }}
+                </button>
+              </div>
+              
+              <!-- Location Status -->
+              <div class="text-xs">
+                <div v-if="locationVerification.isVerified" class="text-green-600 flex items-center">
+                  <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                  </svg>
+                  Verified at property (within {{ locationVerification.distance?.toFixed(0) }}m)
+                </div>
+                <div v-else-if="locationVerification.error" class="text-red-600 flex items-center">
+                  <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                  </svg>
+                  {{ locationVerification.error }}
+                </div>
+                <div v-else class="text-gray-500">
+                  Click "Verify Location" to confirm you're at the property
+                </div>
+              </div>
+            </div>
             
             <div class="flex justify-end space-x-3">
               <button
@@ -173,7 +216,7 @@
               </button>
               <button
                 type="submit"
-                :disabled="emailSending || !emailForm.email"
+                :disabled="emailSending || !emailForm.email || !locationVerification.isVerified"
                 class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {{ emailSending ? 'Sending...' : 'Send Access Request' }}
@@ -216,6 +259,16 @@ const emailForm = ref({
 })
 const emailSending = ref(false)
 const emailSent = ref(false)
+
+// Location verification
+const { verifyLocationAtProperty } = useLocationVerification()
+const isVerifyingLocation = ref(false)
+const locationVerification = ref({
+  isVerified: false,
+  distance: null as number | null,
+  userLocation: null as { latitude: number; longitude: number } | null,
+  error: null as string | null
+})
 
 // Load property details
 onMounted(async () => {
@@ -301,7 +354,7 @@ async function requestAccess() {
 
 // Send access request email
 async function sendAccessRequestEmail() {
-  if (!emailForm.value.email || !property.value) return
+  if (!emailForm.value.email || !property.value || !locationVerification.value.isVerified) return
   
   emailSending.value = true
   try {
@@ -309,7 +362,10 @@ async function sendAccessRequestEmail() {
       method: 'POST',
       body: {
         email: emailForm.value.email,
-        property_id: property.value.id
+        property_id: property.value.id,
+        location_verified: true,
+        user_location: locationVerification.value.userLocation,
+        distance_from_property: locationVerification.value.distance
       }
     })
     
@@ -330,10 +386,51 @@ async function sendAccessRequestEmail() {
   }
 }
 
+// Verify user location at property
+async function verifyLocation() {
+  if (!property.value || !property.value.latitude || !property.value.longitude) {
+    locationVerification.value.error = 'Property location not available'
+    return
+  }
+
+  isVerifyingLocation.value = true
+  locationVerification.value.error = null
+
+  try {
+    const result = await verifyLocationAtProperty(
+      property.value.latitude,
+      property.value.longitude,
+      50 // 50 meters tolerance
+    )
+
+    locationVerification.value = result
+  } catch (error) {
+    console.error('Location verification error:', error)
+    locationVerification.value.error = 'Failed to verify location. Please try again.'
+  } finally {
+    isVerifyingLocation.value = false
+  }
+}
+
+// Get location button text
+function getLocationButtonText(): string {
+  if (isVerifyingLocation.value) return 'Verifying...'
+  if (locationVerification.value.isVerified) return 'Verified ✓'
+  if (locationVerification.value.error) return 'Retry'
+  return 'Verify Location'
+}
+
 // Close email modal
 function closeEmailModal() {
   showEmailModal.value = false
   emailSent.value = false
   emailForm.value.email = ''
+  // Reset location verification
+  locationVerification.value = {
+    isVerified: false,
+    distance: null,
+    userLocation: null,
+    error: null
+  }
 }
 </script>

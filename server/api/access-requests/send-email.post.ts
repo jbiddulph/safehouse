@@ -4,12 +4,26 @@ import { sendAccessRequestEmail } from '../../utils/email'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
-  const { email, property_id } = body
+  const { 
+    email, 
+    property_id, 
+    location_verified = false,
+    user_location,
+    distance_from_property 
+  } = body
 
   if (!email || !property_id) {
     throw createError({
       statusCode: 400,
       statusMessage: 'Email and property ID are required'
+    })
+  }
+
+  // Require location verification for security
+  if (!location_verified) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Location verification is required for emergency access requests'
     })
   }
 
@@ -81,7 +95,7 @@ export default defineEventHandler(async (event) => {
     const verificationToken = crypto.randomBytes(32).toString('hex')
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000) // 15 minutes
 
-    // 4. Store the email request temporarily
+    // 4. Store the email request temporarily with location verification data
     const { error: storeError } = await supabase
       .from('safehouse_access_requests')
       .insert({
@@ -91,7 +105,11 @@ export default defineEventHandler(async (event) => {
         status: 'pending',
         expires_at: expiresAt.toISOString(),
         ip_address: '127.0.0.1',
-        user_agent: 'Email Access Request'
+        user_agent: 'Email Access Request',
+        location_verified: location_verified,
+        user_latitude: user_location?.latitude || null,
+        user_longitude: user_location?.longitude || null,
+        distance_from_property: distance_from_property || null
       })
 
     if (storeError) {
