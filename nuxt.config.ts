@@ -53,10 +53,6 @@ export default defineNuxtConfig({
         flowType: 'implicit'
       }
     },
-    redirectOptions: {
-      login: '/auth/login',
-      callback: '/dashboard',
-      exclude: ['/auth/login', '/auth/register', '/auth/confirm']
-    }
+    redirect: false
   }
 })

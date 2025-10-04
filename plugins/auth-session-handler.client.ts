@@ -16,8 +16,11 @@ export default defineNuxtPlugin(() => {
         localStorage.removeItem('avatar')
       }
       
-      // Redirect to login if on protected route
-      if (process.client && !window.location.pathname.startsWith('/auth/')) {
+      // Redirect to login if on protected route (exclude homepage and public routes)
+      const publicRoutes = ['/', '/property/', '/access-request', '/access-code-verification']
+      const isPublicRoute = publicRoutes.some(route => window.location.pathname === route || window.location.pathname.startsWith(route))
+      
+      if (process.client && !window.location.pathname.startsWith('/auth/') && !isPublicRoute) {
         navigateTo('/auth/login')
       }
     }

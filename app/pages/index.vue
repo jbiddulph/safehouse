@@ -3,9 +3,12 @@
     <div class="sm:mx-auto sm:w-full sm:max-w-2xl">
       <div class="text-center mb-8">
         <h1 class="text-4xl font-bold text-gray-900 mb-4">SafeHouse</h1>
-        <p class="text-lg text-gray-600">
+        <p class="text-lg text-gray-600 mb-4">
           Enter an address to find properties or request emergency access
         </p>
+        <div v-if="isLoggedIn" class="mb-4">
+          <p class="text-sm text-blue-600">Welcome back, {{ userEmail }}!</p>
+        </div>
       </div>
 
       <!-- Address Search -->
@@ -121,7 +124,7 @@
 
       <!-- Quick Actions -->
       <div class="mt-8 text-center">
-        <div class="space-y-4">
+        <div v-if="!isLoggedIn" class="space-y-4">
           <NuxtLink 
             to="/auth/login" 
             class="inline-block px-6 py-3 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
@@ -135,6 +138,20 @@
             Create Account
           </NuxtLink>
         </div>
+        <div v-else class="space-y-4">
+          <NuxtLink 
+            to="/dashboard" 
+            class="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Go to Dashboard
+          </NuxtLink>
+          <button 
+            @click="signOut"
+            class="inline-block px-6 py-3 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors ml-4"
+          >
+            Sign Out
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -142,8 +159,7 @@
 
 <script setup lang="ts">
 definePageMeta({
-  layout: false,
-  middleware: 'guest-only'
+  layout: false
 })
 
 // Reactive data
@@ -156,6 +172,8 @@ const loading = ref(false)
 const searching = ref(false)
 const recentSearches = ref([])
 const showRecentSearches = ref(false)
+const isLoggedIn = ref(false)
+const userEmail = ref('')
 
 // Debounce timer
 let debounceTimer: NodeJS.Timeout | null = null
@@ -468,9 +486,44 @@ function loadRecentSearches() {
   }
 }
 
-// Initialize recent searches
+// Check authentication status
+async function checkAuthStatus() {
+  try {
+    const supabase = useSupabaseClient()
+    const { data: { session } } = await supabase.auth.getSession()
+    
+    if (session?.user) {
+      isLoggedIn.value = true
+      userEmail.value = session.user.email || ''
+    } else {
+      isLoggedIn.value = false
+      userEmail.value = ''
+    }
+  } catch (error) {
+    console.error('Error checking auth status:', error)
+    isLoggedIn.value = false
+    userEmail.value = ''
+  }
+}
+
+// Sign out function
+async function signOut() {
+  try {
+    const supabase = useSupabaseClient()
+    await supabase.auth.signOut()
+    isLoggedIn.value = false
+    userEmail.value = ''
+    // Optionally redirect to home page
+    await navigateTo('/')
+  } catch (error) {
+    console.error('Error signing out:', error)
+  }
+}
+
+// Initialize recent searches and auth status
 onMounted(() => {
   loadRecentSearches()
+  checkAuthStatus()
 })
 
 // Clear search when component unmounts

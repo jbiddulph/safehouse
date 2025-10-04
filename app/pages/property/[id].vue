@@ -196,6 +196,11 @@
 </template>
 
 <script setup lang="ts">
+// Define page as public - no auth required
+definePageMeta({
+  auth: false
+})
+
 // Get property ID from route
 const route = useRoute()
 const propertyId = route.params.id as string
