@@ -37,6 +37,8 @@ export default defineEventHandler(async (event) => {
         qr_code,
         nfc_id,
         emergency_access_enabled,
+        latitude,
+        longitude,
         created_at,
         updated_at
       `)
