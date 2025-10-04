@@ -112,14 +112,21 @@ onMounted(async () => {
 
 // Initialize full map when modal opens
 watch(showFullMap, async (newValue) => {
-  if (newValue && hasCoordinates.value && fullMapContainer.value && process.client) {
+  if (newValue && hasCoordinates.value && process.client) {
     if (!L) {
       L = await import('leaflet')
       await import('leaflet/dist/leaflet.css')
     }
-    nextTick(() => {
-      initFullMap()
-    })
+    
+    // Wait for the modal to be fully rendered
+    await nextTick()
+    
+    // Small delay to ensure the container is properly sized
+    setTimeout(() => {
+      if (fullMapContainer.value) {
+        initFullMap()
+      }
+    }, 100)
   }
 })
 
@@ -175,7 +182,17 @@ function initFullMap() {
   if (!fullMapContainer.value || !hasCoordinates.value || !L) return
 
   try {
-    fullMap = L.map(fullMapContainer.value)
+    // Clean up any existing map
+    if (fullMap) {
+      fullMap.remove()
+      fullMap = null
+    }
+
+    // Initialize the map
+    fullMap = L.map(fullMapContainer.value, {
+      zoomControl: true,
+      attributionControl: true
+    })
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
@@ -185,6 +202,13 @@ function initFullMap() {
     
     // Set view to show the marker with some padding
     fullMap.setView([props.latitude!, props.longitude!], 13)
+    
+    // Trigger a resize to ensure proper rendering
+    setTimeout(() => {
+      if (fullMap) {
+        fullMap.invalidateSize()
+      }
+    }, 200)
     
     // Add detailed popup
     const popupContent = `
