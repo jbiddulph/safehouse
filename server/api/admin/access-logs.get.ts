@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
       .from('safehouse_access_logs')
       .select(`
         *,
-        safehouse_properties!inner(
+        safehouse_properties!left(
           id,
           property_name,
           address,
@@ -96,6 +96,35 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Manually fetch property data for each log entry
+    const logsWithProperties = await Promise.all(
+      (logs || []).map(async (log) => {
+        if (log.property_id) {
+          try {
+            const { data: property, error: propertyError } = await supabase
+              .from('safehouse_properties')
+              .select('id, property_name, address, user_id')
+              .eq('id', log.property_id)
+              .single()
+
+            if (!propertyError && property) {
+              return {
+                ...log,
+                safehouse_properties: property
+              }
+            }
+          } catch (error) {
+            console.error('Error fetching property for log:', log.id, error)
+          }
+        }
+        
+        return {
+          ...log,
+          safehouse_properties: null
+        }
+      })
+    )
+
     // Get summary statistics
     const { data: stats, error: statsError } = await supabase
       .from('safehouse_access_logs')
@@ -129,7 +158,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       data: {
-        logs: logs || [],
+        logs: logsWithProperties || [],
         pagination: {
           page: Number(page),
           limit: Number(limit),

@@ -21,6 +21,29 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Extract property ID from URL if not provided
+    let extractedPropertyId = propertyId
+    if (!extractedPropertyId && url) {
+      // Try to extract property ID from various URL patterns
+      const urlPatterns = [
+        /\/property\/([a-f0-9-]{36})/,  // /property/{uuid}
+        /property=([a-f0-9-]{36})/,     // ?property={uuid}
+        /property_id=([a-f0-9-]{36})/   // ?property_id={uuid}
+      ]
+      
+      for (const pattern of urlPatterns) {
+        const match = url.match(pattern)
+        if (match && match[1]) {
+          extractedPropertyId = match[1]
+          break
+        }
+      }
+    }
+
+    console.log('Extracted property ID:', extractedPropertyId)
+    console.log('Original property ID:', propertyId)
+    console.log('URL:', url)
+
     const config = useRuntimeConfig()
     const supabase = createClient(
       config.public.supabaseUrl,
@@ -47,7 +70,7 @@ export default defineEventHandler(async (event) => {
     
     // Prepare log data
     const logData = {
-      property_id: propertyId || null,
+      property_id: extractedPropertyId || null,
       user_email: userEmail || null,
       access_type: accessType,
       url: url,
