@@ -22,7 +22,7 @@ export function initializeEmail() {
     
     if (isGmail) {
       // Gmail SMTP configuration
-      transporter = nodemailer.createTransporter({
+      transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
         port: 587,
         secure: false, // true for 465, false for other ports
@@ -33,17 +33,17 @@ export function initializeEmail() {
       })
       console.log('Gmail SMTP email service initialized')
     } else {
-      // Mailtrap configuration (production)
-      transporter = nodemailer.createTransporter({
-        host: 'live.smtp.mailtrap.io', // Production Mailtrap
-        port: 587,
+      // Mailtrap configuration (testing/development)
+      transporter = nodemailer.createTransport({
+        host: 'sandbox.smtp.mailtrap.io', // Mailtrap testing sandbox
+        port: 2525,
         secure: false,
         auth: {
           user: config.mailtrapUser,
           pass: config.mailtrapPass
         }
       })
-      console.log('Mailtrap production email service initialized')
+      console.log('Mailtrap testing email service initialized')
     }
 
     return transporter
@@ -103,6 +103,74 @@ export async function sendAccessRequestNotification(
     return true
   } catch (error) {
     console.error('Error sending email notification:', error)
+    return false
+  }
+}
+
+export async function sendAccessRequestEmail(
+  toEmail: string,
+  propertyName: string,
+  propertyAddress: string,
+  accessLink: string
+) {
+  const emailTransporter = initializeEmail()
+  if (!emailTransporter) {
+    console.warn('Email not initialized. Cannot send access request email.')
+    return false
+  }
+
+  try {
+    const mailOptions = {
+      from: 'SafeHouse <noreply@safehouse.app>',
+      to: toEmail,
+      subject: `🔓 Emergency Access Request - ${propertyName}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #dc2626;">Emergency Access Request</h2>
+          
+          <p>You have requested emergency access to:</p>
+          
+          <div style="background-color: #fef2f2; padding: 16px; border-radius: 8px; margin: 16px 0; border-left: 4px solid #dc2626;">
+            <p style="margin: 0;"><strong>Property:</strong> ${propertyName}</p>
+            <p style="margin: 8px 0 0 0;"><strong>Address:</strong> ${propertyAddress}</p>
+            <p style="margin: 8px 0 0 0;"><strong>Requested:</strong> ${new Date().toLocaleString()}</p>
+          </div>
+          
+          <div style="text-align: center; margin: 24px 0;">
+            <a href="${accessLink}" 
+               style="background-color: #dc2626; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 18px;">
+              Complete Access Request
+            </a>
+          </div>
+          
+          <div style="background-color: #f3f4f6; padding: 16px; border-radius: 8px; margin: 16px 0;">
+            <h3 style="margin-top: 0; color: #374151;">What happens next?</h3>
+            <ol style="color: #374151; margin: 0;">
+              <li>Click the button above to complete your access request</li>
+              <li>If your email domain is authorized, access will be granted immediately</li>
+              <li>If not, you'll need to enter an access code (similar to QR code scanning)</li>
+              <li>You'll receive confirmation once your request is processed</li>
+            </ol>
+          </div>
+          
+          <p style="color: #6b7280; font-size: 14px; margin-top: 24px;">
+            <strong>Note:</strong> This link will expire in 15 minutes for security reasons.
+          </p>
+          
+          <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
+            <p style="color: #6b7280; font-size: 14px;">
+              This is an automated message from SafeHouse Emergency Access System.
+            </p>
+          </div>
+        </div>
+      `
+    }
+
+    const result = await emailTransporter.sendMail(mailOptions)
+    console.log('Access request email sent successfully:', result.messageId)
+    return true
+  } catch (error) {
+    console.error('Error sending access request email:', error)
     return false
   }
 }

@@ -124,6 +124,74 @@
         </div>
       </div>
     </div>
+
+    <!-- Email Collection Modal -->
+    <div v-if="showEmailModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <div class="text-center">
+          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+            <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          
+          <h3 v-if="!emailSent" class="text-lg font-medium text-gray-900 mb-2">Request Emergency Access</h3>
+          <h3 v-else class="text-lg font-medium text-green-900 mb-2">Email Sent!</h3>
+          
+          <p v-if="!emailSent" class="text-sm text-gray-500 mb-6">
+            Enter your email address to receive an access request link for {{ property?.property_name }}
+          </p>
+          <p v-else class="text-sm text-green-600 mb-6">
+            We've sent an access request link to <strong>{{ emailForm.email }}</strong>. 
+            Check your email and click the link to complete your request.
+          </p>
+        </div>
+
+        <div v-if="!emailSent">
+          <form @submit.prevent="sendAccessRequestEmail" class="space-y-4">
+            <div>
+              <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+                Email Address
+              </label>
+              <input
+                id="email"
+                v-model="emailForm.email"
+                type="email"
+                placeholder="your@email.com"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              />
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+              <button
+                type="button"
+                @click="closeEmailModal"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                :disabled="emailSending || !emailForm.email"
+                class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {{ emailSending ? 'Sending...' : 'Send Access Request' }}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div v-else class="text-center">
+          <button
+            @click="closeEmailModal"
+            class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -137,6 +205,12 @@ const property = ref(null)
 const loading = ref(true)
 const error = ref(false)
 const requestingAccess = ref(false)
+const showEmailModal = ref(false)
+const emailForm = ref({
+  email: ''
+})
+const emailSending = ref(false)
+const emailSent = ref(false)
 
 // Load property details
 onMounted(async () => {
@@ -200,33 +274,53 @@ async function requestAccess() {
     const supabase = useSupabaseClient()
     const { data: { session } } = await supabase.auth.getSession()
     
-    if (!session?.user?.email) {
-      // User not logged in, redirect to access request page
-      await navigateTo(`/access-request?property=${property.value.id}`)
-      return
+    if (session?.user?.email) {
+      // User is logged in, pre-fill email and show modal
+      emailForm.value.email = session.user.email
     }
     
-    // Check if user's domain is in allowed list
-    const domainCheck = await $fetch('/api/domains/check', {
-      method: 'POST',
-      body: {
-        email: session.user.email
-      }
-    })
-    
-    if (domainCheck.success && domainCheck.allowed) {
-      // Domain is allowed, redirect directly to access granted page
-      await navigateTo(`/access-code-verification?property=${property.value.id}&domain_allowed=true`)
-    } else {
-      // Domain not allowed, redirect to access request page
-      await navigateTo(`/access-request?property=${property.value.id}`)
-    }
+    // Show email collection modal
+    showEmailModal.value = true
   } catch (err) {
     console.error('Error requesting access:', err)
-    // On error, fall back to access request page
-    await navigateTo(`/access-request?property=${property.value.id}`)
+    // On error, show modal anyway
+    showEmailModal.value = true
   } finally {
     requestingAccess.value = false
   }
+}
+
+// Send access request email
+async function sendAccessRequestEmail() {
+  if (!emailForm.value.email || !property.value) return
+  
+  emailSending.value = true
+  try {
+    const response = await $fetch('/api/access-requests/send-email', {
+      method: 'POST',
+      body: {
+        email: emailForm.value.email,
+        property_id: property.value.id
+      }
+    })
+    
+    if (response.success) {
+      emailSent.value = true
+    } else {
+      alert('Failed to send access request email: ' + (response.message || 'Unknown error'))
+    }
+  } catch (error) {
+    console.error('Error sending access request email:', error)
+    alert('Failed to send access request email: ' + (error.message || 'Network error'))
+  } finally {
+    emailSending.value = false
+  }
+}
+
+// Close email modal
+function closeEmailModal() {
+  showEmailModal.value = false
+  emailSent.value = false
+  emailForm.value.email = ''
 }
 </script>

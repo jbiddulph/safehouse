@@ -11,8 +11,14 @@
 
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
       <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-        <!-- QR Code Scanner -->
-        <div v-if="!scannedProperty" class="text-center">
+        <!-- Loading State -->
+        <div v-if="loadingProperty" class="text-center">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p class="mt-4 text-gray-600">Verifying your request...</p>
+        </div>
+
+        <!-- QR Code Scanner (fallback) -->
+        <div v-else-if="!scannedProperty && !emailVerified" class="text-center">
           <div class="mb-6">
             <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
@@ -46,8 +52,90 @@
           </div>
         </div>
 
-        <!-- Access Request Form -->
-        <div v-else-if="!requestSubmitted" class="space-y-6">
+        <!-- Domain Allowed - Access Granted -->
+        <div v-else-if="domainAllowed && emailVerified" class="text-center">
+          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+            <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-medium text-green-900 mb-2">Access Granted!</h3>
+          <p class="text-sm text-gray-500 mb-4">
+            Your email domain is authorized for emergency access to this property.
+          </p>
+          <div class="bg-green-50 border border-green-200 rounded-md p-4 mb-4">
+            <h4 class="font-medium text-green-900">{{ scannedProperty.property_name }}</h4>
+            <p class="text-sm text-green-700">{{ scannedProperty.address }}</p>
+          </div>
+          <p class="text-xs text-gray-400">
+            The property owner has been notified of your access.
+          </p>
+        </div>
+
+        <!-- Access Code Form for Non-Allowed Domains -->
+        <div v-else-if="showAccessCodeForm && emailVerified" class="space-y-6">
+          <div class="text-center">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 mb-4">
+              <svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Enter Access Code</h3>
+            <p class="text-sm text-gray-500 mb-4">
+              Your email domain is not in the allowed list. Please enter the access code to continue.
+            </p>
+            <div class="bg-blue-50 border border-blue-200 rounded-md p-4 mb-4">
+              <h4 class="font-medium text-blue-900">{{ scannedProperty.property_name }}</h4>
+              <p class="text-sm text-blue-700">{{ scannedProperty.address }}</p>
+            </div>
+          </div>
+
+          <form @submit.prevent="submitAccessCodeRequest" class="space-y-4">
+            <!-- Contact Information -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Phone Number (Optional)</label>
+              <input
+                v-model="requestForm.requester_phone"
+                type="tel"
+                placeholder="+1 (555) 123-4567"
+                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Full Name (Optional)</label>
+              <input
+                v-model="requestForm.requester_name"
+                type="text"
+                placeholder="Your full name"
+                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+              />
+            </div>
+
+            <!-- Access Code -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Access Code *</label>
+              <input
+                v-model="requestForm.access_code_entered"
+                type="text"
+                placeholder="Enter the access code"
+                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              :disabled="submitting"
+              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {{ submitting ? 'Submitting...' : 'Submit Access Request' }}
+            </button>
+          </form>
+        </div>
+
+        <!-- Traditional Access Request Form (for QR code flow) -->
+        <div v-else-if="!requestSubmitted && !emailVerified" class="space-y-6">
           <div class="text-center">
             <h3 class="text-lg font-medium text-gray-900">{{ scannedProperty.property_name }}</h3>
             <p class="text-sm text-gray-500">{{ scannedProperty.address }}</p>
@@ -188,6 +276,10 @@ const submitting = ref(false)
 const verifying = ref(false)
 const resending = ref(false)
 const manualQrCode = ref('')
+const emailVerified = ref(false)
+const domainAllowed = ref(false)
+const showAccessCodeForm = ref(false)
+const loadingProperty = ref(false)
 
 // Form data
 const requestForm = ref({
@@ -283,5 +375,86 @@ async function resendCode() {
     resending.value = false
     alert('Verification code resent!')
   }, 1000)
+}
+
+// Check email verification and domain status on page load
+onMounted(async () => {
+  const route = useRoute()
+  const token = route.query.token as string
+  const email = route.query.email as string
+  const propertyId = route.query.property as string
+
+  if (token && email && propertyId) {
+    await verifyEmailAndCheckDomain(token, email, propertyId)
+  }
+})
+
+// Verify email and check domain status
+async function verifyEmailAndCheckDomain(token: string, email: string, propertyId: string) {
+  loadingProperty.value = true
+  
+  try {
+    // Load property information
+    const propertyResponse = await $fetch(`/api/properties/${propertyId}`)
+    if (propertyResponse.success && propertyResponse.property) {
+      scannedProperty.value = propertyResponse.property
+      requestForm.value.requester_email = email
+    }
+
+    // Check domain status
+    const domainCheck = await $fetch('/api/domains/check', {
+      method: 'POST',
+      body: { email }
+    })
+
+    if (domainCheck.success && domainCheck.allowed) {
+      // Domain is allowed, grant access immediately
+      domainAllowed.value = true
+      emailVerified.value = true
+      requestSubmitted.value = true
+    } else {
+      // Domain not allowed, show access code form
+      domainAllowed.value = false
+      emailVerified.value = true
+      showAccessCodeForm.value = true
+    }
+  } catch (error) {
+    console.error('Error verifying email and checking domain:', error)
+    alert('Failed to verify email. Please try again.')
+  } finally {
+    loadingProperty.value = false
+  }
+}
+
+// Submit access code request for non-allowed domains
+async function submitAccessCodeRequest() {
+  if (!scannedProperty.value || !requestForm.value.access_code_entered) return
+  
+  submitting.value = true
+  try {
+    const response = await $fetch('/api/access-codes/validate', {
+      method: 'POST',
+      body: {
+        accessCode: requestForm.value.access_code_entered,
+        propertyId: scannedProperty.value.id,
+        usedByName: requestForm.value.requester_name || 'Email Access Request',
+        usedByContact: requestForm.value.requester_email,
+        accessMethod: 'EMAIL_ACCESS_CODE',
+        locationData: null
+      }
+    })
+    
+    if (response.success && response.valid) {
+      requestSubmitted.value = true
+      verificationSubmitted.value = true
+    } else {
+      alert(response.message || 'Invalid access code')
+    }
+  } catch (error) {
+    console.error('Failed to validate access code:', error)
+    alert('Failed to validate access code: ' + (error.data?.message || error.message))
+  } finally {
+    submitting.value = false
+  }
 }
 </script>
