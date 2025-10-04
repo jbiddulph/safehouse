@@ -23,20 +23,6 @@ export default defineEventHandler(async (event) => {
   )
 
   try {
-    // Get user from session
-    const client = createClient(
-      config.public.supabaseUrl,
-      config.public.supabaseAnonKey
-    )
-    
-    const { data: { session } } = await client.auth.getSession()
-    if (!session?.user?.id) {
-      throw createError({
-        statusCode: 401,
-        statusMessage: 'Unauthorized'
-      })
-    }
-
     // Check if domain exists
     const { data: existingDomain, error: fetchError } = await supabase
       .from('safehouse_allowed_domains')
