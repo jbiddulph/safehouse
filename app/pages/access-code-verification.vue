@@ -165,7 +165,15 @@ async function verifyAccessCode() {
         console.error('Failed to update request status:', error)
         // Don't fail the verification if status update fails
       }
+      
+      // Log access granted
+      const { logAccessGranted } = useAccessLogger()
+      await logAccessGranted(propertyId)
     } else {
+      // Log access denied
+      const { logAccessDenied } = useAccessLogger()
+      await logAccessDenied(propertyId)
+      
       verificationError.value = response.message || 'Invalid access code'
     }
   } catch (error) {

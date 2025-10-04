@@ -232,6 +232,10 @@ async function loadProperty() {
     if (response.success && response.property) {
       property.value = response.property
       
+      // Log property view
+      const { logPropertyView } = useAccessLogger()
+      await logPropertyView(propertyId, response.property.property_name)
+      
       // Generate QR code if property has QR code
       if (property.value.qr_code) {
         await generateQRCode(property.value.qr_code)
@@ -311,6 +315,10 @@ async function sendAccessRequestEmail() {
     
     if (response.success) {
       emailSent.value = true
+      
+      // Log emergency request
+      const { logEmergencyRequest } = useAccessLogger()
+      await logEmergencyRequest(property.value.id, emailForm.value.email, emailForm.value.phoneNumber)
     } else {
       alert('Failed to send access request email: ' + (response.message || 'Unknown error'))
     }
