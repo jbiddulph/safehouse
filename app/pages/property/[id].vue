@@ -196,11 +196,35 @@ async function requestAccess() {
   
   requestingAccess.value = true
   try {
-    // Redirect to access request page with property ID
-    await navigateTo(`/access-request?property=${property.value.id}`)
+    // Check if user is logged in
+    const supabase = useSupabaseClient()
+    const { data: { session } } = await supabase.auth.getSession()
+    
+    if (!session?.user?.email) {
+      // User not logged in, redirect to access request page
+      await navigateTo(`/access-request?property=${property.value.id}`)
+      return
+    }
+    
+    // Check if user's domain is in allowed list
+    const domainCheck = await $fetch('/api/domains/check', {
+      method: 'POST',
+      body: {
+        email: session.user.email
+      }
+    })
+    
+    if (domainCheck.success && domainCheck.allowed) {
+      // Domain is allowed, redirect directly to access granted page
+      await navigateTo(`/access-code-verification?property=${property.value.id}&domain_allowed=true`)
+    } else {
+      // Domain not allowed, redirect to access request page
+      await navigateTo(`/access-request?property=${property.value.id}`)
+    }
   } catch (err) {
     console.error('Error requesting access:', err)
-    alert('Failed to request access. Please try again.')
+    // On error, fall back to access request page
+    await navigateTo(`/access-request?property=${property.value.id}`)
   } finally {
     requestingAccess.value = false
   }

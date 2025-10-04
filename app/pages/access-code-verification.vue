@@ -19,7 +19,7 @@
         </div>
 
         <!-- Access Code Form -->
-        <form @submit.prevent="verifyAccessCode" class="space-y-4">
+        <form v-if="!domainAllowed" @submit.prevent="verifyAccessCode" class="space-y-4">
           <div>
             <label for="access_code" class="block text-sm font-medium text-gray-700">
               Access Code *
@@ -49,14 +49,17 @@
         </form>
 
         <!-- Success Message -->
-        <div v-if="verificationSuccess" class="mt-6 text-center">
+        <div v-if="verificationSuccess || domainAllowed" class="mt-6 text-center">
           <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
             <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>
           </div>
           <h3 class="mt-2 text-lg font-medium text-gray-900">Access Granted!</h3>
-          <p class="text-sm text-gray-500 mt-2">
+          <p v-if="domainAllowed" class="text-sm text-gray-500 mt-2">
+            Your email domain is authorized for emergency access to this property.
+          </p>
+          <p v-else class="text-sm text-gray-500 mt-2">
             Your access request has been verified and approved.
           </p>
           <p class="text-xs text-gray-400 mt-2">
@@ -81,7 +84,7 @@
           </button>
         </div>
 
-        <div class="mt-6 text-center">
+        <div v-if="!domainAllowed" class="mt-6 text-center">
           <button
             @click="goBackToQRScan"
             class="text-sm text-gray-500 hover:text-gray-700"
@@ -106,6 +109,7 @@ const verifying = ref(false)
 const verificationSuccess = ref(false)
 const verificationError = ref('')
 const propertyInfo = ref(null)
+const domainAllowed = ref(false)
 
 // Format access code input (uppercase, alphanumeric only)
 function formatAccessCode(event: Event) {
@@ -175,8 +179,30 @@ async function verifyAccessCode() {
 // Reset form
 function resetForm() {
   accessCode.value = ''
-  verificationSuccess.value = false
-  verificationError.value = ''
+}
+
+// Check if access is granted via domain allowance
+onMounted(() => {
+  const route = useRoute()
+  if (route.query.domain_allowed === 'true') {
+    domainAllowed.value = true
+    // Load property info if available
+    if (route.query.property) {
+      loadPropertyInfo(route.query.property as string)
+    }
+  }
+})
+
+// Load property information
+async function loadPropertyInfo(propertyId: string) {
+  try {
+    const response = await $fetch(`/api/properties/${propertyId}`)
+    if (response.success && response.property) {
+      propertyInfo.value = response.property
+    }
+  } catch (error) {
+    console.error('Failed to load property info:', error)
+  }
 }
 
 // Go back to QR scan
