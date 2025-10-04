@@ -1896,6 +1896,8 @@ model safehouse_properties {
   postal_code             String?
   country                 String   @default("US")
   property_type           String   @default("residential")
+  latitude                Decimal? @db.Decimal(10, 8)
+  longitude               Decimal? @db.Decimal(11, 8)
   qr_code                 String?  @unique
   nfc_id                  String?  @unique
   emergency_access_enabled Boolean @default(true)
