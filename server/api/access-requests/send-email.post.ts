@@ -155,6 +155,9 @@ export default defineEventHandler(async (event) => {
     console.log('BASE_URL from config:', config.public.baseUrl)
     console.log('Using baseUrl:', baseUrl)
 
+    const approvalLink = `${baseUrl}/api/access-requests/owner-action?request=${accessRequestRecord.id}&token=${verificationToken}&action=approve`
+    const denialLink = `${baseUrl}/api/access-requests/owner-action?request=${accessRequestRecord.id}&token=${verificationToken}&action=deny`
+
     try {
       await sendAccessRequestNotification(
         propertyOwner.email,
@@ -162,7 +165,9 @@ export default defineEventHandler(async (event) => {
         email,
         property.property_name,
         propertyDisplayAddress || property.address,
-        accessRequestRecord.id
+        accessRequestRecord.id,
+        approvalLink,
+        denialLink
       )
       console.log('Access request notification sent successfully to property owner:', propertyOwner.email)
     } catch (emailError) {

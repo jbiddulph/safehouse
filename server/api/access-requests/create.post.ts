@@ -189,6 +189,16 @@ export default defineEventHandler(async (event) => {
 
     // 9. Send FCM push notifications to property owner and emergency contacts
     try {
+      const baseUrl = config.public.baseUrl || 'http://localhost:3000'
+      const propertyDisplayAddress = [
+        property.address,
+        property.city,
+        property.state,
+        property.postal_code
+      ].filter(Boolean).join(', ')
+      const approvalLink = `${baseUrl}/api/access-requests/owner-action?request=${request.id}&token=${request.verification_token}&action=approve`
+      const denialLink = `${baseUrl}/api/access-requests/owner-action?request=${request.id}&token=${request.verification_token}&action=deny`
+
       // Get property owner's FCM token
       const { data: propertyOwner } = await supabase
         .from('safehouse_profiles')
@@ -258,8 +268,10 @@ export default defineEventHandler(async (event) => {
           request.requester_name || 'Unknown',
           request.requester_email || 'Not provided',
           property.property_name,
-          property.address,
-          request.id
+          propertyDisplayAddress || property.address,
+          request.id,
+          approvalLink,
+          denialLink
         )
       }
 
@@ -272,8 +284,10 @@ export default defineEventHandler(async (event) => {
               request.requester_name || 'Unknown',
               request.requester_email || 'Not provided',
               property.property_name,
-              property.address,
-              request.id
+              propertyDisplayAddress || property.address,
+              request.id,
+              approvalLink,
+              denialLink
             )
           }
         }

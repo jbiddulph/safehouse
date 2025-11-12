@@ -80,12 +80,16 @@ export default defineEventHandler(async (event) => {
 
     // 4. Update the request status
     const newStatus = action === 'approve' ? 'approved' : 'denied'
+    const updatePayload: Record<string, unknown> = {
+      status: newStatus
+    }
+    if (action === 'approve') {
+      updatePayload.approved_at = new Date().toISOString()
+    }
+
     const { error: updateError } = await supabase
       .from('safehouse_access_requests')
-      .update({ 
-        status: newStatus,
-        approved_at: new Date().toISOString()
-      })
+      .update(updatePayload)
       .eq('id', request_id)
 
     if (updateError) {

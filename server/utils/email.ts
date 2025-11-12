@@ -58,7 +58,9 @@ export async function sendAccessRequestNotification(
   requesterEmail: string,
   propertyName: string,
   propertyAddress: string,
-  requestId: string
+  requestId: string,
+  approveLink?: string,
+  denyLink?: string
 ) {
   const emailTransporter = initializeEmail()
   if (!emailTransporter) {
@@ -90,13 +92,26 @@ export async function sendAccessRequestNotification(
             <p style="margin: 8px 0 0 0;"><strong>Requested At:</strong> ${new Date().toLocaleString()}</p>
           </div>
 
-          <p style="font-size: 16px; color: #374151; line-height: 1.6; margin-bottom: 24px;">
+          <p style="font-size: 16px; color: #374151; line-height: 1.6; margin-bottom: 16px;">
             Do you allow access?
           </p>
 
-          <p style="color: #6b7280; font-size: 14px;">
-            Sign in to SafeHouse to review and approve or deny this request.
-          </p>
+          ${(approveLink && denyLink) ? `
+            <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+              <a href="${approveLink}" 
+                 style="background-color: #047857; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+                Approve Access
+              </a>
+              <a href="${denyLink}" 
+                 style="background-color: #dc2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+                Deny Access
+              </a>
+            </div>
+          ` : `
+            <p style="color: #6b7280; font-size: 14px; margin-bottom: 24px;">
+              Sign in to SafeHouse to review and approve or deny this request.
+            </p>
+          `}
 
           <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
             <p style="color: #6b7280; font-size: 14px;">

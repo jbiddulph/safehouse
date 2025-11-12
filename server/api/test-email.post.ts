@@ -4,6 +4,8 @@ import { initializeEmail } from '../utils/email'
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const { toEmail, testType = 'confirmation' } = body
+  const config = useRuntimeConfig()
+  const baseUrl = config.public.baseUrl || 'http://localhost:3000'
 
   if (!toEmail) {
     throw createError({
@@ -70,7 +72,9 @@ export default defineEventHandler(async (event) => {
         'test@example.com',
         'Test Property',
         '123 Test Street, Test City, TC 12345',
-        'TEST-REQUEST-123'
+        'TEST-REQUEST-123',
+        `${baseUrl}/api/access-requests/owner-action?request=TEST-REQUEST-123&token=TEST-TOKEN&action=approve`,
+        `${baseUrl}/api/access-requests/owner-action?request=TEST-REQUEST-123&token=TEST-TOKEN&action=deny`
       )
 
       if (success) {
