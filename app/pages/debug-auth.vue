@@ -44,8 +44,6 @@ async function testDirectAuth() {
   try {
     error.value = null
     result.value = null
-    
-    console.log('Testing direct Supabase auth...')
     const { data, error: authError } = await client.auth.signInWithPassword({ 
       email: email.value, 
       password: password.value 
@@ -66,8 +64,6 @@ async function testStoreAuth() {
   try {
     error.value = null
     result.value = null
-    
-    console.log('Testing store auth...')
     const data = await auth.signInWithEmail(email.value, password.value)
     result.value = { success: true, data }
   } catch (err) {

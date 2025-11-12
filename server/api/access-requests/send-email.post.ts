@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
-import { sendAccessRequestEmail } from '../../utils/email'
+import { sendAccessRequestNotification } from '../../utils/email'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
     // 1. Verify the property exists and emergency access is enabled
     const { data: property, error: propertyError } = await supabase
       .from('safehouse_properties')
-      .select('id, property_name, address, city, emergency_access_enabled')
+      .select('id, user_id, property_name, address, city, state, postal_code, emergency_access_enabled')
       .eq('id', property_id)
       .single()
 
@@ -96,7 +96,7 @@ export default defineEventHandler(async (event) => {
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000) // 15 minutes
 
     // 4. Store the email request temporarily with location verification data
-    const { error: storeError } = await supabase
+    const { data: accessRequestRecord, error: storeError } = await supabase
       .from('safehouse_access_requests')
       .insert({
         property_id: property_id,
@@ -111,6 +111,8 @@ export default defineEventHandler(async (event) => {
         user_longitude: user_location?.longitude || null,
         distance_from_property: distance_from_property || null
       })
+      .select('id')
+      .single()
 
     if (storeError) {
       console.error('Error storing access request:', storeError)
@@ -121,33 +123,60 @@ export default defineEventHandler(async (event) => {
     }
 
     // 5. Send email with access link
+    if (!accessRequestRecord?.id) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'Failed to process access request'
+      })
+    }
+
+    const { data: propertyOwner, error: ownerError } = await supabase
+      .from('safehouse_profiles')
+      .select('email')
+      .eq('id', property.user_id)
+      .single()
+
+    if (ownerError || !propertyOwner?.email) {
+      console.error('Property owner email not found:', ownerError)
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'Property owner contact information unavailable'
+      })
+    }
+
     const baseUrl = config.public.baseUrl || 'http://localhost:3000'
-    const accessLink = `${baseUrl}/access-request?property=${property_id}&token=${verificationToken}&email=${encodeURIComponent(email)}`
-    
+    const propertyDisplayAddress = [
+      property.address,
+      property.city,
+      property.state,
+      property.postal_code
+    ].filter(Boolean).join(', ')
+
     console.log('BASE_URL from config:', config.public.baseUrl)
     console.log('Using baseUrl:', baseUrl)
-    console.log('Generated access link:', accessLink)
-    
+
     try {
-      await sendAccessRequestEmail(
+      await sendAccessRequestNotification(
+        propertyOwner.email,
+        '',
         email,
         property.property_name,
-        property.address,
-        accessLink
+        propertyDisplayAddress || property.address,
+        accessRequestRecord.id
       )
-      console.log('Access request email sent successfully to:', email)
-      console.log('Access link:', accessLink)
+      console.log('Access request notification sent successfully to property owner:', propertyOwner.email)
     } catch (emailError) {
-      console.error('Error sending access request email:', emailError)
-      // Don't fail the request if email fails, but log it
-      console.log('Email sending failed, but continuing with response. Access link:', accessLink)
+      console.error('Error sending access request notification:', emailError)
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'Failed to notify property owner'
+      })
     }
 
     return {
       success: true,
-      message: 'Access request email sent successfully',
-      domainAllowed,
-      email
+      message: 'Access request sent to property owner',
+      domainAllowed
     }
   } catch (error) {
     console.error('Error in send access request email:', error)

@@ -139,12 +139,11 @@
           <h3 v-else class="text-lg font-medium text-green-900 mb-2">Email Sent!</h3>
           
           <p v-if="!emailSent" class="text-sm text-gray-500 mb-6">
-            Enter your email address to receive an access request link for {{ property?.property_name }}.
+            Enter your email address so we can alert the property owner of your emergency access request for {{ property?.property_name }}.
             We'll also verify you're at the property location for security.
           </p>
           <p v-else class="text-sm text-green-600 mb-6">
-            We've sent an access request link to <strong>{{ emailForm.email }}</strong>. 
-            Check your email and click the link to complete your request.
+            We've notified the property owner. Please wait for them to approve your request for access to {{ property?.property_name }}.
           </p>
         </div>
 

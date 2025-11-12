@@ -43,7 +43,6 @@ export function initializeEmail() {
           pass: config.mailtrapPass
         }
       })
-      console.log('Mailtrap testing email service initialized')
     }
 
     return transporter
@@ -68,6 +67,10 @@ export async function sendAccessRequestNotification(
   }
 
   try {
+    const requesterDisplay = requesterName?.trim()
+      ? `${requesterName} (${requesterEmail})`
+      : requesterEmail
+
     const mailOptions = {
       from: 'SafeHouse <noreply@safehouse.app>',
       to: toEmail,
@@ -75,20 +78,26 @@ export async function sendAccessRequestNotification(
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #dc2626;">Emergency Access Request</h2>
-          
-          <p><strong>Property:</strong> ${propertyName}</p>
-          <p><strong>Address:</strong> ${propertyAddress}</p>
-          
-          <div style="background-color: #f3f4f6; padding: 16px; border-radius: 8px; margin: 16px 0;">
-            <h3 style="margin-top: 0;">Requester Details:</h3>
-            <p><strong>Name:</strong> ${requesterName || 'Not provided'}</p>
-            <p><strong>Email:</strong> ${requesterEmail}</p>
-            <p><strong>Request ID:</strong> ${requestId}</p>
-            <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+
+          <p style="font-size: 16px; color: #374151; line-height: 1.6;">
+            A user with the email address <strong>${requesterDisplay}</strong> is requesting emergency access to your property.
+          </p>
+
+          <div style="background-color: #fef2f2; padding: 16px; border-radius: 8px; margin: 16px 0;">
+            <p style="margin: 0;"><strong>Property:</strong> ${propertyName}</p>
+            <p style="margin: 8px 0 0 0;"><strong>Address:</strong> ${propertyAddress}</p>
+            <p style="margin: 8px 0 0 0;"><strong>Request ID:</strong> ${requestId}</p>
+            <p style="margin: 8px 0 0 0;"><strong>Requested At:</strong> ${new Date().toLocaleString()}</p>
           </div>
-          
-          <p>Please review this request and take appropriate action.</p>
-          
+
+          <p style="font-size: 16px; color: #374151; line-height: 1.6; margin-bottom: 24px;">
+            Do you allow access?
+          </p>
+
+          <p style="color: #6b7280; font-size: 14px;">
+            Sign in to SafeHouse to review and approve or deny this request.
+          </p>
+
           <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
             <p style="color: #6b7280; font-size: 14px;">
               This is an automated notification from SafeHouse Emergency Access System.
@@ -240,6 +249,114 @@ export async function sendAccessRequestConfirmation(
     return true
   } catch (error) {
     console.error('Error sending access code email:', error)
+    return false
+  }
+}
+
+export async function sendAccessRequestApprovedEmail(
+  toEmail: string,
+  propertyName: string,
+  propertyAddress: string,
+  requesterName?: string | null
+) {
+  const emailTransporter = initializeEmail()
+  if (!emailTransporter) {
+    console.warn('Email not initialized. Cannot send approval notification.')
+    return false
+  }
+
+  try {
+    const greetingName = requesterName?.trim() || 'there'
+    const mailOptions = {
+      from: 'SafeHouse <noreply@safehouse.app>',
+      to: toEmail,
+      subject: `✅ Access Approved for ${propertyName}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #047857;">Emergency Access Approved</h2>
+
+          <p style="font-size: 16px; color: #374151;">Hello ${greetingName},</p>
+
+          <p style="font-size: 16px; color: #374151; line-height: 1.6;">
+            Good news! The property owner has granted your emergency access request for <strong>${propertyName}</strong>.
+          </p>
+
+          <div style="background-color: #f0fdf4; padding: 16px; border-radius: 8px; margin: 16px 0;">
+            <p style="margin: 0;"><strong>Property:</strong> ${propertyName}</p>
+            <p style="margin: 8px 0 0 0;"><strong>Address:</strong> ${propertyAddress}</p>
+          </div>
+
+          <p style="font-size: 16px; color: #374151; line-height: 1.6;">
+            Please follow any additional instructions provided by the owner to access the property safely.
+          </p>
+
+          <p style="color: #6b7280; font-size: 14px; margin-top: 24px;">
+            Thank you,<br />
+            The SafeHouse Team
+          </p>
+        </div>
+      `
+    }
+
+    const result = await emailTransporter.sendMail(mailOptions)
+    console.log('Access approval email sent successfully:', result.messageId)
+    return true
+  } catch (error) {
+    console.error('Error sending access approval email:', error)
+    return false
+  }
+}
+
+export async function sendAccessRequestDeniedEmail(
+  toEmail: string,
+  propertyName: string,
+  propertyAddress: string,
+  requesterName?: string | null
+) {
+  const emailTransporter = initializeEmail()
+  if (!emailTransporter) {
+    console.warn('Email not initialized. Cannot send denial notification.')
+    return false
+  }
+
+  try {
+    const greetingName = requesterName?.trim() || 'there'
+    const mailOptions = {
+      from: 'SafeHouse <noreply@safehouse.app>',
+      to: toEmail,
+      subject: `⚠️ Access Request Update for ${propertyName}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #dc2626;">Emergency Access Request Declined</h2>
+
+          <p style="font-size: 16px; color: #374151;">Hello ${greetingName},</p>
+
+          <p style="font-size: 16px; color: #374151; line-height: 1.6;">
+            Unfortunately, the property owner has declined your emergency access request for <strong>${propertyName}</strong>.
+          </p>
+
+          <div style="background-color: #fef2f2; padding: 16px; border-radius: 8px; margin: 16px 0;">
+            <p style="margin: 0;"><strong>Property:</strong> ${propertyName}</p>
+            <p style="margin: 8px 0 0 0;"><strong>Address:</strong> ${propertyAddress}</p>
+          </div>
+
+          <p style="font-size: 16px; color: #374151; line-height: 1.6;">
+            If you believe this decision was made in error, please reach out to the property owner directly or submit a new request if circumstances change.
+          </p>
+
+          <p style="color: #6b7280; font-size: 14px; margin-top: 24px;">
+            Thank you,<br />
+            The SafeHouse Team
+          </p>
+        </div>
+      `
+    }
+
+    const result = await emailTransporter.sendMail(mailOptions)
+    console.log('Access denial email sent successfully:', result.messageId)
+    return true
+  } catch (error) {
+    console.error('Error sending access denial email:', error)
     return false
   }
 }

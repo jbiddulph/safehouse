@@ -1,5 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
 import { logAccessEvent } from '../../utils/access-logger'
+import { 
+  sendAccessRequestApprovedEmail, 
+  sendAccessRequestDeniedEmail 
+} from '../../utils/email'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -41,6 +45,9 @@ export default defineEventHandler(async (event) => {
           id,
           property_name,
           address,
+          city,
+          state,
+          postal_code,
           user_id,
           emergency_access_enabled
         )
@@ -132,8 +139,35 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // 6. TODO: Send notification to requester
-    // This would send SMS/Email to the requester about the approval/denial
+    // 6. Notify requester via email about the decision
+    if (request.requester_email) {
+      const propertyDisplayAddress = [
+        request.property.address,
+        request.property.city,
+        request.property.state,
+        request.property.postal_code
+      ].filter(Boolean).join(', ')
+
+      try {
+        if (action === 'approve') {
+          await sendAccessRequestApprovedEmail(
+            request.requester_email,
+            request.property.property_name,
+            propertyDisplayAddress || request.property.address,
+            request.requester_name
+          )
+        } else {
+          await sendAccessRequestDeniedEmail(
+            request.requester_email,
+            request.property.property_name,
+            propertyDisplayAddress || request.property.address,
+            request.requester_name
+          )
+        }
+      } catch (emailError) {
+        console.error('Failed to send decision email to requester:', emailError)
+      }
+    }
 
     return {
       success: true,
