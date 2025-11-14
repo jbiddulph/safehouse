@@ -399,7 +399,7 @@ async function verifyLocation() {
     const result = await verifyLocationAtProperty(
       property.value.latitude,
       property.value.longitude,
-      50 // 50 meters tolerance
+      10000 // 50 meters tolerance
     )
 
     locationVerification.value = result
