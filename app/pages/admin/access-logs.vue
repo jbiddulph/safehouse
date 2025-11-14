@@ -3,8 +3,21 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Header -->
       <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Access Logs</h1>
-        <p class="mt-2 text-gray-600">Monitor property page visits and emergency access requests</p>
+        <div class="flex items-center mb-4">
+          <NuxtLink 
+            to="/admin" 
+            class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors duration-200"
+          >
+            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Admin Panel
+          </NuxtLink>
+        </div>
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Access Logs</h1>
+          <p class="mt-2 text-gray-600">Monitor property page visits and emergency access requests</p>
+        </div>
       </div>
 
       <!-- Summary Stats -->

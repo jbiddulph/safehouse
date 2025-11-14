@@ -75,6 +75,28 @@
             </span>
           </div>
 
+          <!-- Property Map -->
+          <div v-if="hasValidCoordinates(property)" class="mt-6">
+            <h4 class="text-sm font-medium text-gray-700 mb-2">Property Location</h4>
+            <div 
+              ref="propertyMapContainer" 
+              class="w-full h-64 rounded-lg border border-gray-300 overflow-hidden"
+              style="min-height: 256px;"
+            ></div>
+            <p class="mt-2 text-xs text-gray-500 text-center">
+              {{ property.address }}, {{ property.city }}{{ property.state ? `, ${property.state}` : '' }}
+            </p>
+          </div>
+          <div v-else class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <p class="text-sm text-gray-600 text-center">
+              <svg class="inline-block w-5 h-5 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Location coordinates not available for this property
+            </p>
+          </div>
+
           <!-- Actions -->
           <div class="space-y-3">
             <button 
@@ -106,7 +128,7 @@
     </div>
 
     <!-- Email Collection Modal -->
-    <div v-if="showEmailModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div v-if="showEmailModal" class="fixed inset-0 bg-black opacity-50 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
         <div class="text-center">
           <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4"
@@ -256,6 +278,11 @@ const locationVerification = ref({
   error: null as string | null
 })
 
+// Map for property location
+const propertyMapContainer = ref<HTMLElement | null>(null)
+const propertyMap = ref<any>(null)
+const propertyMapMarker = ref<any>(null)
+
 // Load property details
 onMounted(async () => {
   await loadProperty()
@@ -274,6 +301,14 @@ async function loadProperty() {
       // Log property view
       const { logPropertyView } = useAccessLogger()
       await logPropertyView(propertyId, response.property.property_name)
+      
+      // Initialize map if coordinates are available
+      if (hasValidCoordinates(property.value)) {
+        await nextTick()
+        setTimeout(() => {
+          initPropertyMap()
+        }, 100)
+      }
     } else {
       error.value = true
     }
@@ -284,6 +319,55 @@ async function loadProperty() {
     loading.value = false
   }
 }
+
+// Check if property has valid coordinates
+function hasValidCoordinates(property: any): boolean {
+  if (!property) return false
+  
+  // Handle both string and number types, and Decimal types from database
+  const lat = property.latitude != null ? parseFloat(String(property.latitude)) : NaN
+  const lng = property.longitude != null ? parseFloat(String(property.longitude)) : NaN
+  
+  return !isNaN(lat) && !isNaN(lng) && lat !== null && lng !== null && 
+         lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180
+}
+
+// Initialize property map
+function initPropertyMap() {
+  if (!propertyMapContainer.value || !property.value) return
+  
+  const lat = parseFloat(String(property.value.latitude))
+  const lng = parseFloat(String(property.value.longitude))
+  
+  if (isNaN(lat) || isNaN(lng)) return
+  
+  const { initMap, addMarker } = useMapbox()
+  
+  // Initialize map centered on property location
+  propertyMap.value = initMap(propertyMapContainer.value, {
+    center: [lng, lat],
+    zoom: 15
+  })
+  
+  // Add marker at property location
+  if (propertyMap.value) {
+    propertyMapMarker.value = addMarker(propertyMap.value, lng, lat, {
+      draggable: false
+    })
+  }
+}
+
+// Cleanup map on unmount
+onUnmounted(() => {
+  if (propertyMapMarker.value) {
+    propertyMapMarker.value.remove()
+    propertyMapMarker.value = null
+  }
+  if (propertyMap.value) {
+    propertyMap.value.remove()
+    propertyMap.value = null
+  }
+})
 
 // Request access (emergency or standard)
 async function requestAccess(type: 'emergency' | 'standard') {

@@ -4,13 +4,13 @@
       <div class="mb-8">
         <div class="flex items-center mb-4">
           <NuxtLink 
-            to="/dashboard" 
+            to="/admin" 
             class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors duration-200"
           >
             <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
-            Back to Dashboard
+            Back to Admin Panel
           </NuxtLink>
         </div>
         <div class="flex items-center justify-between">
@@ -221,7 +221,7 @@
       </div>
 
       <!-- Edit Allowed Domain Modal -->
-      <div v-if="editingAllowed" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div v-if="editingAllowed" class="fixed inset-0 bg-black opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
           <h3 class="text-lg font-semibold text-gray-900 mb-4">Edit Allowed Domain</h3>
           <form @submit.prevent="updateAllowedDomain" class="space-y-4">
@@ -282,7 +282,7 @@
       </div>
 
       <!-- Edit Blocked Domain Modal -->
-      <div v-if="editingBlocked" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div v-if="editingBlocked" class="fixed inset-0 bg-black opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
           <h3 class="text-lg font-semibold text-gray-900 mb-4">Edit Blocked Domain</h3>
           <form @submit.prevent="updateBlockedDomain" class="space-y-4">

@@ -276,11 +276,22 @@
             </div>
             <div v-else class="space-y-4">
                     <div v-for="property in properties" :key="property.id" class="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer" @click="viewPropertyDetails(property)">
-                      <div class="flex items-center justify-between">
-                        <div class="flex-1">
-                          <h4 class="text-sm font-medium text-gray-900">{{ property.property_name }}</h4>
-                          <p class="text-sm text-gray-500">{{ property.address }}, {{ property.city }}</p>
-                          <p class="text-xs text-gray-400">QR: {{ property.qr_code }}</p>
+                      <div class="flex items-center justify-between gap-4">
+                        <div class="flex items-start gap-4 flex-1">
+                          <!-- Small Map -->
+                          <div v-if="hasValidCoordinates(property)" class="flex-shrink-0">
+                            <img 
+                              :src="getPropertyMapUrl(property.longitude, property.latitude)"
+                              :alt="`Map of ${property.property_name}`"
+                              class="w-32 h-24 rounded border border-gray-200 object-cover bg-gray-100"
+                              @error="handleMapImageError"
+                              loading="lazy"
+                            />
+                          </div>
+                          <div class="flex-1 min-w-0">
+                            <h4 class="text-sm font-medium text-gray-900">{{ property.property_name }}</h4>
+                            <p class="text-sm text-gray-500">{{ property.address }}, {{ property.city }}</p>
+                            <p class="text-xs text-gray-400">QR: {{ property.qr_code }}</p>
                           
                           <!-- Contact Status -->
                           <div class="mt-2 flex items-center space-x-2">
@@ -387,11 +398,13 @@
     </div>
 
     <!-- Add Property Modal -->
-    <div v-if="showAddProperty" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+    <div v-if="showAddProperty" class="fixed inset-0 bg-black opacity-50 overflow-y-auto h-full w-full z-50">
+      <div class="relative top-10 mx-auto p-5 border w-full max-w-6xl shadow-lg rounded-md bg-white">
         <div class="mt-3">
           <h3 class="text-lg font-medium text-gray-900 mb-4">Add New Property</h3>
-          <form @submit.prevent="createProperty" class="space-y-4">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Form Section -->
+            <form @submit.prevent="createProperty" class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-700">Property Name</label>
               <input v-model="newProperty.property_name" type="text" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900">
@@ -473,12 +486,35 @@
               </button>
             </div>
           </form>
+          
+          <!-- Map Section -->
+          <div class="lg:sticky lg:top-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Select Location on Map</label>
+            <p class="text-xs text-gray-500 mb-2">Click on the map to set the property location</p>
+            <div 
+              ref="propertyMapContainer" 
+              class="w-full h-96 rounded-lg border border-gray-300 overflow-hidden relative"
+              style="min-height: 384px;"
+            >
+              <div v-if="reverseGeocoding" class="absolute inset-0 bg-white opacity-75 flex items-center justify-center z-10">
+                <div class="text-center">
+                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-2"></div>
+                  <p class="text-sm text-gray-600">Getting address...</p>
+                </div>
+              </div>
+            </div>
+            <p v-if="mapMarker" class="mt-2 text-xs text-gray-600">
+              Location set: {{ mapMarker.lat.toFixed(6) }}, {{ mapMarker.lng.toFixed(6) }}
+            </p>
+          </div>
+        </div>
         </div>
       </div>
     </div>
+    </div>
 
     <!-- Edit Contact Modal -->
-    <div v-if="showEditContact" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div v-if="showEditContact" class="fixed inset-0 bg-black opacity-50 overflow-y-auto h-full w-full z-50">
       <div class="relative top-10 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
         <div class="mt-3">
           <h3 class="text-lg font-medium text-gray-900 mb-4">Edit Contact</h3>
@@ -556,7 +592,7 @@
     </div>
 
     <!-- Add Contact Modal -->
-    <div v-if="showAddContact" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div v-if="showAddContact" class="fixed inset-0 bg-black opacity-50 overflow-y-auto h-full w-full z-50">
       <div class="relative top-10 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
         <div class="mt-3">
           <h3 class="text-lg font-medium text-gray-900 mb-4">Add Contact</h3>
@@ -634,7 +670,7 @@
     </div>
 
     <!-- Property Details Modal -->
-    <div v-if="showPropertyDetails" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div v-if="showPropertyDetails" class="fixed inset-0 bg-black opacity-50 overflow-y-auto h-full w-full z-50">
       <div class="relative top-10 mx-auto p-5 border w-4/5 max-w-4xl shadow-lg rounded-md bg-white">
         <div class="mt-3">
           <div class="flex justify-between items-center mb-4">
@@ -732,7 +768,7 @@
     </div>
 
     <!-- QR Code Modal -->
-    <div v-if="showQRModal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div v-if="showQRModal" class="fixed inset-0 bg-black opacity-50 overflow-y-auto h-full w-full z-50">
       <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
         <div class="mt-3">
           <div class="flex items-center justify-between mb-4">
@@ -789,7 +825,7 @@
     </div>
 
     <!-- Access Code Modal -->
-    <div v-if="showAccessCodeModal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div v-if="showAccessCodeModal" class="fixed inset-0 bg-black opacity-50 overflow-y-auto h-full w-full z-50">
       <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
         <div class="mt-3">
           <div class="flex items-center justify-between mb-4">
@@ -910,6 +946,13 @@ const showAddressSuggestions = ref(false)
 const loadingAddressSuggestions = ref(false)
 const selectedAddressIndex = ref(-1)
 const selectedAddress = ref(null)
+
+// Mapbox for property form
+const propertyMapContainer = ref<HTMLElement | null>(null)
+const propertyMap = ref<any>(null)
+const propertyMapMarker = ref<any>(null)
+const mapMarker = ref<{ lat: number; lng: number } | null>(null)
+const reverseGeocoding = ref(false)
 
 const newContact = ref({
   contact_name: '',
@@ -1101,6 +1144,100 @@ async function loadActiveAccessCodes() {
   }
 }
 
+// Mapbox functions
+function initPropertyMap() {
+  if (!propertyMapContainer.value) return
+  
+  const { initMap, addMarker, reverseGeocode } = useMapbox()
+  
+  // Initialize map centered on UK
+  propertyMap.value = initMap(propertyMapContainer.value, {
+    center: [-2.2374, 53.4808], // Manchester, UK
+    zoom: 6,
+    onMapClick: async (lng: number, lat: number) => {
+      await handleMapClick(lng, lat)
+    }
+  })
+}
+
+async function handleMapClick(lng: number, lat: number) {
+  if (!propertyMap.value) return
+  
+  reverseGeocoding.value = true
+  
+  try {
+    const { addMarker, reverseGeocode } = useMapbox()
+    
+    // Remove existing marker
+    if (propertyMapMarker.value) {
+      propertyMapMarker.value.remove()
+    }
+    
+    // Add new marker
+    propertyMapMarker.value = addMarker(propertyMap.value, lng, lat, {
+      draggable: true,
+      onDragEnd: async (newLng: number, newLat: number) => {
+        await handleMapClick(newLng, newLat)
+      }
+    })
+    
+    mapMarker.value = { lat, lng }
+    
+    // Reverse geocode to get address
+    try {
+      const addressData = await reverseGeocode(lng, lat)
+      
+      if (addressData) {
+        // Populate form fields
+        newProperty.value.address = addressData.address || addressData.formatted_address || ''
+        newProperty.value.city = addressData.city || ''
+        newProperty.value.state = addressData.state || ''
+        newProperty.value.postal_code = addressData.postcode || ''
+        newProperty.value.latitude = parseFloat(addressData.lat)
+        newProperty.value.longitude = parseFloat(addressData.lon)
+        newProperty.value.country = addressData.country || 'GB'
+        
+        // Update address query
+        addressQuery.value = addressData.formatted_address || addressData.address || ''
+      }
+    } catch (geocodeError) {
+      console.error('Reverse geocoding error:', geocodeError)
+      // Still set coordinates even if geocoding fails
+      newProperty.value.latitude = lat
+      newProperty.value.longitude = lng
+    }
+  } catch (error) {
+    console.error('Map click error:', error)
+  } finally {
+    reverseGeocoding.value = false
+  }
+}
+
+function cleanupPropertyMap() {
+  if (propertyMapMarker.value) {
+    propertyMapMarker.value.remove()
+    propertyMapMarker.value = null
+  }
+  if (propertyMap.value) {
+    propertyMap.value.remove()
+    propertyMap.value = null
+  }
+  mapMarker.value = null
+}
+
+// Watch for modal open/close to initialize/cleanup map
+watch(showAddProperty, (isOpen) => {
+  if (isOpen) {
+    nextTick(() => {
+      setTimeout(() => {
+        initPropertyMap()
+      }, 100)
+    })
+  } else {
+    cleanupPropertyMap()
+  }
+})
+
 // Address autocomplete functions
 async function fetchAddressSuggestions() {
   if (addressQuery.value.length < 3) {
@@ -1157,11 +1294,43 @@ function selectAddressSuggestion(suggestion: any) {
   newProperty.value.postal_code = suggestion.postcode || ''
   
   // Capture latitude and longitude
+  let lat: number | null = null
+  let lng: number | null = null
+  
   if (suggestion.lat) {
-    newProperty.value.latitude = parseFloat(suggestion.lat)
+    lat = parseFloat(suggestion.lat)
+    newProperty.value.latitude = lat
   }
   if (suggestion.lon) {
-    newProperty.value.longitude = parseFloat(suggestion.lon)
+    lng = parseFloat(suggestion.lon)
+    newProperty.value.longitude = lng
+  }
+  
+  // Update map marker if coordinates are available
+  if (lat !== null && lng !== null && propertyMap.value) {
+    const { addMarker } = useMapbox()
+    
+    // Remove existing marker
+    if (propertyMapMarker.value) {
+      propertyMapMarker.value.remove()
+    }
+    
+    // Add new marker
+    propertyMapMarker.value = addMarker(propertyMap.value, lng, lat, {
+      draggable: true,
+      onDragEnd: async (newLng: number, newLat: number) => {
+        await handleMapClick(newLng, newLat)
+      }
+    })
+    
+    // Center map on location
+    propertyMap.value.flyTo({
+      center: [lng, lat],
+      zoom: 15,
+      duration: 1000
+    })
+    
+    mapMarker.value = { lat, lng }
   }
   
   // Set country (API now returns ISO code directly)
@@ -1608,4 +1777,54 @@ onMounted(() => {
     }
   })
 })
+
+// Check if property has valid coordinates
+function hasValidCoordinates(property: any): boolean {
+  if (!property) return false
+  
+  // Handle both string and number types, and Decimal types from database
+  const lat = property.latitude != null ? parseFloat(String(property.latitude)) : NaN
+  const lng = property.longitude != null ? parseFloat(String(property.longitude)) : NaN
+  
+  const isValid = !isNaN(lat) && !isNaN(lng) && lat !== null && lng !== null && 
+                  lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180
+  
+  // Debug log for properties without coordinates
+  if (!isValid && property.property_name) {
+    console.debug(`Property "${property.property_name}" missing coordinates:`, { 
+      latitude: property.latitude, 
+      longitude: property.longitude 
+    })
+  }
+  
+  return isValid
+}
+
+// Get static map URL for property
+function getPropertyMapUrl(lng: number | string, lat: number | string): string {
+  try {
+    const numLng = typeof lng === 'string' ? parseFloat(lng) : lng
+    const numLat = typeof lat === 'string' ? parseFloat(lat) : lat
+    
+    if (isNaN(numLng) || isNaN(numLat)) {
+      return ''
+    }
+    
+    const { getStaticMapUrl } = useMapbox()
+    const url = getStaticMapUrl(numLng, numLat, 128, 96, 15)
+    return url || ''
+  } catch (error) {
+    console.error('Error generating map URL:', error)
+    return ''
+  }
+}
+
+// Handle map image error
+function handleMapImageError(event: Event) {
+  const img = event.target as HTMLImageElement
+  // Instead of hiding, show a placeholder or log the error
+  console.warn('Map image failed to load:', img.src)
+  img.style.opacity = '0.3'
+  img.alt = 'Map unavailable'
+}
 </script>
