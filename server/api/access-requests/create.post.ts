@@ -189,7 +189,12 @@ export default defineEventHandler(async (event) => {
 
     // 9. Send FCM push notifications to property owner and emergency contacts
     try {
-      const baseUrl = config.public.baseUrl || 'http://localhost:3000'
+      // Get base URL from request headers if available, otherwise use config or production URL
+      const host = getHeader(event, 'host') || getHeader(event, 'x-forwarded-host')
+      const protocol = getHeader(event, 'x-forwarded-proto') || 'https'
+      const dynamicBaseUrl = host ? `${protocol}://${host}` : null
+      const baseUrl = dynamicBaseUrl || config.public.baseUrl || 'https://safehouse2025.netlify.app'
+      
       const propertyDisplayAddress = [
         property.address,
         property.city,

@@ -144,7 +144,12 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const baseUrl = config.public.baseUrl || 'http://localhost:3000'
+    // Get base URL from request headers if available, otherwise use config or production URL
+    const host = getHeader(event, 'host') || getHeader(event, 'x-forwarded-host')
+    const protocol = getHeader(event, 'x-forwarded-proto') || 'https'
+    const dynamicBaseUrl = host ? `${protocol}://${host}` : null
+    const baseUrl = dynamicBaseUrl || config.public.baseUrl || 'https://safehouse2025.netlify.app'
+    
     const propertyDisplayAddress = [
       property.address,
       property.city,
@@ -153,6 +158,7 @@ export default defineEventHandler(async (event) => {
     ].filter(Boolean).join(', ')
 
     console.log('BASE_URL from config:', config.public.baseUrl)
+    console.log('Dynamic baseUrl from headers:', dynamicBaseUrl)
     console.log('Using baseUrl:', baseUrl)
 
     const approvalLink = `${baseUrl}/api/access-requests/owner-action?request=${accessRequestRecord.id}&token=${verificationToken}&action=approve`

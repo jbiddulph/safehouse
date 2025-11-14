@@ -5,7 +5,11 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const { toEmail, testType = 'confirmation' } = body
   const config = useRuntimeConfig()
-  const baseUrl = config.public.baseUrl || 'http://localhost:3000'
+  // Get base URL from request headers if available, otherwise use config or production URL
+  const host = getHeader(event, 'host') || getHeader(event, 'x-forwarded-host')
+  const protocol = getHeader(event, 'x-forwarded-proto') || 'https'
+  const dynamicBaseUrl = host ? `${protocol}://${host}` : null
+  const baseUrl = dynamicBaseUrl || config.public.baseUrl || 'https://safehouse2025.netlify.app'
 
   if (!toEmail) {
     throw createError({

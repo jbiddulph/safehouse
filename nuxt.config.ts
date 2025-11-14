@@ -27,7 +27,7 @@ export default defineNuxtConfig({
     firebaseProjectId: process.env.FIREBASE_PROJECT_ID,
     googleApiKey: process.env.GOOGLE_API,
     public: {
-      baseUrl: process.env.BASE_URL || 'http://localhost:3000',
+      baseUrl: process.env.BASE_URL || process.env.NETLIFY_URL || 'https://safehouse2025.netlify.app',
       supabaseUrl: process.env.SUPABASE_URL,
       supabaseKey: process.env.SUPABASE_ANON_KEY,
       googleApiKey: process.env.GOOGLE_API,
