@@ -42,7 +42,7 @@
             <button 
               @click="requestPermission" 
               :disabled="fcmStatus.permission"
-              class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              class="w-full bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {{ fcmStatus.permission ? 'Permission Already Granted' : 'Request Notification Permission' }}
             </button>

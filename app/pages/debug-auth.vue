@@ -10,7 +10,7 @@
         <label class="block text-sm font-medium mb-1">Password:</label>
         <input v-model="password" type="password" class="border p-2 rounded w-full" />
       </div>
-      <button @click="testDirectAuth" class="bg-blue-500 text-white px-4 py-2 rounded">
+      <button @click="testDirectAuth" class="bg-primary-500 text-white px-4 py-2 rounded">
         Test Direct Supabase Auth
       </button>
       <button @click="testStoreAuth" class="bg-green-500 text-white px-4 py-2 rounded">

@@ -12,10 +12,10 @@
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
       <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
         <!-- Property Information -->
-        <div v-if="propertyInfo" class="bg-blue-50 border border-blue-200 rounded-md p-4 mb-6">
-          <h3 class="text-lg font-medium text-blue-900 mb-2">Property Information</h3>
-          <p class="text-sm text-blue-800 font-medium">{{ propertyInfo.property_name }}</p>
-          <p class="text-sm text-blue-700">{{ propertyInfo.address }}</p>
+        <div v-if="propertyInfo" class="bg-primary-50 border border-primary-200 rounded-md p-4 mb-6">
+          <h3 class="text-lg font-medium text-primary-900 mb-2">Property Information</h3>
+          <p class="text-sm text-primary-800 font-medium">{{ propertyInfo.property_name }}</p>
+          <p class="text-sm text-primary-700">{{ propertyInfo.address }}</p>
         </div>
 
         <!-- Access Code Form -->
@@ -29,7 +29,7 @@
               v-model="accessCode"
               type="text"
               required
-              class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-center font-mono text-lg tracking-widest"
+              class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-center font-mono text-lg tracking-widest"
               placeholder="Enter access code"
               maxlength="8"
               @input="formatAccessCode"
@@ -42,7 +42,7 @@
           <button
             type="submit"
             :disabled="verifying || !accessCode"
-            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {{ verifying ? 'Verifying...' : 'Verify Access Code' }}
           </button>
@@ -78,7 +78,7 @@
           <p class="text-sm text-gray-500 mt-2">{{ verificationError }}</p>
           <button
             @click="resetForm"
-            class="mt-4 text-sm text-indigo-600 hover:text-indigo-500"
+            class="mt-4 text-sm text-primary-600 hover:text-primary-500"
           >
             Try Again
           </button>

@@ -1,18 +1,18 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+  <div class="min-h-screen bg-gradient-to-br from-primary-50 via-primary-100 to-primary-200">
     <!-- Top Navigation -->
-    <nav class="bg-white shadow-lg border-b border-gray-200">
+    <nav class="bg-gradient-to-r from-primary-800 via-primary-700 to-primary-600 shadow-lg border-b border-primary-900">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <!-- Logo and Title -->
           <div class="flex items-center">
             <div class="flex-shrink-0 flex items-center space-x-3">
-              <div class="h-8 w-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+              <div class="h-8 w-8 bg-primary-600 rounded-lg flex items-center justify-center">
                 <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
               </div>
-              <h1 class="text-2xl font-bold text-gray-900">SafeHouse</h1>
+              <h1 class="text-2xl font-bold text-white">SafeHouse</h1>
             </div>
           </div>
 
@@ -21,7 +21,7 @@
             <!-- Notifications -->
 
             <!-- Notification Bell -->
-            <button class="relative p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded-full hover:bg-gray-50">
+            <button class="relative p-2 text-primary-100 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-300 rounded-full hover:bg-primary-700/50">
               <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
               </svg>
@@ -31,20 +31,20 @@
 
             <!-- Profile Dropdown -->
             <div class="relative">
-              <button @click="showProfileMenu = !showProfileMenu" class="flex items-center space-x-3 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 hover:bg-gray-50 px-3 py-2 transition-colors duration-200">
-                <div v-if="profile?.avatar_url" class="h-10 w-10 rounded-full overflow-hidden border-2 border-indigo-200 shadow-sm">
+              <button @click="showProfileMenu = !showProfileMenu" class="flex items-center space-x-3 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-300 hover:bg-primary-700/50 px-3 py-2 transition-colors duration-200">
+                <div v-if="profile?.avatar_url" class="h-10 w-10 rounded-full overflow-hidden border-2 border-primary-200 shadow-sm">
                   <img :src="avatarUrl" alt="Profile" class="h-full w-full object-cover" />
                 </div>
-                <div v-else class="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-100 to-blue-100 flex items-center justify-center border-2 border-indigo-200 shadow-sm">
-                  <svg class="h-6 w-6 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
+                <div v-else class="h-10 w-10 rounded-full bg-gradient-to-br from-primary-100 to-primary-100 flex items-center justify-center border-2 border-primary-200 shadow-sm">
+                  <svg class="h-6 w-6 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
                   </svg>
                 </div>
                 <div class="text-left">
-                  <div class="text-sm font-medium text-gray-900">{{ profile?.full_name || auth.user?.value?.email || 'User' }}</div>
-                  <div class="text-xs text-gray-500">{{ auth.user?.value?.email }}</div>
+                  <div class="text-sm font-medium text-white">{{ profile?.full_name || auth.user?.value?.email || 'User' }}</div>
+                  <div class="text-xs text-primary-100">{{ auth.user?.value?.email }}</div>
                 </div>
-                <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="h-4 w-4 text-primary-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
@@ -100,13 +100,13 @@
             </p>
           </div>
           <div class="mt-4 flex space-x-3 md:mt-0 md:ml-4">
-            <button @click="showAddProperty = true" class="inline-flex items-center px-6 py-3 border border-transparent rounded-lg shadow-lg text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:scale-105">
+            <button @click="showAddProperty = true" class="inline-flex items-center px-6 py-3 border border-transparent rounded-lg shadow-lg text-sm font-semibold text-white bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 hover:from-primary-700 hover:via-primary-600 hover:to-primary-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-300 transition-all duration-200 transform hover:scale-105">
               <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
               Add Property
             </button>
-            <button @click="showAddContact = true" class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg shadow-lg text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:scale-105">
+            <button @click="showAddContact = true" class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg shadow-lg text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 transform hover:scale-105">
               <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
               </svg>
@@ -121,7 +121,7 @@
         <div class="flex flex-wrap gap-4">
           <NuxtLink 
             to="/domains" 
-            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
           >
             <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9" />
@@ -130,7 +130,7 @@
           </NuxtLink>
           <NuxtLink 
             to="/profile" 
-            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
           >
             <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -152,11 +152,11 @@
 
       <!-- Stats Cards -->
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-        <div class="bg-white overflow-hidden shadow-xl rounded-xl border border-gray-100 hover:shadow-2xl transition-shadow duration-300">
+        <div class="bg-white overflow-hidden shadow-xl rounded-xl border border-primary-200 hover:shadow-2xl transition-shadow duration-300">
           <div class="p-6">
             <div class="flex items-center">
               <div class="flex-shrink-0">
-                <div class="h-12 w-12 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-lg flex items-center justify-center">
+                <div class="h-12 w-12 bg-gradient-to-r from-primary-500 to-primary-500 rounded-lg flex items-center justify-center">
                   <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                   </svg>
@@ -172,11 +172,11 @@
           </div>
         </div>
 
-        <div class="bg-white overflow-hidden shadow-xl rounded-xl border border-gray-100 hover:shadow-2xl transition-shadow duration-300">
+        <div class="bg-white overflow-hidden shadow-xl rounded-xl border border-primary-200 hover:shadow-2xl transition-shadow duration-300">
           <div class="p-6">
             <div class="flex items-center">
               <div class="flex-shrink-0">
-                <div class="h-12 w-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                <div class="h-12 w-12 bg-gradient-to-r from-primary-400 via-primary-300 to-primary-200 rounded-lg flex items-center justify-center">
                   <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
@@ -192,11 +192,11 @@
           </div>
         </div>
 
-        <div class="bg-white overflow-hidden shadow-xl rounded-xl border border-gray-100 hover:shadow-2xl transition-shadow duration-300">
+        <div class="bg-white overflow-hidden shadow-xl rounded-xl border border-primary-200 hover:shadow-2xl transition-shadow duration-300">
           <div class="p-6">
             <div class="flex items-center">
               <div class="flex-shrink-0">
-                <div class="h-12 w-12 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center">
+                <div class="h-12 w-12 bg-gradient-to-r from-primary-500 via-primary-400 to-primary-300 rounded-lg flex items-center justify-center">
                   <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -212,11 +212,11 @@
           </div>
         </div>
 
-        <div class="bg-white overflow-hidden shadow-xl rounded-xl border border-gray-100 hover:shadow-2xl transition-shadow duration-300">
+        <div class="bg-white overflow-hidden shadow-xl rounded-xl border border-primary-200 hover:shadow-2xl transition-shadow duration-300">
           <div class="p-6">
             <div class="flex items-center">
               <div class="flex-shrink-0">
-                <div class="h-12 w-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                <div class="h-12 w-12 bg-gradient-to-r from-primary-700 via-primary-600 to-primary-500 rounded-lg flex items-center justify-center">
                   <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
@@ -232,11 +232,11 @@
           </div>
         </div>
 
-        <div class="bg-white overflow-hidden shadow-xl rounded-xl border border-gray-100 hover:shadow-2xl transition-shadow duration-300">
+        <div class="bg-white overflow-hidden shadow-xl rounded-xl border border-primary-200 hover:shadow-2xl transition-shadow duration-300">
           <div class="p-6">
             <div class="flex items-center">
               <div class="flex-shrink-0">
-                <div class="h-12 w-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-lg flex items-center justify-center">
+                <div class="h-12 w-12 bg-gradient-to-r from-primary-800 via-primary-700 to-primary-600 rounded-lg flex items-center justify-center">
                   <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 19.5c-.77.833.192 2.5 1.732 2.5z" />
                   </svg>
@@ -266,7 +266,7 @@
               <h3 class="mt-2 text-sm font-medium text-gray-900">No properties</h3>
               <p class="mt-1 text-sm text-gray-500">Get started by adding your first property.</p>
               <div class="mt-6">
-                <button @click="showAddProperty = true" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                <button @click="showAddProperty = true" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700">
                   <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
@@ -275,23 +275,28 @@
               </div>
             </div>
             <div v-else class="space-y-4">
-                    <div v-for="property in properties" :key="property.id" class="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer" @click="viewPropertyDetails(property)">
-                      <div class="flex items-center justify-between gap-4">
-                        <div class="flex items-start gap-4 flex-1">
-                          <!-- Small Map -->
-                          <div v-if="hasValidCoordinates(property)" class="flex-shrink-0">
-                            <img 
-                              :src="getPropertyMapUrl(property.longitude, property.latitude)"
-                              :alt="`Map of ${property.property_name}`"
-                              class="w-32 h-24 rounded border border-gray-200 object-cover bg-gray-100"
-                              @error="handleMapImageError"
-                              loading="lazy"
-                            />
+                    <div v-for="property in properties" :key="property.id" class="border rounded-lg p-4 hover:bg-gray-50">
+                      <div class="flex items-start gap-4 mb-3">
+                        <!-- Small Map -->
+                        <div v-if="hasValidCoordinates(property)" class="flex-shrink-0">
+                          <img 
+                            :src="getPropertyMapUrl(property.longitude, property.latitude)"
+                            :alt="`Map of ${property.property_name}`"
+                            class="w-32 h-24 rounded border border-gray-200 object-cover bg-gray-100 cursor-pointer"
+                            @error="handleMapImageError"
+                            @click.stop="viewPropertyDetails(property)"
+                            loading="lazy"
+                          />
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <div class="flex items-start justify-between gap-2 mb-1">
+                            <h4 class="text-sm font-medium text-gray-900 cursor-pointer" @click.stop="viewPropertyDetails(property)">{{ property.property_name }}</h4>
+                            <span v-if="property.emergency_access_enabled" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 flex-shrink-0">
+                              Active
+                            </span>
                           </div>
-                          <div class="flex-1 min-w-0">
-                            <h4 class="text-sm font-medium text-gray-900">{{ property.property_name }}</h4>
-                            <p class="text-sm text-gray-500">{{ property.address }}, {{ property.city }}</p>
-                            <p class="text-xs text-gray-400">QR: {{ property.qr_code }}</p>
+                          <p class="text-sm text-gray-500 cursor-pointer" @click.stop="viewPropertyDetails(property)">{{ property.address }}, {{ property.city }}</p>
+                          <p class="text-xs text-gray-400">QR: {{ property.qr_code }}</p>
                           
                           <!-- Contact Status -->
                           <div class="mt-2 flex items-center space-x-2">
@@ -308,23 +313,22 @@
                             </div>
                           </div>
                         </div>
-                        <div class="flex items-center space-x-2">
-                          <span v-if="property.emergency_access_enabled" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            Active
-                          </span>
-                          <button @click.stop="viewPropertyDetails(property)" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
-                            Manage
-                          </button>
-                          <button @click.stop="showQRCode(property)" class="text-green-600 hover:text-green-800 text-sm font-medium">
-                            QR Code
-                          </button>
-                          <button @click.stop="showAccessCode(property)" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                            Access Code
-                          </button>
-                          <button @click.stop="deleteProperty(property.id)" class="text-red-600 hover:text-red-800 text-sm font-medium">
-                            Delete
-                          </button>
-                        </div>
+                      </div>
+                      
+                      <!-- Action Buttons Row -->
+                      <div class="flex items-center gap-2 pt-3 border-t border-gray-200">
+                        <button @click.stop="viewPropertyDetails(property)" class="flex-1 px-2 py-1.5 text-xs font-medium text-primary-600 bg-primary-50 rounded hover:bg-primary-100 transition-colors">
+                          Manage
+                        </button>
+                        <button @click.stop="showQRCode(property)" class="flex-1 px-2 py-1.5 text-xs font-medium text-green-600 bg-green-50 rounded hover:bg-green-100 transition-colors">
+                          QR Code
+                        </button>
+                        <button @click.stop="showAccessCode(property)" class="flex-1 px-2 py-1.5 text-xs font-medium text-primary-600 bg-primary-50 rounded hover:bg-primary-100 transition-colors">
+                          Access Code
+                        </button>
+                        <button @click.stop="deleteProperty(property.id)" class="flex-1 px-2 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded hover:bg-red-100 transition-colors">
+                          Delete
+                        </button>
                       </div>
                     </div>
             </div>
@@ -336,7 +340,7 @@
           <div class="px-4 py-5 sm:p-6">
             <div class="flex items-center justify-between mb-4">
               <h3 class="text-lg leading-6 font-medium text-gray-900">Emergency Contacts</h3>
-              <button @click="showAddContact = true" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              <button @click="showAddContact = true" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
                 <svg class="-ml-0.5 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
@@ -350,7 +354,7 @@
               <h3 class="mt-2 text-sm font-medium text-gray-900">No contacts yet</h3>
               <p class="mt-1 text-sm text-gray-500">Add emergency contacts for property access.</p>
               <div class="mt-6">
-                <button @click="showAddContact = true" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                <button @click="showAddContact = true" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700">
                   <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
@@ -370,7 +374,7 @@
                       </div>
                     </div>
                     <div class="flex items-center space-x-2 mt-2">
-                      <span v-if="contact.is_primary" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      <span v-if="contact.is_primary" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
                         Primary
                       </span>
                       <span v-if="contact.is_tenant" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -382,7 +386,7 @@
                     </div>
                   </div>
                   <div class="flex items-center space-x-2">
-                    <button @click="editContact(contact)" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                    <button @click="editContact(contact)" class="text-primary-600 hover:text-primary-800 text-sm font-medium">
                       Edit
                     </button>
                     <button @click="deleteContact(contact.id)" class="text-red-600 hover:text-red-800 text-sm font-medium">
@@ -432,7 +436,7 @@
                   :key="index"
                   :class="[
                     'px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0',
-                    selectedAddressIndex === index ? 'bg-blue-50 text-blue-900' : 'hover:bg-gray-50'
+                    selectedAddressIndex === index ? 'bg-primary-50 text-primary-900' : 'hover:bg-gray-50'
                   ]"
                   @click="selectAddressSuggestion(suggestion)"
                   @mouseenter="selectedAddressIndex = index"
@@ -481,7 +485,7 @@
               <button @click="showAddProperty = false" type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
                 Cancel
               </button>
-              <button type="submit" :disabled="creatingProperty" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:opacity-50">
+              <button type="submit" :disabled="creatingProperty" class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 disabled:opacity-50">
                 {{ creatingProperty ? 'Creating...' : 'Create Property' }}
               </button>
             </div>
@@ -498,7 +502,7 @@
             >
               <div v-if="reverseGeocoding" class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
                 <div class="text-center">
-                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-2"></div>
+                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto mb-2"></div>
                   <p class="text-sm text-gray-600">Getting address...</p>
                 </div>
               </div>
@@ -507,10 +511,9 @@
               Location set: {{ mapMarker.lat.toFixed(6) }}, {{ mapMarker.lng.toFixed(6) }}
             </p>
           </div>
-        </div>
+          </div>
         </div>
       </div>
-    </div>
     </div>
 
     <!-- Edit Contact Modal -->
@@ -549,7 +552,7 @@
             <!-- Tenant Information -->
             <div class="border-t pt-4">
               <div class="flex items-center mb-3">
-                <input v-model="editingContact.is_tenant" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                <input v-model="editingContact.is_tenant" type="checkbox" class="h-4 w-4 text-primary-600 border-gray-300 rounded">
                 <label class="ml-2 block text-sm font-medium text-gray-700">This contact is a tenant</label>
               </div>
               
@@ -575,14 +578,14 @@
             </div>
             
             <div class="flex items-center">
-              <input v-model="editingContact.is_primary" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded">
+              <input v-model="editingContact.is_primary" type="checkbox" class="h-4 w-4 text-primary-600 border-gray-300 rounded">
               <label class="ml-2 block text-sm text-gray-700">Primary emergency contact</label>
             </div>
             <div class="flex justify-end space-x-3 pt-4">
               <button @click="showEditContact = false" type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
                 Cancel
               </button>
-              <button type="submit" :disabled="updatingContact" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:opacity-50">
+              <button type="submit" :disabled="updatingContact" class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 disabled:opacity-50">
                 {{ updatingContact ? 'Updating...' : 'Update Contact' }}
               </button>
             </div>
@@ -627,7 +630,7 @@
             <!-- Tenant Information -->
             <div class="border-t pt-4">
               <div class="flex items-center mb-3">
-                <input v-model="newContact.is_tenant" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                <input v-model="newContact.is_tenant" type="checkbox" class="h-4 w-4 text-primary-600 border-gray-300 rounded">
                 <label class="ml-2 block text-sm font-medium text-gray-700">This contact is a tenant</label>
               </div>
               
@@ -653,14 +656,14 @@
             </div>
             
             <div class="flex items-center">
-              <input v-model="newContact.is_primary" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded">
+              <input v-model="newContact.is_primary" type="checkbox" class="h-4 w-4 text-primary-600 border-gray-300 rounded">
               <label class="ml-2 block text-sm text-gray-700">Primary emergency contact</label>
             </div>
             <div class="flex justify-end space-x-3 pt-4">
               <button @click="showAddContact = false" type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
                 Cancel
               </button>
-              <button type="submit" :disabled="creatingContact" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:opacity-50">
+              <button type="submit" :disabled="creatingContact" class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 disabled:opacity-50">
                 {{ creatingContact ? 'Creating...' : 'Create Contact' }}
               </button>
             </div>
@@ -723,7 +726,7 @@
                         <option value="maintenance">Maintenance</option>
                         <option value="neighbor">Neighbor</option>
                       </select>
-                      <button @click="addContactToProperty" :disabled="!selectedContactId || addingContactToProperty" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50">
+                      <button @click="addContactToProperty" :disabled="!selectedContactId || addingContactToProperty" class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50">
                         {{ addingContactToProperty ? 'Adding...' : 'Add Contact' }}
                       </button>
                     </div>
@@ -745,7 +748,7 @@
                     <h5 class="text-sm font-medium text-gray-900">{{ pc.contact.contact_name }}</h5>
                     <p class="text-sm text-gray-500">{{ pc.contact.email }}</p>
                     <div class="flex space-x-2 mt-1">
-                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
                         {{ pc.relationship_type.replace('_', ' ').toUpperCase() }}
                       </span>
                       <span v-if="pc.can_grant_access" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -781,7 +784,7 @@
           </div>
           
           <div v-if="qrCodeLoading" class="text-center py-8">
-            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
             <p class="mt-2 text-sm text-gray-500">Generating QR code...</p>
           </div>
           
@@ -804,7 +807,7 @@
             <div class="mt-4 flex space-x-2">
               <button 
                 @click="downloadQRCode" 
-                class="flex-1 bg-indigo-600 text-white px-3 py-2 rounded-md text-sm hover:bg-indigo-700"
+                class="flex-1 bg-primary-600 text-white px-3 py-2 rounded-md text-sm hover:bg-primary-700"
               >
                 Download QR Code
               </button>
@@ -838,7 +841,7 @@
           </div>
           
           <div v-if="accessCodeLoading" class="text-center py-8">
-            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
             <p class="mt-2 text-sm text-gray-500">Loading access codes...</p>
           </div>
           
@@ -871,7 +874,7 @@
             <div class="mt-4 flex space-x-2">
               <button 
                 @click="generateNewAccessCode" 
-                class="flex-1 bg-indigo-600 text-white px-3 py-2 rounded-md text-sm hover:bg-indigo-700"
+                class="flex-1 bg-primary-600 text-white px-3 py-2 rounded-md text-sm hover:bg-primary-700"
               >
                 Generate New Code
               </button>
@@ -888,7 +891,7 @@
             <p class="text-sm text-gray-500 mb-4">No access codes found for this property.</p>
             <button 
               @click="generateNewAccessCode" 
-              class="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700"
+              class="bg-primary-600 text-white px-4 py-2 rounded-md text-sm hover:bg-primary-700"
             >
               Generate Access Code
             </button>

@@ -37,7 +37,7 @@
         >
           <div class="flex items-center">
             <div class="flex-shrink-0">
-              <svg class="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="h-8 w-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
@@ -85,7 +85,7 @@
         <h2 class="text-xl font-semibold text-gray-900 mb-4">System Settings</h2>
         
         <div v-if="loadingSettings" class="text-center py-4">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
           <p class="mt-2 text-gray-600">Loading settings...</p>
         </div>
 
@@ -104,13 +104,13 @@
                 type="number"
                 min="1"
                 max="100000"
-                class="w-32 px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                class="w-32 px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
               <span class="text-sm text-gray-600">meters</span>
               <button
                 @click="saveSettings"
                 :disabled="savingSettings"
-                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {{ savingSettings ? 'Saving...' : 'Save Settings' }}
               </button>
@@ -133,7 +133,7 @@
                 v-model="searchQuery" 
                 type="text" 
                 placeholder="Search by email or name..." 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 @input="searchUsers"
               />
             </div>
@@ -142,7 +142,7 @@
               <select 
                 v-model="roleFilter" 
                 @change="searchUsers"
-                class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
                 <option value="">All Roles</option>
                 <option value="standard">Standard</option>
@@ -160,8 +160,8 @@
             class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
           >
             <div class="flex items-center space-x-4">
-              <div class="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-100 to-blue-100 flex items-center justify-center">
-                <svg class="h-6 w-6 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
+              <div class="h-10 w-10 rounded-full bg-gradient-to-br from-primary-100 to-primary-100 flex items-center justify-center">
+                <svg class="h-6 w-6 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
                 </svg>
               </div>
@@ -188,7 +188,7 @@
                 v-if="user.role === 'standard'"
                 @click="promoteToAdmin(user.id)"
                 :disabled="promotingUser === user.id"
-                class="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 disabled:opacity-50"
+                class="text-xs px-3 py-1 bg-primary-100 text-primary-700 rounded hover:bg-primary-200 disabled:opacity-50"
               >
                 {{ promotingUser === user.id ? 'Promoting...' : 'Make Admin' }}
               </button>
@@ -207,7 +207,7 @@
           No users found
         </div>
         <div v-if="loading" class="text-center py-8">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
         </div>
       </div>
 
@@ -234,8 +234,8 @@
           
           <div class="flex items-center p-4 border border-gray-200 rounded-lg bg-gray-50">
             <div class="flex-shrink-0">
-              <div class="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="h-10 w-10 bg-primary-100 rounded-lg flex items-center justify-center">
+                <svg class="h-6 w-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </div>

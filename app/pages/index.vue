@@ -1,13 +1,13 @@
 <template>
-  <div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+  <div class="min-h-screen bg-gradient-to-br from-primary-50 via-primary-100 to-primary-200 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-2xl">
       <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold text-gray-900 mb-4">SafeHouse</h1>
+        <h1 class="text-4xl font-bold bg-gradient-to-r from-primary-800 via-primary-600 to-primary-400 bg-clip-text text-transparent mb-4">SafeHouse</h1>
         <p class="text-lg text-gray-600 mb-4">
           Enter an address to find properties or request emergency access
         </p>
         <div v-if="isLoggedIn" class="mb-4">
-          <p class="text-sm text-blue-600">Welcome back, {{ userEmail }}!</p>
+          <p class="text-sm text-primary-600">Welcome back, {{ userEmail }}!</p>
         </div>
       </div>
 
@@ -23,7 +23,7 @@
               v-model="addressQuery"
               type="text"
               placeholder="Start typing an address..."
-              class="w-full px-4 py-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              class="w-full px-4 py-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               @input="handleAddressInput"
               @keydown.down="navigateSuggestions('down')"
               @keydown.up="navigateSuggestions('up')"
@@ -34,7 +34,7 @@
             
             <!-- Loading indicator -->
             <div v-if="loading" class="absolute right-3 top-1/2 transform -translate-y-1/2">
-              <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+              <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-600"></div>
             </div>
           </div>
 
@@ -76,7 +76,7 @@
               :key="index"
               :class="[
                 'px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0',
-                selectedIndex === index ? 'bg-blue-50 text-blue-900' : 'hover:bg-gray-50'
+                selectedIndex === index ? 'bg-primary-50 text-primary-900' : 'hover:bg-gray-50'
               ]"
               @click="selectSuggestion(suggestion)"
               @mouseenter="selectedIndex = index"
@@ -109,16 +109,16 @@
           <button
             @click="searchProperties"
             :disabled="!addressQuery.trim() || searching"
-            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {{ searching ? 'Searching...' : 'Search Properties' }}
           </button>
         </div>
 
         <!-- Selected Address Display -->
-        <div v-if="selectedAddress || addressQuery.trim()" class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <h3 class="font-medium text-blue-900 mb-1">Search Address:</h3>
-          <p class="text-blue-800">{{ selectedAddress?.formatted_address || addressQuery }}</p>
+        <div v-if="selectedAddress || addressQuery.trim()" class="mt-4 p-4 bg-primary-50 border border-primary-200 rounded-lg">
+          <h3 class="font-medium text-primary-900 mb-1">Search Address:</h3>
+          <p class="text-primary-800">{{ selectedAddress?.formatted_address || addressQuery }}</p>
         </div>
       </div>
 
@@ -133,7 +133,7 @@
           </NuxtLink>
           <NuxtLink 
             to="/auth/register" 
-            class="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors ml-4"
+            class="inline-block px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors ml-4"
           >
             Create Account
           </NuxtLink>
@@ -141,7 +141,7 @@
         <div v-else class="space-y-4">
           <NuxtLink 
             to="/dashboard" 
-            class="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            class="inline-block px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
           >
             Go to Dashboard
           </NuxtLink>
@@ -363,7 +363,7 @@ function showSearchResults(properties: any[]) {
           }
         </div>
       </div>
-      <div class="mt-2 text-sm text-blue-600 font-medium">
+      <div class="mt-2 text-sm text-primary-600 font-medium">
         Click to view property details →
       </div>
     </div>
@@ -389,7 +389,7 @@ function showSearchResults(properties: any[]) {
         ${resultsHtml}
       </div>
       <div class="mt-6 text-center">
-        <button onclick="this.closest('.fixed').remove()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+        <button onclick="this.closest('.fixed').remove()" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
           Close
         </button>
       </div>
@@ -416,7 +416,7 @@ function showNoPropertiesFound() {
         The property may not be registered in our system yet.
       </p>
       <div class="space-y-3">
-        <button onclick="this.closest('.fixed').remove()" class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+        <button onclick="this.closest('.fixed').remove()" class="w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
           Close
         </button>
         <button onclick="this.closest('.fixed').remove(); window.location.href='/auth/register'" class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">

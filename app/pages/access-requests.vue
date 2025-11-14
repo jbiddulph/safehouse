@@ -119,7 +119,7 @@
         
         <div v-if="loading" class="px-4 py-5 sm:px-6">
           <div class="text-center">
-            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
             <p class="mt-2 text-sm text-gray-500">Loading requests...</p>
           </div>
         </div>
@@ -326,7 +326,7 @@ async function denyRequest(requestId: string) {
 function getStatusClass(status: string) {
   const classes = {
     pending: 'bg-yellow-100 text-yellow-800',
-    verified: 'bg-blue-100 text-blue-800',
+    verified: 'bg-primary-100 text-primary-800',
     approved: 'bg-green-100 text-green-800',
     denied: 'bg-red-100 text-red-800',
     expired: 'bg-gray-100 text-gray-800'

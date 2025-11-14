@@ -2,7 +2,7 @@
   <div class="p-8">
     <h1 class="text-2xl font-bold mb-4">Auth Test</h1>
     <div class="space-y-4">
-      <button @click="testLogin" class="bg-blue-500 text-white px-4 py-2 rounded">
+      <button @click="testLogin" class="bg-primary-500 text-white px-4 py-2 rounded">
         Test Login
       </button>
       <button @click="testSignup" class="bg-green-500 text-white px-4 py-2 rounded">

@@ -2,7 +2,7 @@
   <div class="min-h-screen flex items-center justify-center p-6">
     <div class="w-full max-w-md space-y-4 text-center">
       <div v-if="loading" class="space-y-4">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
         <p>Confirming your email...</p>
       </div>
       <div v-else-if="success" class="space-y-4">

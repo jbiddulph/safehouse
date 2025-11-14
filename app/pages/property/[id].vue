@@ -13,7 +13,7 @@
       <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
         <!-- Loading State -->
         <div v-if="loading" class="text-center">
-          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
           <p class="mt-4 text-gray-600">Loading property details...</p>
         </div>
 
@@ -30,7 +30,7 @@
           </p>
           <NuxtLink 
             to="/" 
-            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700"
           >
             <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -44,8 +44,8 @@
           <!-- Property Header -->
           <div class="text-center">
             <div class="mb-4">
-              <div class="w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto">
-                <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="w-16 h-16 bg-gradient-to-br from-primary-100 to-primary-100 rounded-full flex items-center justify-center mx-auto">
+                <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
               </div>
@@ -111,7 +111,7 @@
             <button 
               @click="requestAccess('standard')"
               :disabled="requestingAccess"
-              class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {{ requestingAccess ? 'Requesting Access...' : 'Request Standard Access' }}
             </button>
@@ -132,9 +132,9 @@
       <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
         <div class="text-center">
           <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4"
-               :class="accessType === 'emergency' ? 'bg-red-100' : 'bg-blue-100'">
+               :class="accessType === 'emergency' ? 'bg-red-100' : 'bg-primary-100'">
             <svg class="h-6 w-6" 
-                 :class="accessType === 'emergency' ? 'text-red-600' : 'text-blue-600'"
+                 :class="accessType === 'emergency' ? 'text-red-600' : 'text-primary-600'"
                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
@@ -224,7 +224,7 @@
                 type="submit"
                 :disabled="emailSending || !emailForm.email || (accessType === 'emergency' && !locationVerification.isVerified)"
                 class="px-4 py-2 text-sm font-medium text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
-                :class="accessType === 'emergency' ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'"
+                :class="accessType === 'emergency' ? 'bg-red-600 hover:bg-red-700' : 'bg-primary-600 hover:bg-primary-700'"
               >
                 {{ emailSending ? 'Sending...' : 'Send Access Request' }}
               </button>

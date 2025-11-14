@@ -13,7 +13,7 @@
       <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
         <!-- Loading State -->
         <div v-if="loadingProperty" class="text-center">
-          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
           <p class="mt-4 text-gray-600">Verifying your request...</p>
         </div>
 
@@ -45,7 +45,7 @@
             <button
               @click="processQrCode(manualQrCode)"
               :disabled="!manualQrCode"
-              class="mt-2 w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="mt-2 w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Process QR Code
             </button>
@@ -84,9 +84,9 @@
             <p class="text-sm text-gray-500 mb-4">
               Your email domain is not in the allowed list. Please enter the access code to continue.
             </p>
-            <div class="bg-blue-50 border border-blue-200 rounded-md p-4 mb-4">
-              <h4 class="font-medium text-blue-900">{{ scannedProperty.property_name }}</h4>
-              <p class="text-sm text-blue-700">{{ scannedProperty.address }}</p>
+            <div class="bg-primary-50 border border-primary-200 rounded-md p-4 mb-4">
+              <h4 class="font-medium text-primary-900">{{ scannedProperty.property_name }}</h4>
+              <p class="text-sm text-primary-700">{{ scannedProperty.address }}</p>
             </div>
           </div>
 
@@ -127,7 +127,7 @@
             <button
               type="submit"
               :disabled="submitting"
-              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {{ submitting ? 'Submitting...' : 'Submit Access Request' }}
             </button>
@@ -188,7 +188,7 @@
             <button
               type="submit"
               :disabled="submitting"
-              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {{ submitting ? 'Submitting...' : 'Request Access' }}
             </button>
@@ -225,7 +225,7 @@
             <button
               type="submit"
               :disabled="verifying"
-              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {{ verifying ? 'Verifying...' : 'Verify Code' }}
             </button>
@@ -235,7 +235,7 @@
             <button
               @click="resendCode"
               :disabled="resending"
-              class="text-sm text-indigo-600 hover:text-indigo-500 disabled:opacity-50"
+              class="text-sm text-primary-600 hover:text-primary-500 disabled:opacity-50"
             >
               {{ resending ? 'Resending...' : 'Resend Code' }}
             </button>
