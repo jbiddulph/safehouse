@@ -398,7 +398,7 @@
     </div>
 
     <!-- Add Property Modal -->
-    <div v-if="showAddProperty" class="fixed inset-0 bg-black opacity-50 overflow-y-auto h-full w-full z-50">
+    <div v-if="showAddProperty" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
       <div class="relative top-10 mx-auto p-5 border w-full max-w-6xl shadow-lg rounded-md bg-white">
         <div class="mt-3">
           <h3 class="text-lg font-medium text-gray-900 mb-4">Add New Property</h3>
@@ -496,7 +496,7 @@
               class="w-full h-96 rounded-lg border border-gray-300 overflow-hidden relative"
               style="min-height: 384px;"
             >
-              <div v-if="reverseGeocoding" class="absolute inset-0 bg-white opacity-75 flex items-center justify-center z-10">
+              <div v-if="reverseGeocoding" class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
                 <div class="text-center">
                   <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-2"></div>
                   <p class="text-sm text-gray-600">Getting address...</p>
@@ -514,7 +514,7 @@
     </div>
 
     <!-- Edit Contact Modal -->
-    <div v-if="showEditContact" class="fixed inset-0 bg-black opacity-50 overflow-y-auto h-full w-full z-50">
+    <div v-if="showEditContact" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
       <div class="relative top-10 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
         <div class="mt-3">
           <h3 class="text-lg font-medium text-gray-900 mb-4">Edit Contact</h3>
@@ -592,7 +592,7 @@
     </div>
 
     <!-- Add Contact Modal -->
-    <div v-if="showAddContact" class="fixed inset-0 bg-black opacity-50 overflow-y-auto h-full w-full z-50">
+    <div v-if="showAddContact" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
       <div class="relative top-10 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
         <div class="mt-3">
           <h3 class="text-lg font-medium text-gray-900 mb-4">Add Contact</h3>
@@ -670,7 +670,7 @@
     </div>
 
     <!-- Property Details Modal -->
-    <div v-if="showPropertyDetails" class="fixed inset-0 bg-black opacity-50 overflow-y-auto h-full w-full z-50">
+    <div v-if="showPropertyDetails" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
       <div class="relative top-10 mx-auto p-5 border w-4/5 max-w-4xl shadow-lg rounded-md bg-white">
         <div class="mt-3">
           <div class="flex justify-between items-center mb-4">
@@ -768,7 +768,7 @@
     </div>
 
     <!-- QR Code Modal -->
-    <div v-if="showQRModal" class="fixed inset-0 bg-black opacity-50 overflow-y-auto h-full w-full z-50">
+    <div v-if="showQRModal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
       <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
         <div class="mt-3">
           <div class="flex items-center justify-between mb-4">
@@ -825,7 +825,7 @@
     </div>
 
     <!-- Access Code Modal -->
-    <div v-if="showAccessCodeModal" class="fixed inset-0 bg-black opacity-50 overflow-y-auto h-full w-full z-50">
+    <div v-if="showAccessCodeModal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
       <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
         <div class="mt-3">
           <div class="flex items-center justify-between mb-4">

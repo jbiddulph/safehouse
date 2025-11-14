@@ -221,7 +221,7 @@
       </div>
 
       <!-- Edit Allowed Domain Modal -->
-      <div v-if="editingAllowed" class="fixed inset-0 bg-black opacity-50 flex items-center justify-center z-50">
+      <div v-if="editingAllowed" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
           <h3 class="text-lg font-semibold text-gray-900 mb-4">Edit Allowed Domain</h3>
           <form @submit.prevent="updateAllowedDomain" class="space-y-4">
@@ -282,7 +282,7 @@
       </div>
 
       <!-- Edit Blocked Domain Modal -->
-      <div v-if="editingBlocked" class="fixed inset-0 bg-black opacity-50 flex items-center justify-center z-50">
+      <div v-if="editingBlocked" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
           <h3 class="text-lg font-semibold text-gray-900 mb-4">Edit Blocked Domain</h3>
           <form @submit.prevent="updateBlockedDomain" class="space-y-4">
