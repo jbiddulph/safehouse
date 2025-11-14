@@ -292,7 +292,7 @@ async function searchProperties() {
       city: '',
       state: '',
       postcode: '',
-      country: 'US'
+      country: 'GB' // Default to UK
     }
     
     const searchParams = {
@@ -300,7 +300,7 @@ async function searchProperties() {
       city: addressData.city || '',
       state: addressData.state || '',
       postal_code: addressData.postcode || '',
-      country: addressData.country || 'US'
+      country: addressData.country || 'GB' // Default to UK
     }
 
     console.log('Searching properties with params:', searchParams)

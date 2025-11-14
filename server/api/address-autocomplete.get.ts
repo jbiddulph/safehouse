@@ -23,10 +23,12 @@ export default defineEventHandler(async (event) => {
     console.log('Searching Google Places for:', searchTerm)
 
     // Use Google Places API Text Search with correct fields
+    // Restrict to UK only using components parameter
     const searchParams = new URLSearchParams({
       input: searchTerm,
       inputtype: 'textquery',
       fields: 'place_id,formatted_address,geometry,types',
+      components: 'country:gb', // Restrict to United Kingdom
       key: googleApiKey
     })
 

@@ -1894,7 +1894,7 @@ model safehouse_properties {
   city                    String
   state                   String?
   postal_code             String?
-  country                 String   @default("US")
+  country                 String   @default("GB")
   property_type           String   @default("residential")
   latitude                Decimal? @db.Decimal(10, 8)
   longitude               Decimal? @db.Decimal(11, 8)
