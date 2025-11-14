@@ -80,6 +80,46 @@
         </div>
       </div>
 
+      <!-- Settings Section -->
+      <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">System Settings</h2>
+        
+        <div v-if="loadingSettings" class="text-center py-4">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p class="mt-2 text-gray-600">Loading settings...</p>
+        </div>
+
+        <div v-else class="space-y-6">
+          <!-- Location Verification Distance -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Location Verification Distance (meters)
+            </label>
+            <p class="text-sm text-gray-500 mb-3">
+              Maximum distance in meters for location verification when requesting emergency access. Users must be within this distance of the property to verify their location.
+            </p>
+            <div class="flex gap-4 items-center">
+              <input
+                v-model.number="settingsForm.location_verification_distance_meters"
+                type="number"
+                min="1"
+                max="100000"
+                class="w-32 px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+              <span class="text-sm text-gray-600">meters</span>
+              <button
+                @click="saveSettings"
+                :disabled="savingSettings"
+                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {{ savingSettings ? 'Saving...' : 'Save Settings' }}
+              </button>
+            </div>
+            <p v-if="settingsSaved" class="mt-2 text-sm text-green-600">Settings saved successfully!</p>
+          </div>
+        </div>
+      </div>
+
       <!-- User Management Section -->
       <div class="bg-white rounded-lg shadow-md p-6 mb-8">
         <h2 class="text-xl font-semibold text-gray-900 mb-4">User Role Management</h2>
@@ -226,11 +266,20 @@ const demotingUser = ref(null)
 const profile = ref(null)
 const isAdmin = ref(false)
 
+// Settings
+const loadingSettings = ref(false)
+const savingSettings = ref(false)
+const settingsSaved = ref(false)
+const settingsForm = ref({
+  location_verification_distance_meters: 50
+})
+
 // Load profile and check admin access
 onMounted(async () => {
   await loadProfile()
   if (isAdmin.value) {
     await loadUsers()
+    await loadSettings()
   }
 })
 
@@ -348,5 +397,65 @@ async function demoteToStandard(userId: string) {
 // Format date
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleDateString()
+}
+
+// Load settings
+async function loadSettings() {
+  loadingSettings.value = true
+  try {
+    const response = await $fetch('/api/admin/settings')
+    if (response.success && response.settings) {
+      // Populate form with settings
+      if (response.settings.location_verification_distance_meters) {
+        settingsForm.value.location_verification_distance_meters = parseInt(
+          response.settings.location_verification_distance_meters.value,
+          10
+        ) || 50
+      }
+    }
+  } catch (error) {
+    console.error('Error loading settings:', error)
+    // Keep default values on error
+  } finally {
+    loadingSettings.value = false
+  }
+}
+
+// Save settings
+async function saveSettings() {
+  savingSettings.value = true
+  settingsSaved.value = false
+  
+  try {
+    // Validate the distance value
+    const distance = settingsForm.value.location_verification_distance_meters
+    if (!distance || distance < 1 || distance > 100000) {
+      alert('Distance must be between 1 and 100,000 meters')
+      return
+    }
+
+    const response = await $fetch('/api/admin/settings', {
+      method: 'PUT',
+      body: {
+        setting_key: 'location_verification_distance_meters',
+        setting_value: distance,
+        description: 'Maximum distance in meters for location verification when requesting emergency access'
+      }
+    })
+
+    if (response.success) {
+      settingsSaved.value = true
+      setTimeout(() => {
+        settingsSaved.value = false
+      }, 3000)
+    } else {
+      alert('Failed to save settings')
+    }
+  } catch (error) {
+    console.error('Error saving settings:', error)
+    alert('Failed to save settings: ' + (error.message || 'Unknown error'))
+  } finally {
+    savingSettings.value = false
+  }
 }
 </script>

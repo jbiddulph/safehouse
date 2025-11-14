@@ -94,7 +94,10 @@ export default defineEventHandler(async (event) => {
                   address.city = component.long_name
                 }
                 if (types.includes('administrative_area_level_1')) address.state = component.long_name
-                if (types.includes('country')) address.country = component.long_name
+                if (types.includes('country')) {
+                  // Use short_name (ISO code) for country, fallback to long_name
+                  address.country = component.short_name || component.long_name
+                }
               })
 
               return {

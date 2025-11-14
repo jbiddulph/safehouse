@@ -75,43 +75,23 @@
             </span>
           </div>
 
-          <!-- QR Code Section -->
-          <div v-if="property.qr_code" class="text-center">
-            <h4 class="text-lg font-medium text-gray-900 mb-4">QR Code</h4>
-            <div class="bg-white p-4 rounded-lg border-2 border-gray-200 inline-block">
-              <div id="qr-code" class="w-48 h-48"></div>
-            </div>
-            <p class="text-sm text-gray-500 mt-2">Scan this QR code for quick access</p>
-          </div>
-
-          <!-- Access Information -->
-          <div class="bg-gray-50 rounded-lg p-4">
-            <h4 class="text-lg font-medium text-gray-900 mb-3">Access Information</h4>
-            <div class="space-y-2 text-sm">
-              <div class="flex justify-between">
-                <span class="text-gray-600">Property ID:</span>
-                <span class="font-mono text-gray-900">{{ property.id }}</span>
-              </div>
-              <div v-if="property.qr_code" class="flex justify-between">
-                <span class="text-gray-600">QR Code:</span>
-                <span class="font-mono text-gray-900">{{ property.qr_code }}</span>
-              </div>
-              <div v-if="property.nfc_id" class="flex justify-between">
-                <span class="text-gray-600">NFC ID:</span>
-                <span class="font-mono text-gray-900">{{ property.nfc_id }}</span>
-              </div>
-            </div>
-          </div>
-
           <!-- Actions -->
           <div class="space-y-3">
             <button 
               v-if="property.emergency_access_enabled"
-              @click="requestAccess"
+              @click="requestAccess('emergency')"
               :disabled="requestingAccess"
               class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {{ requestingAccess ? 'Requesting Access...' : 'Request Emergency Access' }}
+            </button>
+            
+            <button 
+              @click="requestAccess('standard')"
+              :disabled="requestingAccess"
+              class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {{ requestingAccess ? 'Requesting Access...' : 'Request Standard Access' }}
             </button>
             
             <NuxtLink 
@@ -129,21 +109,26 @@
     <div v-if="showEmailModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
         <div class="text-center">
-          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-            <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4"
+               :class="accessType === 'emergency' ? 'bg-red-100' : 'bg-blue-100'">
+            <svg class="h-6 w-6" 
+                 :class="accessType === 'emergency' ? 'text-red-600' : 'text-blue-600'"
+                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
           
-          <h3 v-if="!emailSent" class="text-lg font-medium text-gray-900 mb-2">Request Emergency Access</h3>
+          <h3 v-if="!emailSent" class="text-lg font-medium text-gray-900 mb-2">
+            Request {{ accessType === 'emergency' ? 'Emergency' : 'Standard' }} Access
+          </h3>
           <h3 v-else class="text-lg font-medium text-green-900 mb-2">Email Sent!</h3>
           
           <p v-if="!emailSent" class="text-sm text-gray-500 mb-6">
-            Enter your email address so we can alert the property owner of your emergency access request for {{ property?.property_name }}.
-            We'll also verify you're at the property location for security.
+            Enter your email address so we can alert the property owner of your {{ accessType === 'emergency' ? 'emergency' : 'standard' }} access request for {{ property?.property_name }}.
+            <span v-if="accessType === 'emergency'">We'll also verify you're at the property location for security.</span>
           </p>
           <p v-else class="text-sm text-green-600 mb-6">
-            We've notified the property owner. Please wait for them to approve your request for access to {{ property?.property_name }}.
+            We've notified the property owner. Please wait for them to approve your {{ accessType === 'emergency' ? 'emergency' : 'standard' }} access request for {{ property?.property_name }}.
           </p>
         </div>
 
@@ -163,8 +148,8 @@
               />
             </div>
 
-            <!-- Location Verification -->
-            <div class="space-y-3">
+            <!-- Location Verification (Required for Emergency Access) -->
+            <div v-if="accessType === 'emergency'" class="space-y-3">
               <div class="flex items-center justify-between">
                 <label class="text-sm font-medium text-gray-700">
                   Location Verification
@@ -215,8 +200,9 @@
               </button>
               <button
                 type="submit"
-                :disabled="emailSending || !emailForm.email || !locationVerification.isVerified"
-                class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                :disabled="emailSending || !emailForm.email || (accessType === 'emergency' && !locationVerification.isVerified)"
+                class="px-4 py-2 text-sm font-medium text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+                :class="accessType === 'emergency' ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'"
               >
                 {{ emailSending ? 'Sending...' : 'Send Access Request' }}
               </button>
@@ -258,6 +244,7 @@ const emailForm = ref({
 })
 const emailSending = ref(false)
 const emailSent = ref(false)
+const accessType = ref<'emergency' | 'standard'>('emergency')
 
 // Location verification
 const { verifyLocationAtProperty } = useLocationVerification()
@@ -287,11 +274,6 @@ async function loadProperty() {
       // Log property view
       const { logPropertyView } = useAccessLogger()
       await logPropertyView(propertyId, response.property.property_name)
-      
-      // Generate QR code if property has QR code
-      if (property.value.qr_code) {
-        await generateQRCode(property.value.qr_code)
-      }
     } else {
       error.value = true
     }
@@ -303,32 +285,11 @@ async function loadProperty() {
   }
 }
 
-// Generate QR code
-async function generateQRCode(qrData: string) {
-  try {
-    // Import QR code library dynamically
-    const QRCode = await import('qrcode')
-    
-    const canvas = document.getElementById('qr-code') as HTMLCanvasElement
-    if (canvas) {
-      await QRCode.toCanvas(canvas, qrData, {
-        width: 200,
-        margin: 2,
-        color: {
-          dark: '#000000',
-          light: '#FFFFFF'
-        }
-      })
-    }
-  } catch (err) {
-    console.error('Error generating QR code:', err)
-  }
-}
-
-// Request emergency access
-async function requestAccess() {
+// Request access (emergency or standard)
+async function requestAccess(type: 'emergency' | 'standard') {
   if (!property.value) return
   
+  accessType.value = type
   requestingAccess.value = true
   try {
     // Check if user is logged in
@@ -353,7 +314,9 @@ async function requestAccess() {
 
 // Send access request email
 async function sendAccessRequestEmail() {
-  if (!emailForm.value.email || !property.value || !locationVerification.value.isVerified) return
+  if (!emailForm.value.email || !property.value) return
+  // Location verification required only for emergency access
+  if (accessType.value === 'emergency' && !locationVerification.value.isVerified) return
   
   emailSending.value = true
   try {
@@ -362,7 +325,8 @@ async function sendAccessRequestEmail() {
       body: {
         email: emailForm.value.email,
         property_id: property.value.id,
-        location_verified: true,
+        access_type: accessType.value, // 'emergency' or 'standard'
+        location_verified: accessType.value === 'emergency' ? locationVerification.value.isVerified : false,
         user_location: locationVerification.value.userLocation,
         distance_from_property: locationVerification.value.distance
       }
@@ -396,10 +360,22 @@ async function verifyLocation() {
   locationVerification.value.error = null
 
   try {
+    // Fetch distance tolerance from settings
+    let distanceTolerance = 50 // Default fallback
+    try {
+      const settingsResponse = await $fetch('/api/settings/get-distance-tolerance')
+      if (settingsResponse.success) {
+        distanceTolerance = settingsResponse.distanceToleranceMeters
+      }
+    } catch (settingsError) {
+      console.warn('Failed to fetch distance tolerance setting, using default:', settingsError)
+      // Use default value
+    }
+
     const result = await verifyLocationAtProperty(
       property.value.latitude,
       property.value.longitude,
-      10000 // 50 meters tolerance
+      distanceTolerance
     )
 
     locationVerification.value = result
@@ -424,6 +400,7 @@ function closeEmailModal() {
   showEmailModal.value = false
   emailSent.value = false
   emailForm.value.email = ''
+  accessType.value = 'emergency' // Reset to default
   // Reset location verification
   locationVerification.value = {
     isVerified: false,

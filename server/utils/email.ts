@@ -60,7 +60,8 @@ export async function sendAccessRequestNotification(
   propertyAddress: string,
   requestId: string,
   approveLink?: string,
-  denyLink?: string
+  denyLink?: string,
+  accessType: 'emergency' | 'standard' = 'emergency'
 ) {
   const emailTransporter = initializeEmail()
   if (!emailTransporter) {
@@ -73,16 +74,22 @@ export async function sendAccessRequestNotification(
       ? `${requesterName} (${requesterEmail})`
       : requesterEmail
 
+    const isEmergency = accessType === 'emergency'
+    const subjectEmoji = isEmergency ? '🚨' : '📋'
+    const subjectText = isEmergency ? 'Emergency' : 'Standard'
+    const titleColor = isEmergency ? '#dc2626' : '#2563eb'
+    const titleText = isEmergency ? 'Emergency Access Request' : 'Standard Access Request'
+
     const mailOptions = {
       from: 'SafeHouse <noreply@safehouse.app>',
       to: toEmail,
-      subject: `🚨 Emergency Access Request - ${propertyName}`,
+      subject: `${subjectEmoji} ${subjectText} Access Request - ${propertyName}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #dc2626;">Emergency Access Request</h2>
+          <h2 style="color: ${titleColor};">${titleText}</h2>
 
           <p style="font-size: 16px; color: #374151; line-height: 1.6;">
-            A user with the email address <strong>${requesterDisplay}</strong> is requesting emergency access to your property.
+            A user with the email address <strong>${requesterDisplay}</strong> is requesting ${isEmergency ? 'emergency' : 'standard'} access to your property.
           </p>
 
           <div style="background-color: #fef2f2; padding: 16px; border-radius: 8px; margin: 16px 0;">

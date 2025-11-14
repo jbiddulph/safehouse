@@ -394,171 +394,75 @@
           <form @submit.prevent="createProperty" class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-700">Property Name</label>
-              <input v-model="newProperty.property_name" type="text" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+              <input v-model="newProperty.property_name" type="text" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900">
             </div>
-            <div>
+            <div class="relative">
               <label class="block text-sm font-medium text-gray-700">Address</label>
-              <input v-model="newProperty.address" type="text" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+              <input 
+                v-model="addressQuery" 
+                @input="fetchAddressSuggestions"
+                @focus="handleAddressInputFocus"
+                @blur="hideAddressSuggestions"
+                type="text" 
+                required 
+                placeholder="Start typing an address..."
+                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+              >
+              
+              <!-- Address Suggestions -->
+              <div 
+                v-if="showAddressSuggestions && addressSuggestions.length > 0" 
+                class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+              >
+                <div
+                  v-for="(suggestion, index) in addressSuggestions"
+                  :key="index"
+                  :class="[
+                    'px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0',
+                    selectedAddressIndex === index ? 'bg-blue-50 text-blue-900' : 'hover:bg-gray-50'
+                  ]"
+                  @click="selectAddressSuggestion(suggestion)"
+                  @mouseenter="selectedAddressIndex = index"
+                >
+                  <div class="font-medium">{{ suggestion.formatted_address }}</div>
+                  <div v-if="suggestion.postcode" class="text-sm text-gray-500">
+                    {{ suggestion.postcode }}
+                    <span v-if="suggestion.city"> • {{ suggestion.city }}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- No results message -->
+              <div 
+                v-if="showAddressSuggestions && addressSuggestions.length === 0 && addressQuery.length > 2 && !loadingAddressSuggestions"
+                class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg p-4 text-center text-gray-500"
+              >
+                No addresses found. Try a different search term.
+              </div>
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700">City</label>
-                <input v-model="newProperty.city" type="text" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+                <input v-model="newProperty.city" type="text" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900">
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700">State</label>
-                <input v-model="newProperty.state" type="text" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+                <input v-model="newProperty.state" type="text" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900">
               </div>
             </div>
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700">Postal Code</label>
-                <input v-model="newProperty.postal_code" type="text" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700">Country</label>
-                <select v-model="newProperty.country" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-                  <option value="US">United States</option>
-                  <option value="CA">Canada</option>
-                  <option value="GB">United Kingdom</option>
-                  <option value="AU">Australia</option>
-                  <option value="DE">Germany</option>
-                  <option value="FR">France</option>
-                  <option value="ES">Spain</option>
-                  <option value="IT">Italy</option>
-                  <option value="NL">Netherlands</option>
-                  <option value="BE">Belgium</option>
-                  <option value="CH">Switzerland</option>
-                  <option value="AT">Austria</option>
-                  <option value="SE">Sweden</option>
-                  <option value="NO">Norway</option>
-                  <option value="DK">Denmark</option>
-                  <option value="FI">Finland</option>
-                  <option value="IE">Ireland</option>
-                  <option value="PT">Portugal</option>
-                  <option value="GR">Greece</option>
-                  <option value="PL">Poland</option>
-                  <option value="CZ">Czech Republic</option>
-                  <option value="HU">Hungary</option>
-                  <option value="SK">Slovakia</option>
-                  <option value="SI">Slovenia</option>
-                  <option value="HR">Croatia</option>
-                  <option value="RO">Romania</option>
-                  <option value="BG">Bulgaria</option>
-                  <option value="LT">Lithuania</option>
-                  <option value="LV">Latvia</option>
-                  <option value="EE">Estonia</option>
-                  <option value="LU">Luxembourg</option>
-                  <option value="MT">Malta</option>
-                  <option value="CY">Cyprus</option>
-                  <option value="JP">Japan</option>
-                  <option value="KR">South Korea</option>
-                  <option value="CN">China</option>
-                  <option value="IN">India</option>
-                  <option value="SG">Singapore</option>
-                  <option value="HK">Hong Kong</option>
-                  <option value="TW">Taiwan</option>
-                  <option value="TH">Thailand</option>
-                  <option value="MY">Malaysia</option>
-                  <option value="ID">Indonesia</option>
-                  <option value="PH">Philippines</option>
-                  <option value="VN">Vietnam</option>
-                  <option value="NZ">New Zealand</option>
-                  <option value="ZA">South Africa</option>
-                  <option value="BR">Brazil</option>
-                  <option value="AR">Argentina</option>
-                  <option value="CL">Chile</option>
-                  <option value="CO">Colombia</option>
-                  <option value="MX">Mexico</option>
-                  <option value="PE">Peru</option>
-                  <option value="UY">Uruguay</option>
-                  <option value="PY">Paraguay</option>
-                  <option value="BO">Bolivia</option>
-                  <option value="EC">Ecuador</option>
-                  <option value="VE">Venezuela</option>
-                  <option value="GT">Guatemala</option>
-                  <option value="CU">Cuba</option>
-                  <option value="JM">Jamaica</option>
-                  <option value="TT">Trinidad and Tobago</option>
-                  <option value="BB">Barbados</option>
-                  <option value="BS">Bahamas</option>
-                  <option value="BZ">Belize</option>
-                  <option value="CR">Costa Rica</option>
-                  <option value="PA">Panama</option>
-                  <option value="HN">Honduras</option>
-                  <option value="NI">Nicaragua</option>
-                  <option value="SV">El Salvador</option>
-                  <option value="DO">Dominican Republic</option>
-                  <option value="HT">Haiti</option>
-                  <option value="PR">Puerto Rico</option>
-                  <option value="EG">Egypt</option>
-                  <option value="MA">Morocco</option>
-                  <option value="TN">Tunisia</option>
-                  <option value="DZ">Algeria</option>
-                  <option value="LY">Libya</option>
-                  <option value="SD">Sudan</option>
-                  <option value="ET">Ethiopia</option>
-                  <option value="KE">Kenya</option>
-                  <option value="UG">Uganda</option>
-                  <option value="TZ">Tanzania</option>
-                  <option value="GH">Ghana</option>
-                  <option value="NG">Nigeria</option>
-                  <option value="SN">Senegal</option>
-                  <option value="CI">Ivory Coast</option>
-                  <option value="ML">Mali</option>
-                  <option value="BF">Burkina Faso</option>
-                  <option value="NE">Niger</option>
-                  <option value="TD">Chad</option>
-                  <option value="CM">Cameroon</option>
-                  <option value="CF">Central African Republic</option>
-                  <option value="CD">Democratic Republic of the Congo</option>
-                  <option value="CG">Republic of the Congo</option>
-                  <option value="GA">Gabon</option>
-                  <option value="GQ">Equatorial Guinea</option>
-                  <option value="ST">São Tomé and Príncipe</option>
-                  <option value="AO">Angola</option>
-                  <option value="ZM">Zambia</option>
-                  <option value="ZW">Zimbabwe</option>
-                  <option value="BW">Botswana</option>
-                  <option value="NA">Namibia</option>
-                  <option value="SZ">Eswatini</option>
-                  <option value="LS">Lesotho</option>
-                  <option value="MG">Madagascar</option>
-                  <option value="MU">Mauritius</option>
-                  <option value="SC">Seychelles</option>
-                  <option value="KM">Comoros</option>
-                  <option value="DJ">Djibouti</option>
-                  <option value="SO">Somalia</option>
-                  <option value="ER">Eritrea</option>
-                  <option value="SS">South Sudan</option>
-                  <option value="RW">Rwanda</option>
-                  <option value="BI">Burundi</option>
-                  <option value="MW">Malawi</option>
-                  <option value="MZ">Mozambique</option>
-                  <option value="RE">Réunion</option>
-                  <option value="YT">Mayotte</option>
-                  <option value="SH">Saint Helena</option>
-                  <option value="CV">Cape Verde</option>
-                  <option value="GW">Guinea-Bissau</option>
-                  <option value="GN">Guinea</option>
-                  <option value="SL">Sierra Leone</option>
-                  <option value="LR">Liberia</option>
-                  <option value="TG">Togo</option>
-                  <option value="BJ">Benin</option>
-                  <option value="MR">Mauritania</option>
-                  <option value="GM">Gambia</option>
-                </select>
-              </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Postal Code</label>
+              <input v-model="newProperty.postal_code" type="text" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900">
             </div>
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700">Property Type</label>
-                <select v-model="newProperty.property_type" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-                  <option value="residential">Residential</option>
-                  <option value="commercial">Commercial</option>
-                  <option value="vacation">Vacation</option>
-                </select>
-              </div>
+            <!-- Country is hidden, defaults to GB (United Kingdom) -->
+            <input type="hidden" v-model="newProperty.country">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Property Type</label>
+              <select v-model="newProperty.property_type" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900">
+                <option value="residential">Residential</option>
+                <option value="commercial">Commercial</option>
+                <option value="vacation">Vacation</option>
+              </select>
             </div>
             <div class="flex justify-end space-x-3 pt-4">
               <button @click="showAddProperty = false" type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
@@ -993,9 +897,19 @@ const newProperty = ref({
   city: '',
   state: '',
   postal_code: '',
-  country: 'US',
-  property_type: 'residential'
+  country: 'GB', // Default to UK
+  property_type: 'residential',
+  latitude: null as number | null,
+  longitude: null as number | null
 })
+
+// Address autocomplete for property form
+const addressQuery = ref('')
+const addressSuggestions = ref([])
+const showAddressSuggestions = ref(false)
+const loadingAddressSuggestions = ref(false)
+const selectedAddressIndex = ref(-1)
+const selectedAddress = ref(null)
 
 const newContact = ref({
   contact_name: '',
@@ -1187,10 +1101,108 @@ async function loadActiveAccessCodes() {
   }
 }
 
+// Address autocomplete functions
+async function fetchAddressSuggestions() {
+  if (addressQuery.value.length < 3) {
+    addressSuggestions.value = []
+    showAddressSuggestions.value = false
+    return
+  }
+  
+  loadingAddressSuggestions.value = true
+  try {
+    const response = await $fetch('/api/address-autocomplete', {
+      query: {
+        q: addressQuery.value
+      }
+    })
+    
+    if (response.success && response.suggestions) {
+      addressSuggestions.value = response.suggestions
+      showAddressSuggestions.value = true
+      selectedAddressIndex.value = -1
+    } else {
+      addressSuggestions.value = []
+    }
+  } catch (error) {
+    console.error('Error fetching address suggestions:', error)
+    addressSuggestions.value = []
+  } finally {
+    loadingAddressSuggestions.value = false
+  }
+}
+
+function handleAddressInputFocus() {
+  if (addressQuery.value.length >= 3 && addressSuggestions.value.length > 0) {
+    showAddressSuggestions.value = true
+  }
+}
+
+function hideAddressSuggestions() {
+  setTimeout(() => {
+    showAddressSuggestions.value = false
+  }, 200)
+}
+
+function selectAddressSuggestion(suggestion: any) {
+  if (!suggestion) return
+  
+  selectedAddress.value = suggestion
+  addressQuery.value = suggestion.formatted_address
+  
+  // Populate form fields from the selected address
+  newProperty.value.address = suggestion.formatted_address || suggestion.full_address || ''
+  newProperty.value.city = suggestion.city || ''
+  newProperty.value.state = suggestion.state || ''
+  newProperty.value.postal_code = suggestion.postcode || ''
+  
+  // Capture latitude and longitude
+  if (suggestion.lat) {
+    newProperty.value.latitude = parseFloat(suggestion.lat)
+  }
+  if (suggestion.lon) {
+    newProperty.value.longitude = parseFloat(suggestion.lon)
+  }
+  
+  // Set country (API now returns ISO code directly)
+  if (suggestion.country) {
+    // API returns ISO code (2 letters), but handle edge cases
+    if (suggestion.country.length === 2) {
+      newProperty.value.country = suggestion.country.toUpperCase()
+    } else {
+      // Fallback mapping for full country names (shouldn't happen with updated API)
+      const countryMap: Record<string, string> = {
+        'United Kingdom': 'GB',
+        'UK': 'GB',
+        'United States': 'US',
+        'USA': 'US'
+      }
+      newProperty.value.country = countryMap[suggestion.country] || 'GB'
+    }
+  } else {
+    // Default to UK if no country found
+    newProperty.value.country = 'GB'
+  }
+  
+  showAddressSuggestions.value = false
+  selectedAddressIndex.value = -1
+}
+
 async function createProperty() {
   const client = useSupabaseClient()
   const { data: { session } } = await client.auth.getSession()
   if (!session?.user?.id) return
+  
+  // Ensure address is set from addressQuery if not already set
+  if (!newProperty.value.address && addressQuery.value) {
+    newProperty.value.address = addressQuery.value
+  }
+  
+  // Validate that latitude and longitude are present
+  if (newProperty.value.latitude === null || newProperty.value.longitude === null) {
+    alert('Please select an address from the suggestions to automatically populate location coordinates.')
+    return
+  }
   
   creatingProperty.value = true
   try {
@@ -1212,9 +1224,17 @@ async function createProperty() {
         city: '',
         state: '',
         postal_code: '',
-        country: 'US',
-        property_type: 'residential'
+        country: 'GB', // Default to UK
+        property_type: 'residential',
+        latitude: null,
+        longitude: null
       }
+      // Reset address autocomplete
+      addressQuery.value = ''
+      addressSuggestions.value = []
+      showAddressSuggestions.value = false
+      selectedAddress.value = null
+      selectedAddressIndex.value = -1
       alert('Property created successfully! A default access code has been generated for this property.')
     }
   } catch (error) {

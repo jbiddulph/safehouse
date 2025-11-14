@@ -7,6 +7,7 @@ export default defineEventHandler(async (event) => {
   const { 
     email, 
     property_id, 
+    access_type = 'emergency', // 'emergency' or 'standard'
     location_verified = false,
     user_location,
     distance_from_property 
@@ -19,8 +20,8 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // Require location verification for security
-  if (!location_verified) {
+  // Require location verification only for emergency access
+  if (access_type === 'emergency' && !location_verified) {
     throw createError({
       statusCode: 400,
       statusMessage: 'Location verification is required for emergency access requests'
@@ -173,7 +174,8 @@ export default defineEventHandler(async (event) => {
         propertyDisplayAddress || property.address,
         accessRequestRecord.id,
         approvalLink,
-        denialLink
+        denialLink,
+        access_type
       )
       console.log('Access request notification sent successfully to property owner:', propertyOwner.email)
     } catch (emailError) {

@@ -9,8 +9,10 @@ export default defineEventHandler(async (event) => {
     city, 
     state, 
     postal_code, 
-    country = 'US', 
+    country = 'GB', 
     property_type = 'residential',
+    latitude,
+    longitude,
     user_id 
   } = body
 
@@ -18,6 +20,14 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: 400,
       statusMessage: 'Missing required fields'
+    })
+  }
+
+  // Validate latitude and longitude are provided
+  if (latitude === null || latitude === undefined || longitude === null || longitude === undefined) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Latitude and longitude are required'
     })
   }
 
@@ -49,6 +59,8 @@ export default defineEventHandler(async (event) => {
         postal_code,
         country,
         property_type,
+        latitude: parseFloat(latitude),
+        longitude: parseFloat(longitude),
         qr_code: qrCode,
         nfc_id: nfcId,
         emergency_access_enabled: true
