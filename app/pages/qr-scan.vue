@@ -39,7 +39,7 @@
             <button
               @click="processQrCode(manualQrCode)"
               :disabled="!manualQrCode"
-              class="mt-2 w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="mt-2 w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#03045e] hover:bg-[#03045e] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Process QR Code
             </button>
@@ -49,10 +49,10 @@
         <!-- Property Info and Email Form -->
         <div v-else-if="!requestSubmitted" class="space-y-6">
           <!-- Property Information -->
-          <div class="bg-primary-50 border border-primary-200 rounded-md p-4">
-            <h3 class="text-lg font-medium text-primary-900 mb-2">Property Information</h3>
-            <p class="text-sm text-primary-800 font-medium">{{ scannedProperty.property_name }}</p>
-            <p class="text-sm text-primary-700">{{ scannedProperty.address }}</p>
+          <div class="bg-[#cbeff8] border border-[#8ee0ee] rounded-md p-4">
+            <h3 class="text-lg font-medium text-[#03045e] mb-2">Property Information</h3>
+            <p class="text-sm text-[#03045e] font-medium">{{ scannedProperty.property_name }}</p>
+            <p class="text-sm text-[#8ee0ee]">{{ scannedProperty.address }}</p>
           </div>
 
           <!-- Email Form -->
@@ -66,7 +66,7 @@
                 v-model="requestForm.requester_email"
                 type="email"
                 required
-                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
                 placeholder="Enter your email address"
               />
             </div>
@@ -79,23 +79,23 @@
                 id="requester_name"
                 v-model="requestForm.requester_name"
                 type="text"
-                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
                 placeholder="Enter your name"
               />
             </div>
 
-            <div class="bg-primary-50 border border-primary-200 rounded-md p-4">
+            <div class="bg-[#cbeff8] border border-[#8ee0ee] rounded-md p-4">
               <div class="flex">
                 <div class="flex-shrink-0">
-                  <svg class="h-5 w-5 text-primary-400" fill="currentColor" viewBox="0 0 20 20">
+                  <svg class="h-5 w-5 text-[#8ee0ee]" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                   </svg>
                 </div>
                 <div class="ml-3">
-                  <h3 class="text-sm font-medium text-primary-800">
+                  <h3 class="text-sm font-medium text-[#03045e]">
                     Access Code Information
                   </h3>
-                  <div class="mt-2 text-sm text-primary-700">
+                  <div class="mt-2 text-sm text-[#8ee0ee]">
                     <p>After submitting your request, you will receive an email with the access code for this property.</p>
                   </div>
                 </div>
@@ -105,7 +105,7 @@
             <button
               type="submit"
               :disabled="submitting || !requestForm.requester_email"
-              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#03045e] hover:bg-[#03045e] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {{ submitting ? 'Submitting Request...' : 'Request Access Code' }}
             </button>
@@ -123,8 +123,8 @@
 
         <!-- Success Message -->
         <div v-else class="text-center">
-          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
-            <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-[#cbeff8]">
+            <svg class="h-6 w-6 text-[#8ee0ee]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>
           </div>
@@ -138,7 +138,7 @@
           <div class="mt-4">
             <button
               @click="resetForm"
-              class="text-sm text-primary-600 hover:text-primary-500"
+              class="text-sm text-[#8ee0ee] hover:text-[#8ee0ee]0"
             >
               Submit Another Request
             </button>
@@ -247,7 +247,7 @@ onMounted(() => {
   const propertyId = route.query.property as string
   
   if (propertyId) {
-    // Auto-process if property ID is in URL
+    // Auif property ID is in URL
     processQrCode(`https://safehouse.app/qr-scan?property=${propertyId}`)
   }
 })

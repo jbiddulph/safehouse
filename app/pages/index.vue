@@ -1,13 +1,90 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-primary-50 via-primary-100 to-primary-200 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-    <div class="sm:mx-auto sm:w-full sm:max-w-2xl">
+  <div class="min-h-screen bg-[#cbeff8] flex flex-col">
+    <!-- Top Navigation -->
+    <nav class="bg-[#03045e] shadow-lg border-b border-[#03045e]">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+          <!-- Logo and Title -->
+          <div class="flex items-center space-x-8">
+            <div class="flex-shrink-0 flex items-center space-x-3">
+              <div class="h-8 w-8 bg-[#ffffff] rounded-lg flex items-center justify-center">
+                <img src="/images/logo.png" alt="SafeHouse" class="h-full w-full object-cover" />
+              </div>
+              <h1 class="text-2xl font-bold text-white">SafeHouse</h1>
+            </div>
+            
+            <!-- Navigation Menu -->
+            <nav class="hidden md:flex items-center space-x-6">
+              <NuxtLink to="/about" class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors">
+                About Us
+              </NuxtLink>
+              <NuxtLink to="/how-it-works" class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors">
+                How It Works
+              </NuxtLink>
+              <NuxtLink to="/privacy-policy" class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors">
+                Privacy Policy
+              </NuxtLink>
+              <NuxtLink to="/terms" class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors">
+                Terms & Conditions
+              </NuxtLink>
+            </nav>
+          </div>
+
+          <!-- Auth Buttons -->
+          <div class="flex items-center space-x-4">
+            <NuxtLink 
+              v-if="!isLoggedIn"
+              to="/auth/login" 
+              class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors"
+            >
+              Sign In
+            </NuxtLink>
+            <NuxtLink 
+              v-if="!isLoggedIn"
+              to="/auth/register" 
+              class="px-4 py-2 text-sm font-medium text-white bg-[#8ee0ee] rounded-lg hover:bg-[#8ee0ee]/80 transition-colors"
+            >
+              Sign Up
+            </NuxtLink>
+            <NuxtLink 
+              v-if="isLoggedIn"
+              to="/dashboard" 
+              class="px-4 py-2 text-sm font-medium text-white bg-[#8ee0ee] rounded-lg hover:bg-[#8ee0ee]/80 transition-colors"
+            >
+              Dashboard
+            </NuxtLink>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Mobile Menu -->
+      <div v-if="showMobileMenu" class="md:hidden bg-[#03045e] border-t border-[#03045e]">
+        <div class="px-4 py-4 space-y-3">
+          <NuxtLink to="/about" class="block text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors" @click="showMobileMenu = false">
+            About Us
+          </NuxtLink>
+          <NuxtLink to="/how-it-works" class="block text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors" @click="showMobileMenu = false">
+            How It Works
+          </NuxtLink>
+          <NuxtLink to="/privacy-policy" class="block text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors" @click="showMobileMenu = false">
+            Privacy Policy
+          </NuxtLink>
+          <NuxtLink to="/terms" class="block text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors" @click="showMobileMenu = false">
+            Terms & Conditions
+          </NuxtLink>
+        </div>
+      </div>
+    </nav>
+
+    <div class="flex-1 py-12 sm:px-6 lg:px-8">
+      <div class="sm:mx-auto sm:w-full sm:max-w-2xl">
       <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold bg-gradient-to-r from-primary-800 via-primary-600 to-primary-400 bg-clip-text text-transparent mb-4">SafeHouse</h1>
+        <h1 class="text-4xl font-bold text-[#03045e] mb-4">SafeHouse</h1>
         <p class="text-lg text-gray-600 mb-4">
           Enter an address to find properties or request emergency access
         </p>
         <div v-if="isLoggedIn" class="mb-4">
-          <p class="text-sm text-primary-600">Welcome back, {{ userEmail }}!</p>
+          <p class="text-sm text-[#03045e]">Welcome back, {{ userEmail }}!</p>
         </div>
       </div>
 
@@ -23,7 +100,7 @@
               v-model="addressQuery"
               type="text"
               placeholder="Start typing an address..."
-              class="w-full px-4 py-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              class="w-full px-4 py-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]"
               @input="handleAddressInput"
               @keydown.down="navigateSuggestions('down')"
               @keydown.up="navigateSuggestions('up')"
@@ -34,7 +111,7 @@
             
             <!-- Loading indicator -->
             <div v-if="loading" class="absolute right-3 top-1/2 transform -translate-y-1/2">
-              <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-600"></div>
+              <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-[#03045e]"></div>
             </div>
           </div>
 
@@ -56,7 +133,7 @@
               <div v-if="search.postcode" class="text-sm text-gray-500">
                 {{ search.postcode }}
                 <span v-if="search.city"> • {{ search.city }}</span>
-                <span v-if="search.house_number" class="text-green-600 font-medium">
+                <span v-if="search.house_number" class="text-[#8ee0ee] font-medium">
                   • House #{{ search.house_number }}
                 </span>
               </div>
@@ -76,7 +153,7 @@
               :key="index"
               :class="[
                 'px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0',
-                selectedIndex === index ? 'bg-primary-50 text-primary-900' : 'hover:bg-gray-50'
+                selectedIndex === index ? 'bg-[#cbeff8] text-[#03045e]' : 'hover:bg-gray-50'
               ]"
               @click="selectSuggestion(suggestion)"
               @mouseenter="selectedIndex = index"
@@ -85,7 +162,7 @@
               <div v-if="suggestion.postcode" class="text-sm text-gray-500">
                 {{ suggestion.postcode }}
                 <span v-if="suggestion.city"> • {{ suggestion.city }}</span>
-                <span v-if="suggestion.house_number" class="text-green-600 font-medium">
+                <span v-if="suggestion.house_number" class="text-[#8ee0ee] font-medium">
                   • House #{{ suggestion.house_number }}
                 </span>
               </div>
@@ -109,51 +186,32 @@
           <button
             @click="searchProperties"
             :disabled="!addressQuery.trim() || searching"
-            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-[#03045e] hover:bg-[#03045e] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {{ searching ? 'Searching...' : 'Search Properties' }}
           </button>
         </div>
 
         <!-- Selected Address Display -->
-        <div v-if="selectedAddress || addressQuery.trim()" class="mt-4 p-4 bg-primary-50 border border-primary-200 rounded-lg">
-          <h3 class="font-medium text-primary-900 mb-1">Search Address:</h3>
-          <p class="text-primary-800">{{ selectedAddress?.formatted_address || addressQuery }}</p>
+        <div v-if="selectedAddress || addressQuery.trim()" class="mt-4 p-4 bg-[#cbeff8] border border-[#8ee0ee] rounded-lg">
+          <h3 class="font-medium text-[#03045e] mb-1">Search Address:</h3>
+          <p class="text-[#03045e]">{{ selectedAddress?.formatted_address || addressQuery }}</p>
         </div>
       </div>
 
-      <!-- Quick Actions -->
-      <div class="mt-8 text-center">
-        <div v-if="!isLoggedIn" class="space-y-4">
-          <NuxtLink 
-            to="/auth/login" 
-            class="inline-block px-6 py-3 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            Sign In
-          </NuxtLink>
-          <NuxtLink 
-            to="/auth/register" 
-            class="inline-block px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors ml-4"
-          >
-            Create Account
-          </NuxtLink>
-        </div>
-        <div v-else class="space-y-4">
-          <NuxtLink 
-            to="/dashboard" 
-            class="inline-block px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-          >
-            Go to Dashboard
-          </NuxtLink>
-          <button 
-            @click="signOut"
-            class="inline-block px-6 py-3 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors ml-4"
-          >
-            Sign Out
-          </button>
-        </div>
       </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="bg-[#03045e] border-t border-[#03045e] mt-auto">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="flex items-center justify-center">
+          <p class="text-sm text-[#8ee0ee]">
+            Copyright © 2025 SafeHouse. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
   </div>
 </template>
 
@@ -165,6 +223,7 @@ definePageMeta({
 // Reactive data
 const addressQuery = ref('')
 const suggestions = ref([])
+const showMobileMenu = ref(false)
 const selectedAddress = ref(null)
 const selectedIndex = ref(-1)
 const showSuggestions = ref(false)
@@ -354,16 +413,16 @@ function showSearchResults(properties: any[]) {
           <p class="text-sm text-gray-500">${property.country}</p>
         </div>
         <div class="text-right">
-          <span class="inline-block px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+          <span class="inline-block px-2 py-1 text-xs font-medium bg-[#cbeff8] text-[#03045e] rounded-full">
             ${property.property_type}
           </span>
           ${property.emergency_access_enabled ? 
-            '<span class="block mt-1 text-xs text-green-600 font-medium">Emergency Access Available</span>' : 
+            '<span class="block mt-1 text-xs text-[#8ee0ee] font-medium">Emergency Access Available</span>' : 
             '<span class="block mt-1 text-xs text-red-600 font-medium">Emergency Access Disabled</span>'
           }
         </div>
       </div>
-      <div class="mt-2 text-sm text-primary-600 font-medium">
+      <div class="mt-2 text-sm text-[#8ee0ee] font-medium">
         Click to view property details →
       </div>
     </div>
@@ -389,7 +448,7 @@ function showSearchResults(properties: any[]) {
         ${resultsHtml}
       </div>
       <div class="mt-6 text-center">
-        <button onclick="this.closest('.fixed').remove()" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+        <button onclick="this.closest('.fixed').remove()" class="px-4 py-2 bg-[#03045e] text-white rounded-lg hover:bg-[#03045e]">
           Close
         </button>
       </div>
@@ -416,7 +475,7 @@ function showNoPropertiesFound() {
         The property may not be registered in our system yet.
       </p>
       <div class="space-y-3">
-        <button onclick="this.closest('.fixed').remove()" class="w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+        <button onclick="this.closest('.fixed').remove()" class="w-full px-4 py-2 bg-[#03045e] text-white rounded-lg hover:bg-[#03045e]">
           Close
         </button>
         <button onclick="this.closest('.fixed').remove(); window.location.href='/auth/register'" class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">

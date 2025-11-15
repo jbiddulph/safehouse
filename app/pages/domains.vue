@@ -42,7 +42,7 @@
                 v-model="newAllowedDomain.domain" 
                 type="text" 
                 placeholder="example.com" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
                 required
               />
             </div>
@@ -52,7 +52,7 @@
                 v-model="newAllowedDomain.description" 
                 type="text" 
                 placeholder="Trusted partner domain" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
               />
             </div>
             <div>
@@ -60,14 +60,14 @@
               <input 
                 v-model="newAllowedDomain.expires_at" 
                 type="datetime-local" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
               />
             </div>
           </div>
           <button 
             type="submit" 
             :disabled="addingAllowed"
-            class="mt-4 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
+            class="mt-4 px-4 py-2 bg-[#03045e] text-white rounded-md hover:bg-[#03045e] disabled:opacity-50"
           >
             {{ addingAllowed ? 'Adding...' : 'Add Allowed Domain' }}
           </button>
@@ -78,25 +78,25 @@
           <div 
             v-for="domain in allowedDomains" 
             :key="domain.id"
-            class="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-md"
+            class="flex items-center justify-between p-3 bg-[#cbeff8] border border-[#8ee0ee] rounded-md"
           >
             <div class="flex-1">
               <div class="flex items-center gap-2">
-                <span class="font-medium text-green-900">{{ domain.domain }}</span>
+                <span class="font-medium text-[#03045e]">{{ domain.domain }}</span>
                 <span v-if="!domain.is_active" class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">Inactive</span>
               </div>
-              <span v-if="domain.description" class="text-sm text-green-700 block">{{ domain.description }}</span>
-              <div class="text-xs text-green-600">
+              <span v-if="domain.description" class="text-sm text-[#8ee0ee] block">{{ domain.description }}</span>
+              <div class="text-xs text-[#8ee0ee]">
                 Added {{ formatDate(domain.created_at) }}
                 <span v-if="domain.expires_at"> • Expires {{ formatDate(domain.expires_at) }}</span>
               </div>
             </div>
             <div class="flex items-center gap-2">
-              <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Allowed</span>
+              <span class="text-xs bg-[#cbeff8] text-[#03045e] px-2 py-1 rounded-full">Allowed</span>
               <div class="flex gap-1">
                 <button 
                   @click="editAllowedDomain(domain)"
-                  class="text-xs px-2 py-1 bg-primary-100 text-primary-700 rounded hover:bg-primary-200"
+                  class="text-xs px-2 py-1 bg-[#cbeff8] text-[#8ee0ee] rounded hover:bg-[#cbeff8]"
                 >
                   Edit
                 </button>
@@ -128,7 +128,7 @@
                 v-model="newBlockedDomain.domain" 
                 type="text" 
                 placeholder="malicious.com" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
                 required
               />
             </div>
@@ -138,7 +138,7 @@
                 v-model="newBlockedDomain.reason" 
                 type="text" 
                 placeholder="Known malware distribution" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
               />
             </div>
             <div>
@@ -146,7 +146,7 @@
               <input 
                 v-model="newBlockedDomain.expires_at" 
                 type="datetime-local" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
               />
             </div>
           </div>
@@ -182,7 +182,7 @@
               <div class="flex gap-1">
                 <button 
                   @click="editBlockedDomain(domain)"
-                  class="text-xs px-2 py-1 bg-primary-100 text-primary-700 rounded hover:bg-primary-200"
+                  class="text-xs px-2 py-1 bg-[#cbeff8] text-[#8ee0ee] rounded hover:bg-[#cbeff8]"
                 >
                   Edit
                 </button>
@@ -213,7 +213,7 @@
           </div>
           <div class="text-sm text-gray-600">
             <strong>Database Status:</strong> 
-            <span :class="dbStatus === 'connected' ? 'text-green-600' : 'text-red-600'">
+            <span :class="dbStatus === 'connected' ? 'text-[#8ee0ee]' : 'text-red-600'">
               {{ dbStatus }}
             </span>
           </div>
@@ -230,7 +230,7 @@
               <input 
                 v-model="editingAllowedData.domain" 
                 type="text" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
                 required
               />
             </div>
@@ -239,7 +239,7 @@
               <input 
                 v-model="editingAllowedData.description" 
                 type="text" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
               />
             </div>
             <div>
@@ -247,7 +247,7 @@
               <input 
                 v-model="editingAllowedData.expires_at" 
                 type="datetime-local" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
               />
             </div>
             <div class="flex items-center">
@@ -255,7 +255,7 @@
                 v-model="editingAllowedData.is_active" 
                 type="checkbox" 
                 id="allowed-active"
-                class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                class="h-4 w-4 text-[#8ee0ee] focus:ring-[#8ee0ee] border-gray-300 rounded"
               />
               <label for="allowed-active" class="ml-2 block text-sm text-gray-700">
                 Active
@@ -272,7 +272,7 @@
               <button 
                 type="submit" 
                 :disabled="updatingAllowed"
-                class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 disabled:opacity-50"
+                class="px-4 py-2 text-sm font-medium text-white bg-[#03045e] rounded-md hover:bg-[#03045e] disabled:opacity-50"
               >
                 {{ updatingAllowed ? 'Updating...' : 'Update Domain' }}
               </button>
@@ -291,7 +291,7 @@
               <input 
                 v-model="editingBlockedData.domain" 
                 type="text" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
                 required
               />
             </div>
@@ -300,7 +300,7 @@
               <input 
                 v-model="editingBlockedData.reason" 
                 type="text" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
               />
             </div>
             <div>
@@ -308,7 +308,7 @@
               <input 
                 v-model="editingBlockedData.expires_at" 
                 type="datetime-local" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
               />
             </div>
             <div class="flex items-center">
@@ -316,7 +316,7 @@
                 v-model="editingBlockedData.is_active" 
                 type="checkbox" 
                 id="blocked-active"
-                class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                class="h-4 w-4 text-[#8ee0ee] focus:ring-[#8ee0ee] border-gray-300 rounded"
               />
               <label for="blocked-active" class="ml-2 block text-sm text-gray-700">
                 Active
@@ -333,7 +333,7 @@
               <button 
                 type="submit" 
                 :disabled="updatingBlocked"
-                class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 disabled:opacity-50"
+                class="px-4 py-2 text-sm font-medium text-white bg-[#03045e] rounded-md hover:bg-[#03045e] disabled:opacity-50"
               >
                 {{ updatingBlocked ? 'Updating...' : 'Update Domain' }}
               </button>

@@ -13,7 +13,7 @@
       <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
         <!-- Loading State -->
         <div v-if="loading" class="text-center">
-          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#03045e] mx-auto"></div>
           <p class="mt-4 text-gray-600">Loading property details...</p>
         </div>
 
@@ -30,7 +30,7 @@
           </p>
           <NuxtLink 
             to="/" 
-            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700"
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-[#03045e] hover:bg-[#03045e]"
           >
             <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -44,8 +44,8 @@
           <!-- Property Header -->
           <div class="text-center">
             <div class="mb-4">
-              <div class="w-16 h-16 bg-gradient-to-br from-primary-100 to-primary-100 rounded-full flex items-center justify-center mx-auto">
-                <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="w-16 h-16 bg-[#cbeff8] rounded-full flex items-center justify-center mx-auto">
+                <svg class="w-8 h-8 text-[#8ee0ee]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
               </div>
@@ -60,14 +60,14 @@
 
           <!-- Property Type & Status -->
           <div class="flex justify-center space-x-4">
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-[#cbeff8] text-[#03045e]">
               {{ property.property_type }}
             </span>
             <span 
               :class="[
                 'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium',
                 property.emergency_access_enabled 
-                  ? 'bg-green-100 text-green-800' 
+                  ? 'bg-[#cbeff8] text-[#03045e]' 
                   : 'bg-red-100 text-red-800'
               ]"
             >
@@ -111,7 +111,7 @@
             <button 
               @click="requestAccess('standard')"
               :disabled="requestingAccess"
-              class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-[#03045e] hover:bg-[#03045e] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {{ requestingAccess ? 'Requesting Access...' : 'Request Standard Access' }}
             </button>
@@ -132,9 +132,9 @@
       <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
         <div class="text-center">
           <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4"
-               :class="accessType === 'emergency' ? 'bg-red-100' : 'bg-primary-100'">
+               :class="accessType === 'emergency' ? 'bg-red-100' : 'bg-[#cbeff8]'">
             <svg class="h-6 w-6" 
-                 :class="accessType === 'emergency' ? 'text-red-600' : 'text-primary-600'"
+                 :class="accessType === 'emergency' ? 'text-red-600' : 'text-[#8ee0ee]'"
                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
@@ -143,13 +143,13 @@
           <h3 v-if="!emailSent" class="text-lg font-medium text-gray-900 mb-2">
             Request {{ accessType === 'emergency' ? 'Emergency' : 'Standard' }} Access
           </h3>
-          <h3 v-else class="text-lg font-medium text-green-900 mb-2">Email Sent!</h3>
+          <h3 v-else class="text-lg font-medium text-[#03045e] mb-2">Email Sent!</h3>
           
           <p v-if="!emailSent" class="text-sm text-gray-500 mb-6">
             Enter your email address so we can alert the property owner of your {{ accessType === 'emergency' ? 'emergency' : 'standard' }} access request for {{ property?.property_name }}.
             <span v-if="accessType === 'emergency'">We'll also verify you're at the property location for security.</span>
           </p>
-          <p v-else class="text-sm text-green-600 mb-6">
+          <p v-else class="text-sm text-[#8ee0ee] mb-6">
             We've notified the property owner. Please wait for them to approve your {{ accessType === 'emergency' ? 'emergency' : 'standard' }} access request for {{ property?.property_name }}.
           </p>
         </div>
@@ -183,7 +183,7 @@
                   class="px-3 py-1 text-xs font-medium rounded-md border transition-colors"
                   :class="{
                     'border-gray-300 text-gray-700 bg-gray-50 hover:bg-gray-100': !locationVerification.isVerified,
-                    'border-green-300 text-green-700 bg-green-50': locationVerification.isVerified,
+                    'border-[#8ee0ee] text-[#8ee0ee] bg-[#cbeff8]': locationVerification.isVerified,
                     'border-red-300 text-red-700 bg-red-50': locationVerification.error,
                     'opacity-50 cursor-not-allowed': isVerifyingLocation || !emailForm.email
                   }"
@@ -194,7 +194,7 @@
               
               <!-- Location Status -->
               <div class="text-xs">
-                <div v-if="locationVerification.isVerified" class="text-green-600 flex items-center">
+                <div v-if="locationVerification.isVerified" class="text-[#8ee0ee] flex items-center">
                   <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                   </svg>
@@ -224,7 +224,7 @@
                 type="submit"
                 :disabled="emailSending || !emailForm.email || (accessType === 'emergency' && !locationVerification.isVerified)"
                 class="px-4 py-2 text-sm font-medium text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
-                :class="accessType === 'emergency' ? 'bg-red-600 hover:bg-red-700' : 'bg-primary-600 hover:bg-primary-700'"
+                :class="accessType === 'emergency' ? 'bg-red-600 hover:bg-red-700' : 'bg-[#03045e] hover:bg-[#03045e]'"
               >
                 {{ emailSending ? 'Sending...' : 'Send Access Request' }}
               </button>

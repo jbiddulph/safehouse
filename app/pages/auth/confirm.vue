@@ -2,12 +2,12 @@
   <div class="min-h-screen flex items-center justify-center p-6">
     <div class="w-full max-w-md space-y-4 text-center">
       <div v-if="loading" class="space-y-4">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#03045e] mx-auto"></div>
         <p>Confirming your email...</p>
       </div>
       <div v-else-if="success" class="space-y-4">
-        <div class="text-green-600 text-6xl">✓</div>
-        <h1 class="text-2xl font-semibold text-green-600">Email Confirmed!</h1>
+        <div class="text-[#8ee0ee] text-6xl">✓</div>
+        <h1 class="text-2xl font-semibold text-[#8ee0ee]">Email Confirmed!</h1>
         <p>Your email has been successfully confirmed. You can now log in.</p>
         <UButton @click="goToLogin" color="primary" size="lg">Go to Login</UButton>
       </div>

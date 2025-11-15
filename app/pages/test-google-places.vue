@@ -13,7 +13,7 @@
         />
       </div>
       <div v-if="loading" class="text-center py-4">
-        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600 mx-auto"></div>
+        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#03045e] mx-auto"></div>
         <p class="mt-2 text-gray-600">Searching...</p>
       </div>
       <div v-if="error" class="p-4 bg-red-100 text-red-800 rounded">

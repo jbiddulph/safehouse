@@ -13,7 +13,7 @@
       <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
         <!-- Loading State -->
         <div v-if="loadingProperty" class="text-center">
-          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#03045e] mx-auto"></div>
           <p class="mt-4 text-gray-600">Verifying your request...</p>
         </div>
 
@@ -45,7 +45,7 @@
             <button
               @click="processQrCode(manualQrCode)"
               :disabled="!manualQrCode"
-              class="mt-2 w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="mt-2 w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#03045e] hover:bg-[#03045e] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Process QR Code
             </button>
@@ -54,18 +54,18 @@
 
         <!-- Domain Allowed - Access Granted -->
         <div v-else-if="domainAllowed && emailVerified" class="text-center">
-          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
-            <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-[#cbeff8] mb-4">
+            <svg class="h-6 w-6 text-[#8ee0ee]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h3 class="text-lg font-medium text-green-900 mb-2">Access Granted!</h3>
+          <h3 class="text-lg font-medium text-[#03045e] mb-2">Access Granted!</h3>
           <p class="text-sm text-gray-500 mb-4">
             Your email domain is authorized for emergency access to this property.
           </p>
-          <div class="bg-green-50 border border-green-200 rounded-md p-4 mb-4">
-            <h4 class="font-medium text-green-900">{{ scannedProperty.property_name }}</h4>
-            <p class="text-sm text-green-700">{{ scannedProperty.address }}</p>
+          <div class="bg-[#cbeff8] border border-[#8ee0ee] rounded-md p-4 mb-4">
+            <h4 class="font-medium text-[#03045e]">{{ scannedProperty.property_name }}</h4>
+            <p class="text-sm text-[#8ee0ee]">{{ scannedProperty.address }}</p>
           </div>
           <p class="text-xs text-gray-400">
             The property owner has been notified of your access.
@@ -84,9 +84,9 @@
             <p class="text-sm text-gray-500 mb-4">
               Your email domain is not in the allowed list. Please enter the access code to continue.
             </p>
-            <div class="bg-primary-50 border border-primary-200 rounded-md p-4 mb-4">
-              <h4 class="font-medium text-primary-900">{{ scannedProperty.property_name }}</h4>
-              <p class="text-sm text-primary-700">{{ scannedProperty.address }}</p>
+            <div class="bg-[#cbeff8] border border-[#8ee0ee] rounded-md p-4 mb-4">
+              <h4 class="font-medium text-[#03045e]">{{ scannedProperty.property_name }}</h4>
+              <p class="text-sm text-[#8ee0ee]">{{ scannedProperty.address }}</p>
             </div>
           </div>
 
@@ -127,7 +127,7 @@
             <button
               type="submit"
               :disabled="submitting"
-              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#03045e] hover:bg-[#03045e] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {{ submitting ? 'Submitting...' : 'Submit Access Request' }}
             </button>
@@ -188,7 +188,7 @@
             <button
               type="submit"
               :disabled="submitting"
-              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#03045e] hover:bg-[#03045e] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {{ submitting ? 'Submitting...' : 'Request Access' }}
             </button>
@@ -198,8 +198,8 @@
         <!-- Verification Step -->
         <div v-else-if="!verificationSubmitted" class="space-y-6">
           <div class="text-center">
-            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
-              <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-[#cbeff8]">
+              <svg class="h-6 w-6 text-[#8ee0ee]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
               </svg>
             </div>
@@ -225,7 +225,7 @@
             <button
               type="submit"
               :disabled="verifying"
-              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#03045e] hover:bg-[#03045e] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {{ verifying ? 'Verifying...' : 'Verify Code' }}
             </button>
@@ -235,7 +235,7 @@
             <button
               @click="resendCode"
               :disabled="resending"
-              class="text-sm text-primary-600 hover:text-primary-500 disabled:opacity-50"
+              class="text-sm text-[#8ee0ee] hover:text-[#8ee0ee]0 disabled:opacity-50"
             >
               {{ resending ? 'Resending...' : 'Resend Code' }}
             </button>
@@ -244,8 +244,8 @@
 
         <!-- Success/Status -->
         <div v-else class="text-center">
-          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
-            <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-[#cbeff8]">
+            <svg class="h-6 w-6 text-[#8ee0ee]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>
           </div>

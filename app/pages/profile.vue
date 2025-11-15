@@ -1,10 +1,10 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-primary-50 via-primary-100 to-primary-200 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-    <div class="w-full max-w-2xl">
+  <div class="min-h-screen bg-[#cbeff8] flex flex-col py-12 px-4 sm:px-6 lg:px-8">
+    <div class="w-full max-w-2xl flex-1 flex items-center justify-center">
       <!-- Header -->
       <div class="text-center mb-6">
-        <div class="mx-auto h-12 w-12 bg-primary-600 rounded-full flex items-center justify-center">
-          <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="mx-auto h-12 w-12 bg-[#03045e] rounded-full flex items-center justify-center">
+          <svg class="h-8 w-8 text-[#8ee0ee]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
         </div>
@@ -16,7 +16,7 @@
       <div class="bg-white shadow-xl rounded-lg p-6">
         <!-- Loading State -->
         <div v-if="loading" class="text-center py-12">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#03045e] mx-auto"></div>
           <p class="mt-2 text-gray-600">Loading profile...</p>
         </div>
 
@@ -56,14 +56,14 @@
           </div>
 
           <!-- Avatar Preview -->
-          <div v-if="avatarPreview" class="bg-primary-50 border border-primary-100 rounded-lg p-4">
-            <p class="text-sm font-medium text-primary-900">Preview</p>
+          <div v-if="avatarPreview" class="bg-[#cbeff8] border border-[#8ee0ee] rounded-lg p-4">
+            <p class="text-sm font-medium text-[#03045e]">Preview</p>
             <div class="mt-2 flex items-center gap-3">
               <div class="w-16 h-16 rounded-full overflow-hidden ring-2 ring-primary-200">
                 <img :src="avatarPreview" alt="Avatar preview" class="w-full h-full object-cover" />
               </div>
               <div class="flex gap-2">
-                <UButton @click="saveAvatar" size="sm" :loading="uploading" class="bg-primary-600 hover:bg-primary-700 text-white">
+                <UButton @click="saveAvatar" size="sm" :loading="uploading" class="bg-[#03045e] hover:bg-[#03045e] text-white">
                   Save Avatar
                 </UButton>
                 <UButton @click="cancelAvatar" size="sm" variant="ghost">
@@ -88,7 +88,7 @@
               <UInput v-model="profileForm.phone" type="tel" placeholder="Mobile Phone Number" class="w-full" />
             </div>
             <div class="pt-2">
-              <UButton @click="saveProfile" :loading="saving" class="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 rounded-lg">
+              <UButton @click="saveProfile" :loading="saving" class="w-full bg-[#03045e] hover:bg-[#03045e] text-white font-semibold py-3 rounded-lg">
                 Save Changes
               </UButton>
             </div>
@@ -109,6 +109,17 @@
         </div>
       </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="bg-[#03045e] border-t border-[#03045e] mt-auto">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="flex items-center justify-center">
+          <p class="text-sm text-[#8ee0ee]">
+            Copyright © 2025 SafeHouse. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
   </div>
 </template>
 

@@ -71,7 +71,7 @@
           <div class="space-y-2 max-h-60 overflow-y-auto">
             <div v-for="(result, index) in testResults" :key="index" class="text-sm border-b pb-2">
               <div class="flex items-center justify-between">
-                <span :class="result.success ? 'text-green-600' : 'text-red-600'" class="font-medium">
+                <span :class="result.success ? 'text-[#8ee0ee]' : 'text-red-600'" class="font-medium">
                   {{ result.success ? '✅' : '❌' }}
                 </span>
                 <span class="text-xs text-gray-500">{{ result.timestamp }}</span>
@@ -109,14 +109,14 @@ function checkPermission() {
 
 const permissionClass = computed(() => {
   switch (notificationPermission.value) {
-    case 'granted': return 'bg-green-100 text-green-800'
+    case 'granted': return 'bg-[#cbeff8] text-[#03045e]'
     case 'denied': return 'bg-red-100 text-red-800'
     default: return 'bg-yellow-100 text-yellow-800'
   }
 })
 
 const supportedClass = computed(() => {
-  return notificationsSupported.value ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+  return notificationsSupported.value ? 'bg-[#cbeff8] text-[#03045e]' : 'bg-red-100 text-red-800'
 })
 
 function testVisibleNotification() {
@@ -136,11 +136,11 @@ function testVisibleNotification() {
       notification.close()
     }
     
-    // Auto-close after 30 seconds
+    // Auafter 30 seconds
     setTimeout(() => {
       if (notification) {
         notification.close()
-        addTestResult(true, '🚨 VISIBLE notification auto-closed after 30 seconds')
+        addTestResult(true, '🚨 VISIBLE notification auafter 30 seconds')
       }
     }, 30000)
     

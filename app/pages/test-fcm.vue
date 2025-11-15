@@ -9,17 +9,17 @@
           <h2 class="text-lg font-medium text-gray-900 mb-4">FCM Status</h2>
           <div class="space-y-2">
             <div class="flex items-center">
-              <div :class="fcmStatus.initialized ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'" class="px-2 py-1 rounded-full text-xs font-medium">
+              <div :class="fcmStatus.initialized ? 'bg-[#cbeff8] text-[#03045e]' : 'bg-red-100 text-red-800'" class="px-2 py-1 rounded-full text-xs font-medium">
                 {{ fcmStatus.initialized ? 'Initialized' : 'Not Initialized' }}
               </div>
             </div>
             <div class="flex items-center">
-              <div :class="fcmStatus.permission ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'" class="px-2 py-1 rounded-full text-xs font-medium">
+              <div :class="fcmStatus.permission ? 'bg-[#cbeff8] text-[#03045e]' : 'bg-red-100 text-red-800'" class="px-2 py-1 rounded-full text-xs font-medium">
                 {{ fcmStatus.permission ? 'Permission Granted' : 'Permission Denied' }}
               </div>
             </div>
             <div class="flex items-center">
-              <div :class="fcmStatus.token ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'" class="px-2 py-1 rounded-full text-xs font-medium">
+              <div :class="fcmStatus.token ? 'bg-[#cbeff8] text-[#03045e]' : 'bg-red-100 text-red-800'" class="px-2 py-1 rounded-full text-xs font-medium">
                 {{ fcmStatus.token ? 'Token Generated' : 'No Token' }}
               </div>
             </div>
@@ -42,7 +42,7 @@
             <button 
               @click="requestPermission" 
               :disabled="fcmStatus.permission"
-              class="w-full bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              class="w-full bg-[#03045e] text-white px-4 py-2 rounded-md hover:bg-[#03045e] disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {{ fcmStatus.permission ? 'Permission Already Granted' : 'Request Notification Permission' }}
             </button>
@@ -50,7 +50,7 @@
             <button 
               @click="registerFCMToken" 
               :disabled="!fcmStatus.token || fcmStatus.registered"
-              class="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              class="w-full bg-[#03045e] text-white px-4 py-2 rounded-md hover:bg-[#03045e] disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {{ fcmStatus.registered ? 'Token Registered' : 'Register FCM Token' }}
             </button>
@@ -70,7 +70,7 @@
           <h2 class="text-lg font-medium text-gray-900 mb-4">Test Results</h2>
           <div class="space-y-2">
             <div v-for="(result, index) in testResults" :key="index" class="text-sm">
-              <span :class="result.success ? 'text-green-600' : 'text-red-600'" class="font-medium">
+              <span :class="result.success ? 'text-[#8ee0ee]' : 'text-red-600'" class="font-medium">
                 {{ result.success ? '✅' : '❌' }}
               </span>
               <span class="ml-2">{{ result.message }}</span>

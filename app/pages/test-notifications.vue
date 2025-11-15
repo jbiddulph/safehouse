@@ -30,7 +30,7 @@
             <button 
               @click="requestPermission" 
               :disabled="notificationPermission === 'granted'"
-              class="w-full bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              class="w-full bg-[#03045e] text-white px-4 py-2 rounded-md hover:bg-[#03045e] disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {{ notificationPermission === 'granted' ? 'Permission Already Granted' : 'Request Notification Permission' }}
             </button>
@@ -38,7 +38,7 @@
             <button 
               @click="testBasicNotification" 
               :disabled="notificationPermission !== 'granted'"
-              class="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              class="w-full bg-[#03045e] text-white px-4 py-2 rounded-md hover:bg-[#03045e] disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               Test Basic Notification
             </button>
@@ -67,7 +67,7 @@
           <div class="space-y-2 max-h-60 overflow-y-auto">
             <div v-for="(result, index) in testResults" :key="index" class="text-sm border-b pb-2">
               <div class="flex items-center justify-between">
-                <span :class="result.success ? 'text-green-600' : 'text-red-600'" class="font-medium">
+                <span :class="result.success ? 'text-[#8ee0ee]' : 'text-red-600'" class="font-medium">
                   {{ result.success ? '✅' : '❌' }}
                 </span>
                 <span class="text-xs text-gray-500">{{ result.timestamp }}</span>
@@ -105,14 +105,14 @@ function checkPermission() {
 
 const permissionClass = computed(() => {
   switch (notificationPermission.value) {
-    case 'granted': return 'bg-green-100 text-green-800'
+    case 'granted': return 'bg-[#cbeff8] text-[#03045e]'
     case 'denied': return 'bg-red-100 text-red-800'
     default: return 'bg-yellow-100 text-yellow-800'
   }
 })
 
 const supportedClass = computed(() => {
-  return notificationsSupported.value ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+  return notificationsSupported.value ? 'bg-[#cbeff8] text-[#03045e]' : 'bg-red-100 text-red-800'
 })
 
 async function requestPermission() {
@@ -190,15 +190,15 @@ function testPersistentNotification() {
       notification.close()
     }
     
-    // Auto-close after 10 seconds for testing
+    // Auafter 10 seconds for testing
     setTimeout(() => {
       if (notification) {
         notification.close()
-        addTestResult(true, 'Persistent notification auto-closed after 10 seconds')
+        addTestResult(true, 'Persistent notification auafter 10 seconds')
       }
     }, 10000)
     
-    addTestResult(true, 'Persistent notification sent (will auto-close in 10 seconds)')
+    addTestResult(true, 'Persistent notification sent (will auin 10 seconds)')
   } catch (error) {
     addTestResult(false, `Persistent notification failed: ${error.message}`)
   }

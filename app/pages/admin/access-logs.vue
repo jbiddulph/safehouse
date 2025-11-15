@@ -26,7 +26,7 @@
           <div class="p-5">
             <div class="flex items-center">
               <div class="flex-shrink-0">
-                <svg class="h-6 w-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="h-6 w-6 text-[#8ee0ee]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
@@ -63,7 +63,7 @@
           <div class="p-5">
             <div class="flex items-center">
               <div class="flex-shrink-0">
-                <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="h-6 w-6 text-[#8ee0ee]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
@@ -106,7 +106,7 @@
                 v-model="filters.search"
                 type="text"
                 placeholder="Email, device, property..."
-                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
                 @input="debouncedSearch"
               />
             </div>
@@ -115,7 +115,7 @@
               <label class="block text-sm font-medium text-gray-700 mb-1">Access Type</label>
               <select
                 v-model="filters.accessType"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
                 @change="loadLogs"
               >
                 <option value="">All Types</option>
@@ -130,7 +130,7 @@
               <label class="block text-sm font-medium text-gray-700 mb-1">Device Type</label>
               <select
                 v-model="filters.deviceType"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
                 @change="loadLogs"
               >
                 <option value="">All Devices</option>
@@ -146,7 +146,7 @@
               <input
                 v-model="filters.startDate"
                 type="date"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
                 @change="loadLogs"
               />
             </div>
@@ -156,7 +156,7 @@
               <input
                 v-model="filters.endDate"
                 type="date"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
                 @change="loadLogs"
               />
             </div>
@@ -172,7 +172,7 @@
 
         <!-- Loading State -->
         <div v-if="loading" class="text-center py-12">
-          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#03045e] mx-auto"></div>
           <p class="mt-4 text-gray-600">Loading access logs...</p>
         </div>
 
@@ -299,7 +299,7 @@
                     :class="[
                       'relative inline-flex items-center px-4 py-2 border text-sm font-medium',
                       page === pagination.page
-                        ? 'z-10 bg-primary-50 border-primary-500 text-primary-600'
+                        ? 'z-10 bg-[#cbeff8] border-[#8ee0ee]0 text-[#8ee0ee]'
                         : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
                     ]"
                   >
@@ -434,9 +434,9 @@ const formatDevice = (log: any) => {
 
 const getAccessTypeBadgeClass = (type: string) => {
   const classes = {
-    property_view: 'bg-primary-100 text-primary-800',
+    property_view: 'bg-[#cbeff8] text-[#03045e]',
     emergency_request: 'bg-red-100 text-red-800',
-    access_granted: 'bg-green-100 text-green-800',
+    access_granted: 'bg-[#cbeff8] text-[#03045e]',
     access_denied: 'bg-gray-100 text-gray-800'
   }
   return classes[type] || 'bg-gray-100 text-gray-800'

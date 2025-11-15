@@ -1,10 +1,10 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-primary-50 via-primary-100 to-primary-200 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8">
+  <div class="min-h-screen bg-[#cbeff8] flex flex-col py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8 flex-1 flex items-center justify-center">
       <!-- Header -->
       <div class="text-center">
-        <div class="mx-auto h-12 w-12 bg-primary-600 rounded-full flex items-center justify-center">
-          <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="mx-auto h-12 w-12 bg-[#03045e] rounded-full flex items-center justify-center">
+          <svg class="h-8 w-8 text-[#8ee0ee]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
         </div>
@@ -51,7 +51,7 @@
               :loading="loading" 
               block 
               size="lg"
-              class="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200"
+              class="w-full bg-[#03045e] hover:bg-[#03045e] text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200"
             >
               {{ loading ? 'Signing in...' : 'Sign in' }}
             </UButton>
@@ -61,7 +61,7 @@
           <div class="text-center pt-4 border-t border-gray-200">
             <p class="text-sm text-gray-600">
               Don't have an account? 
-              <NuxtLink to="/auth/register" class="font-medium text-primary-600 hover:text-primary-500 transition-colors">
+              <NuxtLink to="/auth/register" class="font-medium text-[#8ee0ee] hover:text-[#8ee0ee]0 transition-colors">
                 Create one here
               </NuxtLink>
             </p>
@@ -69,6 +69,17 @@
         </form>
       </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="bg-[#03045e] border-t border-[#03045e] mt-auto">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="flex items-center justify-center">
+          <p class="text-sm text-[#8ee0ee]">
+            Copyright © 2025 SafeHouse. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
   </div>
 </template>
 
