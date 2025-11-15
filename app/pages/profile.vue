@@ -1,19 +1,66 @@
 <template>
-  <div class="min-h-screen bg-[#f0f9fb] flex flex-col py-12 px-4 sm:px-6 lg:px-8">
-    <div class="w-full max-w-2xl flex-1 flex items-center justify-center">
-      <!-- Header -->
-      <div class="text-center mb-6">
-        <div class="mx-auto h-12 w-12 bg-[#03045e] rounded-full flex items-center justify-center">
-          <svg class="h-8 w-8 text-[#8ee0ee]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-          </svg>
-        </div>
-        <h1 class="mt-6 text-3xl font-bold text-gray-900">Your Profile</h1>
-        <p class="mt-2 text-sm text-gray-600">Manage your account details and avatar</p>
-      </div>
+  <div class="min-h-screen bg-[#f0f9fb] flex flex-col">
+    <!-- Top Navigation -->
+    <nav class="bg-[#03045e] shadow-lg border-b border-[#03045e]">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+          <!-- Logo and Title -->
+          <div class="flex items-center space-x-8">
+            <div class="flex-shrink-0 flex items-center space-x-3">
+              <div class="h-8 w-8 bg-[#ffffff] rounded-lg flex items-center justify-center">
+                <img src="/images/logo.png" alt="SafeHouse" class="h-full w-full object-cover" />
+              </div>
+              <NuxtLink to="/" class="text-2xl font-bold text-white">SafeHouse</NuxtLink>
+            </div>
+            
+            <!-- Navigation Menu -->
+            <nav class="hidden md:flex items-center space-x-6">
+              <NuxtLink to="/about" class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors">
+                About Us
+              </NuxtLink>
+              <NuxtLink to="/how-it-works" class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors">
+                How It Works
+              </NuxtLink>
+              <NuxtLink to="/privacy-policy" class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors">
+                Privacy Policy
+              </NuxtLink>
+              <NuxtLink to="/terms" class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors">
+                Terms & Conditions
+              </NuxtLink>
+            </nav>
+          </div>
 
-      <!-- Card -->
-      <div class="bg-white shadow-xl rounded-lg p-6">
+          <!-- User Menu -->
+          <div class="flex items-center space-x-4">
+            <NuxtLink 
+              to="/dashboard" 
+              class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors"
+            >
+              Dashboard
+            </NuxtLink>
+            <NuxtLink 
+              to="/profile" 
+              class="text-sm font-medium text-white border-b-2 border-[#8ee0ee] pb-1"
+            >
+              Profile
+            </NuxtLink>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="flex-1 py-12 px-4 sm:px-6 lg:px-8">
+      <div class="w-full max-w-2xl mx-auto space-y-8">
+        <!-- Header Text -->
+        <div class="text-center">
+          <h1 class="text-3xl font-bold text-[#03045e] mb-2">Your Profile</h1>
+          <p class="text-lg text-gray-600">
+            Manage your account details and avatar
+          </p>
+        </div>
+
+        <!-- Card -->
+        <div class="bg-white shadow-xl rounded-lg p-6">
         <!-- Loading State -->
         <div v-if="loading" class="text-center py-12">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#03045e] mx-auto"></div>
@@ -106,6 +153,7 @@
               <UButton color="red" variant="soft" @click="onLogout">Logout</UButton>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>
