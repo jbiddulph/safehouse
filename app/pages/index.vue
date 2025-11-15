@@ -76,8 +76,15 @@
       </div>
     </nav>
 
-    <div class="flex-1 py-12 sm:px-6 lg:px-8">
-      <div class="sm:mx-auto sm:w-full sm:max-w-2xl">
+    <div class="flex-1 py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+      <!-- Background Map -->
+      <div 
+        ref="backgroundMapContainer" 
+        class="absolute inset-0 w-full h-full pointer-events-none"
+        style="z-index: 0; filter: grayscale(100%); opacity: 0.25;"
+      ></div>
+      
+      <div class="relative z-10 sm:mx-auto sm:w-full sm:max-w-2xl">
       <div class="text-center mb-8">
         <h1 class="text-4xl font-bold text-[#03045e] mb-4">SafeHouse</h1>
         <p class="text-lg text-gray-600 mb-4">
@@ -230,6 +237,10 @@ const showSuggestions = ref(false)
 const loading = ref(false)
 const searching = ref(false)
 const recentSearches = ref([])
+
+// Background map for homepage
+const backgroundMapContainer = ref<HTMLElement | null>(null)
+const backgroundMap = ref<any>(null)
 const showRecentSearches = ref(false)
 const isLoggedIn = ref(false)
 const userEmail = ref('')
@@ -593,16 +604,95 @@ async function signOut() {
   }
 }
 
+// Initialize background map
+function initBackgroundMap() {
+  if (!backgroundMapContainer.value) return
+  if (typeof window === 'undefined') return
+  
+  nextTick(() => {
+    if (!backgroundMapContainer.value) return
+    
+    const { initMap } = useMapbox()
+    
+    // Worthing, UK coordinates: -0.3750, 50.8175
+    backgroundMap.value = initMap(backgroundMapContainer.value, {
+      center: [-0.3750, 50.8175], // Worthing, UK
+      zoom: 18,
+      // Disable all interactions for locked map
+      touchZoomRotate: false,
+      touchPitch: false,
+      doubleClickZoom: false,
+      dragRotate: false,
+      dragPan: false,
+      scrollZoom: false,
+      boxZoom: false,
+      keyboard: false,
+      attributionControl: false
+    })
+    
+    if (backgroundMap.value) {
+      // Disable all interactions programmatically
+      backgroundMap.value.dragPan.disable()
+      backgroundMap.value.dragRotate.disable()
+      backgroundMap.value.scrollZoom.disable()
+      backgroundMap.value.boxZoom.disable()
+      backgroundMap.value.doubleClickZoom.disable()
+      backgroundMap.value.touchZoomRotate.disable()
+      backgroundMap.value.touchPitch.disable()
+      backgroundMap.value.keyboard.disable()
+      
+      // Apply monochrome filter and opacity after map loads
+      backgroundMap.value.on('load', () => {
+        if (backgroundMapContainer.value) {
+          // Apply CSS filter for monochrome and opacity to the canvas
+          const mapCanvas = backgroundMapContainer.value.querySelector('canvas')
+          if (mapCanvas) {
+            mapCanvas.style.filter = 'grayscale(100%)'
+            mapCanvas.style.opacity = '0.25'
+          }
+          
+          // Also apply to container for consistency
+          backgroundMapContainer.value.style.filter = 'grayscale(100%)'
+        }
+      })
+      
+      // Force resize for proper rendering
+      setTimeout(() => {
+        if (backgroundMap.value) {
+          backgroundMap.value.resize()
+        }
+      }, 100)
+    }
+  })
+}
+
 // Initialize recent searches and auth status
 onMounted(() => {
   loadRecentSearches()
   checkAuthStatus()
+  
+  // Initialize background map
+  if (typeof window !== 'undefined') {
+    setTimeout(() => {
+      initBackgroundMap()
+    }, 500)
+  }
 })
 
 // Clear search when component unmounts
 onUnmounted(() => {
   if (debounceTimer) {
     clearTimeout(debounceTimer)
+  }
+  
+  // Cleanup background map
+  if (backgroundMap.value) {
+    try {
+      backgroundMap.value.remove()
+    } catch (e) {
+      // Map might already be removed
+    }
+    backgroundMap.value = null
   }
 })
 </script>

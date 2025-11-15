@@ -16,6 +16,15 @@ export const useMapbox = () => {
       center?: [number, number]
       zoom?: number
       onMapClick?: (lng: number, lat: number) => void
+      touchZoomRotate?: boolean
+      touchPitch?: boolean
+      doubleClickZoom?: boolean
+      dragRotate?: boolean
+      dragPan?: boolean
+      scrollZoom?: boolean
+      boxZoom?: boolean
+      keyboard?: boolean
+      attributionControl?: boolean
     } = {}
   ): mapboxgl.Map | null => {
     if (!mapboxToken) {
@@ -61,12 +70,16 @@ export const useMapbox = () => {
       style: 'mapbox://styles/mapbox/streets-v12',
       center: options.center || [-2.2374, 53.4808], // Default to Manchester, UK
       zoom: options.zoom || 13,
-      // Mobile-specific options
-      touchZoomRotate: true,
-      touchPitch: true,
-      doubleClickZoom: true,
-      dragRotate: false, // Disable drag rotation on mobile for better UX
-      attributionControl: true
+      // Interaction options (defaults to enabled unless explicitly disabled)
+      touchZoomRotate: options.touchZoomRotate !== false,
+      touchPitch: options.touchPitch !== false,
+      doubleClickZoom: options.doubleClickZoom !== false,
+      dragRotate: options.dragRotate !== false,
+      dragPan: options.dragPan !== false,
+      scrollZoom: options.scrollZoom !== false,
+      boxZoom: options.boxZoom !== false,
+      keyboard: options.keyboard !== false,
+      attributionControl: options.attributionControl !== false
     })
 
     // Resize map after load to ensure proper rendering on mobile
