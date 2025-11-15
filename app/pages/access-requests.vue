@@ -326,8 +326,8 @@ async function denyRequest(requestId: string) {
 function getStatusClass(status: string) {
   const classes = {
     pending: 'bg-yellow-100 text-yellow-800',
-    verified: 'bg-[#cbeff8] text-[#03045e]',
-    approved: 'bg-[#cbeff8] text-[#03045e]',
+    verified: 'bg-[#f0f9fb] text-[#03045e]',
+    approved: 'bg-[#f0f9fb] text-[#03045e]',
     denied: 'bg-red-100 text-red-800',
     expired: 'bg-gray-100 text-gray-800'
   }

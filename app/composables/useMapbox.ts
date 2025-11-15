@@ -23,16 +23,61 @@ export const useMapbox = () => {
       return null
     }
 
+    // Ensure we're on the client side
+    if (typeof window === 'undefined') {
+      return null
+    }
+
     mapboxgl.accessToken = mapboxToken
 
+    const mapElement = typeof container === 'string' 
+      ? document.getElementById(container) 
+      : container
+
+    if (!mapElement) {
+      console.error('Map container not found')
+      return null
+    }
+
+    // Ensure container has dimensions
+    if (mapElement instanceof HTMLElement) {
+      const rect = mapElement.getBoundingClientRect()
+      if (rect.width === 0 || rect.height === 0) {
+        console.warn('Map container has no dimensions, setting defaults')
+        mapElement.style.minHeight = '256px'
+        mapElement.style.width = '100%'
+      }
+    }
+
     const map = new mapboxgl.Map({
-      container: typeof container === 'string' ? container : container,
+      container: mapElement,
       style: 'mapbox://styles/mapbox/streets-v12',
       center: options.center || [-2.2374, 53.4808], // Default to Manchester, UK
-      zoom: options.zoom || 13
+      zoom: options.zoom || 13,
+      // Mobile-specific options
+      touchZoomRotate: true,
+      touchPitch: true,
+      doubleClickZoom: true,
+      dragRotate: false, // Disable drag rotation on mobile for better UX
+      attributionControl: true
     })
 
-    // Add click handler if provided
+    // Resize map after load to ensure proper rendering on mobile
+    map.on('load', () => {
+      map.resize()
+    })
+
+    // Also resize on container resize (for responsive layouts)
+    if (typeof ResizeObserver !== 'undefined' && mapElement instanceof HTMLElement) {
+      const resizeObserver = new ResizeObserver(() => {
+        if (map) {
+          map.resize()
+        }
+      })
+      resizeObserver.observe(mapElement)
+    }
+
+    // Add click handler if provided (works for both mouse and touch)
     if (options.onMapClick) {
       map.on('click', (e) => {
         options.onMapClick!(e.lngLat.lng, e.lngLat.lat)

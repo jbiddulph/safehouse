@@ -9,17 +9,17 @@
           <h2 class="text-lg font-medium text-gray-900 mb-4">FCM Status</h2>
           <div class="space-y-2">
             <div class="flex items-center">
-              <div :class="fcmStatus.initialized ? 'bg-[#cbeff8] text-[#03045e]' : 'bg-red-100 text-red-800'" class="px-2 py-1 rounded-full text-xs font-medium">
+              <div :class="fcmStatus.initialized ? 'bg-[#f0f9fb] text-[#03045e]' : 'bg-red-100 text-red-800'" class="px-2 py-1 rounded-full text-xs font-medium">
                 {{ fcmStatus.initialized ? 'Initialized' : 'Not Initialized' }}
               </div>
             </div>
             <div class="flex items-center">
-              <div :class="fcmStatus.permission ? 'bg-[#cbeff8] text-[#03045e]' : 'bg-red-100 text-red-800'" class="px-2 py-1 rounded-full text-xs font-medium">
+              <div :class="fcmStatus.permission ? 'bg-[#f0f9fb] text-[#03045e]' : 'bg-red-100 text-red-800'" class="px-2 py-1 rounded-full text-xs font-medium">
                 {{ fcmStatus.permission ? 'Permission Granted' : 'Permission Denied' }}
               </div>
             </div>
             <div class="flex items-center">
-              <div :class="fcmStatus.token ? 'bg-[#cbeff8] text-[#03045e]' : 'bg-red-100 text-red-800'" class="px-2 py-1 rounded-full text-xs font-medium">
+              <div :class="fcmStatus.token ? 'bg-[#f0f9fb] text-[#03045e]' : 'bg-red-100 text-red-800'" class="px-2 py-1 rounded-full text-xs font-medium">
                 {{ fcmStatus.token ? 'Token Generated' : 'No Token' }}
               </div>
             </div>

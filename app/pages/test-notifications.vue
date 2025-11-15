@@ -105,14 +105,14 @@ function checkPermission() {
 
 const permissionClass = computed(() => {
   switch (notificationPermission.value) {
-    case 'granted': return 'bg-[#cbeff8] text-[#03045e]'
+    case 'granted': return 'bg-[#f0f9fb] text-[#03045e]'
     case 'denied': return 'bg-red-100 text-red-800'
     default: return 'bg-yellow-100 text-yellow-800'
   }
 })
 
 const supportedClass = computed(() => {
-  return notificationsSupported.value ? 'bg-[#cbeff8] text-[#03045e]' : 'bg-red-100 text-red-800'
+  return notificationsSupported.value ? 'bg-[#f0f9fb] text-[#03045e]' : 'bg-red-100 text-red-800'
 })
 
 async function requestPermission() {

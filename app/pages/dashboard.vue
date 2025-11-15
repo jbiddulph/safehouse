@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-[#cbeff8]">
+  <div class="min-h-screen bg-[#f0f9fb]">
     <!-- Top Navigation -->
     <nav class="bg-[#03045e] shadow-lg border-b border-[#03045e]">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -62,7 +62,7 @@
                 <div v-if="profile?.avatar_url" class="h-10 w-10 rounded-full overflow-hidden border-2 border-[#8ee0ee] shadow-sm">
                   <img :src="avatarUrl" alt="Profile" class="h-full w-full object-cover" />
                 </div>
-                <div v-else class="h-10 w-10 rounded-full bg-[#cbeff8] flex items-center justify-center border-2 border-[#8ee0ee] shadow-sm">
+                <div v-else class="h-10 w-10 rounded-full bg-[#f0f9fb] flex items-center justify-center border-2 border-[#8ee0ee] shadow-sm">
                   <svg class="h-6 w-6 text-[#03045e]" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
                   </svg>
@@ -336,7 +336,7 @@
                         <div class="flex-1 min-w-0">
                           <div class="flex items-start justify-between gap-2 mb-1">
                             <h4 class="text-sm font-medium text-gray-900 cursor-pointer" @click.stop="viewPropertyDetails(property)">{{ property.property_name }}</h4>
-                            <span v-if="property.emergency_access_enabled" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#cbeff8] text-[#03045e] flex-shrink-0">
+                            <span v-if="property.emergency_access_enabled" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#f0f9fb] text-[#03045e] flex-shrink-0">
                               Active
                             </span>
                           </div>
@@ -419,10 +419,10 @@
                       </div>
                     </div>
                     <div class="flex items-center space-x-2 mt-2">
-                      <span v-if="contact.is_primary" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#cbeff8] text-[#03045e]">
+                      <span v-if="contact.is_primary" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#f0f9fb] text-[#03045e]">
                         Primary
                       </span>
-                      <span v-if="contact.is_tenant" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#cbeff8] text-[#03045e]">
+                      <span v-if="contact.is_tenant" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#f0f9fb] text-[#03045e]">
                         Tenant
                       </span>
                       <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
@@ -481,7 +481,7 @@
                   :key="index"
                   :class="[
                     'px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0',
-                    selectedAddressIndex === index ? 'bg-[#cbeff8] text-[#03045e]' : 'hover:bg-gray-50'
+                    selectedAddressIndex === index ? 'bg-[#f0f9fb] text-[#03045e]' : 'hover:bg-gray-50'
                   ]"
                   @click="selectAddressSuggestion(suggestion)"
                   @mouseenter="selectedAddressIndex = index"
@@ -543,7 +543,7 @@
             <div 
               ref="propertyMapContainer" 
               class="w-full h-96 rounded-lg border border-gray-300 overflow-hidden relative"
-              style="min-height: 384px;"
+              style="min-height: 384px; width: 100%; position: relative;"
             >
               <div v-if="reverseGeocoding" class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
                 <div class="text-center">
@@ -747,7 +747,7 @@
               </div>
               <div>
                 <p class="text-sm font-medium text-gray-500">Status</p>
-                <span v-if="selectedProperty?.emergency_access_enabled" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#cbeff8] text-[#03045e]">
+                <span v-if="selectedProperty?.emergency_access_enabled" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#f0f9fb] text-[#03045e]">
                   Emergency Access Enabled
                 </span>
               </div>
@@ -793,10 +793,10 @@
                     <h5 class="text-sm font-medium text-gray-900">{{ pc.contact.contact_name }}</h5>
                     <p class="text-sm text-gray-500">{{ pc.contact.email }}</p>
                     <div class="flex space-x-2 mt-1">
-                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[#cbeff8] text-[#03045e]">
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[#f0f9fb] text-[#03045e]">
                         {{ pc.relationship_type.replace('_', ' ').toUpperCase() }}
                       </span>
-                      <span v-if="pc.can_grant_access" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[#cbeff8] text-[#03045e]">
+                      <span v-if="pc.can_grant_access" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[#f0f9fb] text-[#03045e]">
                         Can Grant Access
                       </span>
                       <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
@@ -894,7 +894,7 @@
             <div v-for="code in accessCodes" :key="code.id" class="bg-gray-50 p-4 rounded-lg">
               <div class="flex items-center justify-between mb-2">
                 <span class="text-sm font-medium text-gray-700">{{ code.code_type }}</span>
-                <span v-if="code.is_active" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#cbeff8] text-[#03045e]">
+                <span v-if="code.is_active" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#f0f9fb] text-[#03045e]">
                   Active
                 </span>
                 <span v-else class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
@@ -1208,14 +1208,31 @@ async function loadActiveAccessCodes() {
 function initPropertyMap() {
   if (!propertyMapContainer.value) return
   
-  const { initMap, addMarker, reverseGeocode } = useMapbox()
+  // Ensure we're on client side
+  if (typeof window === 'undefined') return
   
-  // Initialize map centered on UK
-  propertyMap.value = initMap(propertyMapContainer.value, {
-    center: [-2.2374, 53.4808], // Manchester, UK
-    zoom: 6,
-    onMapClick: async (lng: number, lat: number) => {
-      await handleMapClick(lng, lat)
+  // Wait for next tick to ensure DOM is ready
+  nextTick(() => {
+    if (!propertyMapContainer.value) return
+    
+    const { initMap, addMarker, reverseGeocode } = useMapbox()
+    
+    // Initialize map centered on UK
+    propertyMap.value = initMap(propertyMapContainer.value, {
+      center: [-2.2374, 53.4808], // Manchester, UK
+      zoom: 6,
+      onMapClick: async (lng: number, lat: number) => {
+        await handleMapClick(lng, lat)
+      }
+    })
+    
+    // Force resize after a short delay to ensure mobile rendering
+    if (propertyMap.value) {
+      setTimeout(() => {
+        if (propertyMap.value) {
+          propertyMap.value.resize()
+        }
+      }, 100)
     }
   })
 }

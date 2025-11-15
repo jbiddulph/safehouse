@@ -160,7 +160,7 @@
             class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
           >
             <div class="flex items-center space-x-4">
-              <div class="h-10 w-10 rounded-full bg-[#cbeff8] flex items-center justify-center">
+              <div class="h-10 w-10 rounded-full bg-[#f0f9fb] flex items-center justify-center">
                 <svg class="h-6 w-6 text-[#8ee0ee]0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
                 </svg>
@@ -188,7 +188,7 @@
                 v-if="user.role === 'standard'"
                 @click="promoteToAdmin(user.id)"
                 :disabled="promotingUser === user.id"
-                class="text-xs px-3 py-1 bg-[#cbeff8] text-[#8ee0ee] rounded hover:bg-[#cbeff8] disabled:opacity-50"
+                class="text-xs px-3 py-1 bg-[#f0f9fb] text-[#8ee0ee] rounded hover:bg-[#f0f9fb] disabled:opacity-50"
               >
                 {{ promotingUser === user.id ? 'Promoting...' : 'Make Admin' }}
               </button>
@@ -220,7 +220,7 @@
             class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <div class="flex-shrink-0">
-              <div class="h-10 w-10 bg-[#cbeff8] rounded-lg flex items-center justify-center">
+              <div class="h-10 w-10 bg-[#f0f9fb] rounded-lg flex items-center justify-center">
                 <svg class="h-6 w-6 text-[#8ee0ee]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9" />
                 </svg>
@@ -234,7 +234,7 @@
           
           <div class="flex items-center p-4 border border-gray-200 rounded-lg bg-gray-50">
             <div class="flex-shrink-0">
-              <div class="h-10 w-10 bg-[#cbeff8] rounded-lg flex items-center justify-center">
+              <div class="h-10 w-10 bg-[#f0f9fb] rounded-lg flex items-center justify-center">
                 <svg class="h-6 w-6 text-[#8ee0ee]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>

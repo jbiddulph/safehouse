@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-[#cbeff8] flex flex-col py-12 px-4 sm:px-6 lg:px-8">
+  <div class="min-h-screen bg-[#f0f9fb] flex flex-col py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8 flex-1 flex items-center justify-center">
       <!-- Header -->
       <div class="text-center">
@@ -24,7 +24,7 @@
               <div v-if="avatarPreview" class="w-20 h-20 rounded-full overflow-hidden border-4 border-[#8ee0ee] shadow-lg">
                 <img :src="avatarPreview" alt="Avatar preview" class="w-full h-full object-cover" />
               </div>
-              <div v-else class="w-20 h-20 rounded-full bg-[#cbeff8] flex items-center justify-center border-4 border-[#8ee0ee]">
+              <div v-else class="w-20 h-20 rounded-full bg-[#f0f9fb] flex items-center justify-center border-4 border-[#8ee0ee]">
                 <svg class="w-10 h-10 text-[#8ee0ee]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>

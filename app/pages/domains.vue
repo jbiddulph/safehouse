@@ -78,7 +78,7 @@
           <div 
             v-for="domain in allowedDomains" 
             :key="domain.id"
-            class="flex items-center justify-between p-3 bg-[#cbeff8] border border-[#8ee0ee] rounded-md"
+            class="flex items-center justify-between p-3 bg-[#f0f9fb] border border-[#8ee0ee] rounded-md"
           >
             <div class="flex-1">
               <div class="flex items-center gap-2">
@@ -92,11 +92,11 @@
               </div>
             </div>
             <div class="flex items-center gap-2">
-              <span class="text-xs bg-[#cbeff8] text-[#03045e] px-2 py-1 rounded-full">Allowed</span>
+              <span class="text-xs bg-[#f0f9fb] text-[#03045e] px-2 py-1 rounded-full">Allowed</span>
               <div class="flex gap-1">
                 <button 
                   @click="editAllowedDomain(domain)"
-                  class="text-xs px-2 py-1 bg-[#cbeff8] text-[#8ee0ee] rounded hover:bg-[#cbeff8]"
+                  class="text-xs px-2 py-1 bg-[#f0f9fb] text-[#8ee0ee] rounded hover:bg-[#f0f9fb]"
                 >
                   Edit
                 </button>
@@ -182,7 +182,7 @@
               <div class="flex gap-1">
                 <button 
                   @click="editBlockedDomain(domain)"
-                  class="text-xs px-2 py-1 bg-[#cbeff8] text-[#8ee0ee] rounded hover:bg-[#cbeff8]"
+                  class="text-xs px-2 py-1 bg-[#f0f9fb] text-[#8ee0ee] rounded hover:bg-[#f0f9fb]"
                 >
                   Edit
                 </button>

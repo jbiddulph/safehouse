@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-[#cbeff8] flex flex-col py-12 px-4 sm:px-6 lg:px-8">
+  <div class="min-h-screen bg-[#f0f9fb] flex flex-col py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8 flex-1 flex items-center justify-center">
       <!-- Header -->
       <div class="text-center">

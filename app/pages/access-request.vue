@@ -54,7 +54,7 @@
 
         <!-- Domain Allowed - Access Granted -->
         <div v-else-if="domainAllowed && emailVerified" class="text-center">
-          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-[#cbeff8] mb-4">
+          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-[#f0f9fb] mb-4">
             <svg class="h-6 w-6 text-[#8ee0ee]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>
@@ -63,7 +63,7 @@
           <p class="text-sm text-gray-500 mb-4">
             Your email domain is authorized for emergency access to this property.
           </p>
-          <div class="bg-[#cbeff8] border border-[#8ee0ee] rounded-md p-4 mb-4">
+          <div class="bg-[#f0f9fb] border border-[#8ee0ee] rounded-md p-4 mb-4">
             <h4 class="font-medium text-[#03045e]">{{ scannedProperty.property_name }}</h4>
             <p class="text-sm text-[#8ee0ee]">{{ scannedProperty.address }}</p>
           </div>
@@ -84,7 +84,7 @@
             <p class="text-sm text-gray-500 mb-4">
               Your email domain is not in the allowed list. Please enter the access code to continue.
             </p>
-            <div class="bg-[#cbeff8] border border-[#8ee0ee] rounded-md p-4 mb-4">
+            <div class="bg-[#f0f9fb] border border-[#8ee0ee] rounded-md p-4 mb-4">
               <h4 class="font-medium text-[#03045e]">{{ scannedProperty.property_name }}</h4>
               <p class="text-sm text-[#8ee0ee]">{{ scannedProperty.address }}</p>
             </div>
@@ -198,7 +198,7 @@
         <!-- Verification Step -->
         <div v-else-if="!verificationSubmitted" class="space-y-6">
           <div class="text-center">
-            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-[#cbeff8]">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-[#f0f9fb]">
               <svg class="h-6 w-6 text-[#8ee0ee]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
               </svg>
@@ -244,7 +244,7 @@
 
         <!-- Success/Status -->
         <div v-else class="text-center">
-          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-[#cbeff8]">
+          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-[#f0f9fb]">
             <svg class="h-6 w-6 text-[#8ee0ee]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>

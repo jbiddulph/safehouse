@@ -2,10 +2,10 @@
   <div class="p-8">
     <h1 class="text-2xl font-bold mb-4">Auth Test</h1>
     <div class="space-y-4">
-      <button @click="testLogin" class="bg-[#cbeff8]0 text-white px-4 py-2 rounded">
+      <button @click="testLogin" class="bg-[#f0f9fb]0 text-white px-4 py-2 rounded">
         Test Login
       </button>
-      <button @click="testSignup" class="bg-[#cbeff8]0 text-white px-4 py-2 rounded">
+      <button @click="testSignup" class="bg-[#f0f9fb]0 text-white px-4 py-2 rounded">
         Test Signup
       </button>
       <div v-if="result" class="mt-4 p-4 bg-gray-100 rounded">

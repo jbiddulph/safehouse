@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-[#cbeff8] flex flex-col">
+  <div class="min-h-screen bg-[#f0f9fb] flex flex-col">
     <!-- Top Navigation -->
     <nav class="bg-[#03045e] shadow-lg border-b border-[#03045e]">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -100,7 +100,7 @@
               v-model="addressQuery"
               type="text"
               placeholder="Start typing an address..."
-              class="w-full px-4 py-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]"
+              class="w-full px-4 pr-14 py-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]"
               @input="handleAddressInput"
               @keydown.down="navigateSuggestions('down')"
               @keydown.up="navigateSuggestions('up')"
@@ -109,9 +109,20 @@
               @blur="hideSuggestions"
             />
             
-            <!-- Loading indicator -->
-            <div v-if="loading" class="absolute right-3 top-1/2 transform -translate-y-1/2">
-              <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-[#03045e]"></div>
+            <!-- Search Button / Loading indicator -->
+            <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
+              <button
+                v-if="!loading && !searching"
+                @click="searchProperties"
+                :disabled="!addressQuery.trim()"
+                class="p-2 text-[#03045e] hover:text-[#8ee0ee] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                type="button"
+              >
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+              <div v-else class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#03045e]"></div>
             </div>
           </div>
 
@@ -153,7 +164,7 @@
               :key="index"
               :class="[
                 'px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0',
-                selectedIndex === index ? 'bg-[#cbeff8] text-[#03045e]' : 'hover:bg-gray-50'
+                selectedIndex === index ? 'bg-[#f0f9fb] text-[#03045e]' : 'hover:bg-gray-50'
               ]"
               @click="selectSuggestion(suggestion)"
               @mouseenter="selectedIndex = index"
@@ -181,19 +192,8 @@
           </div>
         </div>
 
-        <!-- Search Button -->
-        <div class="mt-6">
-          <button
-            @click="searchProperties"
-            :disabled="!addressQuery.trim() || searching"
-            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-[#03045e] hover:bg-[#03045e] disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {{ searching ? 'Searching...' : 'Search Properties' }}
-          </button>
-        </div>
-
         <!-- Selected Address Display -->
-        <div v-if="selectedAddress || addressQuery.trim()" class="mt-4 p-4 bg-[#cbeff8] border border-[#8ee0ee] rounded-lg">
+        <div v-if="selectedAddress || addressQuery.trim()" class="mt-4 p-4 bg-[#f0f9fb] border border-[#8ee0ee] rounded-lg">
           <h3 class="font-medium text-[#03045e] mb-1">Search Address:</h3>
           <p class="text-[#03045e]">{{ selectedAddress?.formatted_address || addressQuery }}</p>
         </div>
@@ -413,7 +413,7 @@ function showSearchResults(properties: any[]) {
           <p class="text-sm text-gray-500">${property.country}</p>
         </div>
         <div class="text-right">
-          <span class="inline-block px-2 py-1 text-xs font-medium bg-[#cbeff8] text-[#03045e] rounded-full">
+          <span class="inline-block px-2 py-1 text-xs font-medium bg-[#f0f9fb] text-[#03045e] rounded-full">
             ${property.property_type}
           </span>
           ${property.emergency_access_enabled ? 

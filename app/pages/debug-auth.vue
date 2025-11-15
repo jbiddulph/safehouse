@@ -10,10 +10,10 @@
         <label class="block text-sm font-medium mb-1">Password:</label>
         <input v-model="password" type="password" class="border p-2 rounded w-full" />
       </div>
-      <button @click="testDirectAuth" class="bg-[#cbeff8]0 text-white px-4 py-2 rounded">
+      <button @click="testDirectAuth" class="bg-[#f0f9fb]0 text-white px-4 py-2 rounded">
         Test Direct Supabase Auth
       </button>
-      <button @click="testStoreAuth" class="bg-[#cbeff8]0 text-white px-4 py-2 rounded">
+      <button @click="testStoreAuth" class="bg-[#f0f9fb]0 text-white px-4 py-2 rounded">
         Test Store Auth
       </button>
       <div v-if="result" class="mt-4 p-4 bg-gray-100 rounded">

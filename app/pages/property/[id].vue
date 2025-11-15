@@ -44,7 +44,7 @@
           <!-- Property Header -->
           <div class="text-center">
             <div class="mb-4">
-              <div class="w-16 h-16 bg-[#cbeff8] rounded-full flex items-center justify-center mx-auto">
+              <div class="w-16 h-16 bg-[#f0f9fb] rounded-full flex items-center justify-center mx-auto">
                 <svg class="w-8 h-8 text-[#8ee0ee]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
@@ -60,14 +60,14 @@
 
           <!-- Property Type & Status -->
           <div class="flex justify-center space-x-4">
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-[#cbeff8] text-[#03045e]">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-[#f0f9fb] text-[#03045e]">
               {{ property.property_type }}
             </span>
             <span 
               :class="[
                 'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium',
                 property.emergency_access_enabled 
-                  ? 'bg-[#cbeff8] text-[#03045e]' 
+                  ? 'bg-[#f0f9fb] text-[#03045e]' 
                   : 'bg-red-100 text-red-800'
               ]"
             >
@@ -78,10 +78,10 @@
           <!-- Property Map -->
           <div v-if="hasValidCoordinates(property)" class="mt-6">
             <h4 class="text-sm font-medium text-gray-700 mb-2">Property Location</h4>
-            <div 
-              ref="propertyMapContainer" 
+            <div
+              ref="propertyMapContainer"
               class="w-full h-64 rounded-lg border border-gray-300 overflow-hidden"
-              style="min-height: 256px;"
+              style="min-height: 256px; width: 100%; position: relative;"
             ></div>
             <p class="mt-2 text-xs text-gray-500 text-center">
               {{ property.address }}, {{ property.city }}{{ property.state ? `, ${property.state}` : '' }}
@@ -132,7 +132,7 @@
       <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
         <div class="text-center">
           <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4"
-               :class="accessType === 'emergency' ? 'bg-red-100' : 'bg-[#cbeff8]'">
+               :class="accessType === 'emergency' ? 'bg-red-100' : 'bg-[#f0f9fb]'">
             <svg class="h-6 w-6" 
                  :class="accessType === 'emergency' ? 'text-red-600' : 'text-[#8ee0ee]'"
                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -183,7 +183,7 @@
                   class="px-3 py-1 text-xs font-medium rounded-md border transition-colors"
                   :class="{
                     'border-gray-300 text-gray-700 bg-gray-50 hover:bg-gray-100': !locationVerification.isVerified,
-                    'border-[#8ee0ee] text-[#8ee0ee] bg-[#cbeff8]': locationVerification.isVerified,
+                    'border-[#8ee0ee] text-[#8ee0ee] bg-[#f0f9fb]': locationVerification.isVerified,
                     'border-red-300 text-red-700 bg-red-50': locationVerification.error,
                     'opacity-50 cursor-not-allowed': isVerifyingLocation || !emailForm.email
                   }"
@@ -341,20 +341,35 @@ function initPropertyMap() {
   
   if (isNaN(lat) || isNaN(lng)) return
   
-  const { initMap, addMarker } = useMapbox()
+  // Ensure we're on client side and container is visible
+  if (typeof window === 'undefined') return
   
-  // Initialize map centered on property location
-  propertyMap.value = initMap(propertyMapContainer.value, {
-    center: [lng, lat],
-    zoom: 15
-  })
-  
-  // Add marker at property location
-  if (propertyMap.value) {
-    propertyMapMarker.value = addMarker(propertyMap.value, lng, lat, {
-      draggable: false
+  // Wait for next tick to ensure DOM is ready
+  nextTick(() => {
+    if (!propertyMapContainer.value) return
+    
+    const { initMap, addMarker } = useMapbox()
+    
+    // Initialize map centered on property location
+    propertyMap.value = initMap(propertyMapContainer.value, {
+      center: [lng, lat],
+      zoom: 15
     })
-  }
+    
+    // Add marker at property location
+    if (propertyMap.value) {
+      propertyMapMarker.value = addMarker(propertyMap.value, lng, lat, {
+        draggable: false
+      })
+      
+      // Force resize after a short delay to ensure mobile rendering
+      setTimeout(() => {
+        if (propertyMap.value) {
+          propertyMap.value.resize()
+        }
+      }, 100)
+    }
+  })
 }
 
 // Cleanup map on unmount

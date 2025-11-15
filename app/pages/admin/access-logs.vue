@@ -299,7 +299,7 @@
                     :class="[
                       'relative inline-flex items-center px-4 py-2 border text-sm font-medium',
                       page === pagination.page
-                        ? 'z-10 bg-[#cbeff8] border-[#8ee0ee]0 text-[#8ee0ee]'
+                        ? 'z-10 bg-[#f0f9fb] border-[#8ee0ee]0 text-[#8ee0ee]'
                         : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
                     ]"
                   >
@@ -434,9 +434,9 @@ const formatDevice = (log: any) => {
 
 const getAccessTypeBadgeClass = (type: string) => {
   const classes = {
-    property_view: 'bg-[#cbeff8] text-[#03045e]',
+    property_view: 'bg-[#f0f9fb] text-[#03045e]',
     emergency_request: 'bg-red-100 text-red-800',
-    access_granted: 'bg-[#cbeff8] text-[#03045e]',
+    access_granted: 'bg-[#f0f9fb] text-[#03045e]',
     access_denied: 'bg-gray-100 text-gray-800'
   }
   return classes[type] || 'bg-gray-100 text-gray-800'

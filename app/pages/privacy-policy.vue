@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-[#cbeff8] flex flex-col">
+  <div class="min-h-screen bg-[#f0f9fb] flex flex-col">
     <!-- Top Navigation -->
     <nav class="bg-[#03045e] shadow-lg border-b border-[#03045e]">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

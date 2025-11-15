@@ -49,7 +49,7 @@
         <!-- Property Info and Email Form -->
         <div v-else-if="!requestSubmitted" class="space-y-6">
           <!-- Property Information -->
-          <div class="bg-[#cbeff8] border border-[#8ee0ee] rounded-md p-4">
+          <div class="bg-[#f0f9fb] border border-[#8ee0ee] rounded-md p-4">
             <h3 class="text-lg font-medium text-[#03045e] mb-2">Property Information</h3>
             <p class="text-sm text-[#03045e] font-medium">{{ scannedProperty.property_name }}</p>
             <p class="text-sm text-[#8ee0ee]">{{ scannedProperty.address }}</p>
@@ -84,7 +84,7 @@
               />
             </div>
 
-            <div class="bg-[#cbeff8] border border-[#8ee0ee] rounded-md p-4">
+            <div class="bg-[#f0f9fb] border border-[#8ee0ee] rounded-md p-4">
               <div class="flex">
                 <div class="flex-shrink-0">
                   <svg class="h-5 w-5 text-[#8ee0ee]" fill="currentColor" viewBox="0 0 20 20">
@@ -123,7 +123,7 @@
 
         <!-- Success Message -->
         <div v-else class="text-center">
-          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-[#cbeff8]">
+          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-[#f0f9fb]">
             <svg class="h-6 w-6 text-[#8ee0ee]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>

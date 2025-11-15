@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-[#cbeff8] flex flex-col py-12 px-4 sm:px-6 lg:px-8">
+  <div class="min-h-screen bg-[#f0f9fb] flex flex-col py-12 px-4 sm:px-6 lg:px-8">
     <div class="w-full max-w-2xl flex-1 flex items-center justify-center">
       <!-- Header -->
       <div class="text-center mb-6">
@@ -56,7 +56,7 @@
           </div>
 
           <!-- Avatar Preview -->
-          <div v-if="avatarPreview" class="bg-[#cbeff8] border border-[#8ee0ee] rounded-lg p-4">
+          <div v-if="avatarPreview" class="bg-[#f0f9fb] border border-[#8ee0ee] rounded-lg p-4">
             <p class="text-sm font-medium text-[#03045e]">Preview</p>
             <div class="mt-2 flex items-center gap-3">
               <div class="w-16 h-16 rounded-full overflow-hidden ring-2 ring-primary-200">

@@ -12,7 +12,7 @@
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
       <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
         <!-- Property Information -->
-        <div v-if="propertyInfo" class="bg-[#cbeff8] border border-[#8ee0ee] rounded-md p-4 mb-6">
+        <div v-if="propertyInfo" class="bg-[#f0f9fb] border border-[#8ee0ee] rounded-md p-4 mb-6">
           <h3 class="text-lg font-medium text-[#03045e] mb-2">Property Information</h3>
           <p class="text-sm text-[#03045e] font-medium">{{ propertyInfo.property_name }}</p>
           <p class="text-sm text-[#8ee0ee]">{{ propertyInfo.address }}</p>
@@ -50,7 +50,7 @@
 
         <!-- Success Message -->
         <div v-if="verificationSuccess || domainAllowed" class="mt-6 text-center">
-          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-[#cbeff8]">
+          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-[#f0f9fb]">
             <svg class="h-6 w-6 text-[#8ee0ee]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>
