@@ -1279,11 +1279,25 @@ function initPropertyMap() {
     
     // If container is not ready, wait a bit more (especially important for mobile modals)
     if (!checkContainer()) {
-      setTimeout(() => {
-        if (!checkContainer() || !propertyMapContainer.value) return
+      // Try multiple times with increasing delays for mobile
+      const tryInitialize = (attempt: number = 0) => {
+        if (attempt > 5) {
+          console.warn('Map container not ready after multiple attempts')
+          return
+        }
         
-        initializeMap()
-      }, 300)
+        setTimeout(() => {
+          if (!propertyMapContainer.value) return
+          
+          if (checkContainer()) {
+            initializeMap()
+          } else {
+            tryInitialize(attempt + 1)
+          }
+        }, attempt === 0 ? 100 : attempt * 200)
+      }
+      
+      tryInitialize()
       return
     }
     
@@ -1294,37 +1308,60 @@ function initPropertyMap() {
 function initializeMap() {
   if (!propertyMapContainer.value) return
   
-  const { initMap, addMarker, reverseGeocode } = useMapbox()
-  
-  // Initialize map centered on UK
-  propertyMap.value = initMap(propertyMapContainer.value, {
-    center: [-2.2374, 53.4808], // Manchester, UK
-    zoom: 6,
-    onMapClick: async (lng: number, lat: number) => {
-      await handleMapClick(lng, lat)
-    }
-  })
-  
-  // Force resize multiple times to ensure mobile rendering
-  if (propertyMap.value) {
-    // Immediate resize
-    setTimeout(() => {
-      if (propertyMap.value) {
-        propertyMap.value.resize()
-      }
-    }, 50)
+  // Ensure container is visible and has dimensions (critical for mobile)
+  const container = propertyMapContainer.value
+  if (container instanceof HTMLElement) {
+    // Force visibility and dimensions
+    container.style.display = 'block'
+    container.style.visibility = 'visible'
+    container.style.position = 'relative'
     
-    // Resize after a longer delay (for mobile)
-    setTimeout(() => {
+    // Wait for next frame to ensure styles are applied
+    requestAnimationFrame(() => {
+      if (!propertyMapContainer.value) return
+      
+      const { initMap, addMarker, reverseGeocode } = useMapbox()
+      
+      // Initialize map centered on UK
+      propertyMap.value = initMap(propertyMapContainer.value, {
+        center: [-2.2374, 53.4808], // Manchester, UK
+        zoom: 6,
+        onMapClick: async (lng: number, lat: number) => {
+          await handleMapClick(lng, lat)
+        }
+      })
+      
+      // Force resize multiple times to ensure mobile rendering
       if (propertyMap.value) {
-        propertyMap.value.resize()
-      }
-    }, 300)
-    
-    // Resize on map load event
-    propertyMap.value.on('load', () => {
-      if (propertyMap.value) {
-        propertyMap.value.resize()
+        // Immediate resize after initialization
+        requestAnimationFrame(() => {
+          if (propertyMap.value) {
+            propertyMap.value.resize()
+          }
+        })
+        
+        // Resize after a short delay
+        setTimeout(() => {
+          if (propertyMap.value) {
+            propertyMap.value.resize()
+          }
+        }, 100)
+        
+        // Resize after a longer delay (for mobile modals)
+        setTimeout(() => {
+          if (propertyMap.value) {
+            propertyMap.value.resize()
+          }
+        }, 500)
+        
+        // Resize on map load event
+        propertyMap.value.on('load', () => {
+          requestAnimationFrame(() => {
+            if (propertyMap.value) {
+              propertyMap.value.resize()
+            }
+          })
+        })
       }
     })
   }
@@ -1398,10 +1435,19 @@ function cleanupPropertyMap() {
 // Watch for modal open/close to initialize/cleanup map
 watch(showAddProperty, (isOpen) => {
   if (isOpen) {
+    // Use multiple delays for mobile devices
     nextTick(() => {
+      // First attempt after DOM update
       setTimeout(() => {
         initPropertyMap()
       }, 100)
+      
+      // Second attempt for mobile (longer delay for modal animations)
+      setTimeout(() => {
+        if (showAddProperty.value && propertyMapContainer.value && !propertyMap.value) {
+          initPropertyMap()
+        }
+      }, 500)
     })
   } else {
     cleanupPropertyMap()

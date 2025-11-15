@@ -344,31 +344,56 @@ function initPropertyMap() {
   // Ensure we're on client side and container is visible
   if (typeof window === 'undefined') return
   
+  // Ensure container is visible and has dimensions
+  const container = propertyMapContainer.value
+  if (container instanceof HTMLElement) {
+    container.style.display = 'block'
+    container.style.visibility = 'visible'
+    container.style.position = 'relative'
+  }
+  
   // Wait for next tick to ensure DOM is ready
   nextTick(() => {
     if (!propertyMapContainer.value) return
     
-    const { initMap, addMarker } = useMapbox()
-    
-    // Initialize map centered on property location
-    propertyMap.value = initMap(propertyMapContainer.value, {
-      center: [lng, lat],
-      zoom: 15
-    })
-    
-    // Add marker at property location
-    if (propertyMap.value) {
-      propertyMapMarker.value = addMarker(propertyMap.value, lng, lat, {
-        draggable: false
+    // Use requestAnimationFrame for better mobile rendering
+    requestAnimationFrame(() => {
+      if (!propertyMapContainer.value) return
+      
+      const { initMap, addMarker } = useMapbox()
+      
+      // Initialize map centered on property location
+      propertyMap.value = initMap(propertyMapContainer.value, {
+        center: [lng, lat],
+        zoom: 15
       })
       
-      // Force resize after a short delay to ensure mobile rendering
-      setTimeout(() => {
-        if (propertyMap.value) {
-          propertyMap.value.resize()
-        }
-      }, 100)
-    }
+      // Add marker at property location
+      if (propertyMap.value) {
+        propertyMapMarker.value = addMarker(propertyMap.value, lng, lat, {
+          draggable: false
+        })
+        
+        // Force resize multiple times to ensure mobile rendering
+        requestAnimationFrame(() => {
+          if (propertyMap.value) {
+            propertyMap.value.resize()
+          }
+        })
+        
+        setTimeout(() => {
+          if (propertyMap.value) {
+            propertyMap.value.resize()
+          }
+        }, 100)
+        
+        setTimeout(() => {
+          if (propertyMap.value) {
+            propertyMap.value.resize()
+          }
+        }, 500)
+      }
+    })
   })
 }
 

@@ -1,2 +1,31 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
+
+/* Mapbox mobile rendering fixes */
+.mapboxgl-map {
+  width: 100% !important;
+  height: 100% !important;
+  position: relative !important;
+}
+
+.mapboxgl-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+}
+
+.mapboxgl-canvas-container {
+  width: 100% !important;
+  height: 100% !important;
+  position: relative !important;
+}
+
+/* Ensure map containers are visible on mobile */
+.mapboxgl-container {
+  width: 100% !important;
+  height: 100% !important;
+  position: relative !important;
+}

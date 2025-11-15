@@ -50,6 +50,27 @@ export const useMapbox = () => {
 
     // Ensure container has dimensions and is visible (critical for mobile)
     if (mapElement instanceof HTMLElement) {
+      // Force explicit dimensions and visibility for mobile
+      mapElement.style.display = 'block'
+      mapElement.style.visibility = 'visible'
+      mapElement.style.position = 'relative'
+      
+      // Ensure minimum dimensions
+      if (!mapElement.style.height || mapElement.style.height === '0px' || mapElement.style.height === 'auto') {
+        const computedHeight = window.getComputedStyle(mapElement).height
+        if (!computedHeight || computedHeight === '0px' || computedHeight === 'auto') {
+          mapElement.style.minHeight = '256px'
+          mapElement.style.height = '256px'
+        }
+      }
+      
+      if (!mapElement.style.width || mapElement.style.width === '0px') {
+        mapElement.style.width = '100%'
+      }
+      
+      // Force a reflow to ensure styles are applied
+      void mapElement.offsetHeight
+      
       const rect = mapElement.getBoundingClientRect()
       const isVisible = rect.width > 0 && rect.height > 0 && 
                        rect.top < window.innerHeight && 
@@ -60,8 +81,8 @@ export const useMapbox = () => {
         mapElement.style.minHeight = '256px'
         mapElement.style.height = '256px'
         mapElement.style.width = '100%'
-        mapElement.style.display = 'block'
-        mapElement.style.visibility = 'visible'
+        // Force another reflow
+        void mapElement.offsetHeight
       }
     }
 
@@ -79,22 +100,76 @@ export const useMapbox = () => {
       scrollZoom: options.scrollZoom !== false,
       boxZoom: options.boxZoom !== false,
       keyboard: options.keyboard !== false,
-      attributionControl: options.attributionControl !== false
+      attributionControl: options.attributionControl !== false,
+      // Mobile-specific optimizations
+      antialias: true,
+      preserveDrawingBuffer: false
+    })
+
+    // Ensure map canvas has proper styling for mobile
+    map.on('style.load', () => {
+      const canvas = map.getCanvasContainer()
+      if (canvas) {
+        canvas.style.width = '100%'
+        canvas.style.height = '100%'
+        const canvasElement = canvas.querySelector('canvas')
+        if (canvasElement) {
+          canvasElement.style.width = '100%'
+          canvasElement.style.height = '100%'
+          canvasElement.style.display = 'block'
+        }
+      }
     })
 
     // Resize map after load to ensure proper rendering on mobile
     map.on('load', () => {
-      map.resize()
+      // Use requestAnimationFrame for better mobile rendering
+      requestAnimationFrame(() => {
+        map.resize()
+        // Additional resize after a short delay for mobile
+        setTimeout(() => {
+          map.resize()
+        }, 100)
+      })
     })
 
     // Also resize on container resize (for responsive layouts)
     if (typeof ResizeObserver !== 'undefined' && mapElement instanceof HTMLElement) {
-      const resizeObserver = new ResizeObserver(() => {
-        if (map) {
-          map.resize()
+      const resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.contentRect.width > 0 && entry.contentRect.height > 0) {
+            requestAnimationFrame(() => {
+              if (map) {
+                map.resize()
+              }
+            })
+          }
         }
       })
       resizeObserver.observe(mapElement)
+    }
+    
+    // Additional mobile-specific resize triggers
+    if (typeof window !== 'undefined') {
+      // Resize on orientation change
+      window.addEventListener('orientationchange', () => {
+        setTimeout(() => {
+          if (map) {
+            map.resize()
+          }
+        }, 100)
+      })
+      
+      // Resize on window resize (for mobile browser chrome changes)
+      let resizeTimeout: NodeJS.Timeout
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout)
+        resizeTimeout = setTimeout(() => {
+          if (map) {
+            map.resize()
+          }
+        }, 150)
+      })
     }
 
     // Add click handler if provided (works for both mouse and touch)
