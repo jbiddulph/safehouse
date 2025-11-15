@@ -968,6 +968,36 @@ const contacts = ref([])
 const showProfileMenu = ref(false)
 const showMobileMenu = ref(false)
 const showAddProperty = ref(false)
+
+// Watch for modal opening to initialize map
+watch(showAddProperty, (isOpen) => {
+  if (isOpen) {
+    // Wait for modal to be fully rendered before initializing map
+    nextTick(() => {
+      setTimeout(() => {
+        initPropertyMap()
+      }, 200)
+    })
+  } else {
+    // Clean up map when modal closes
+    if (propertyMap.value) {
+      try {
+        propertyMap.value.remove()
+      } catch (e) {
+        // Map might already be removed
+      }
+      propertyMap.value = null
+    }
+    if (propertyMapMarker.value) {
+      try {
+        propertyMapMarker.value.remove()
+      } catch (e) {
+        // Marker might already be removed
+      }
+      propertyMapMarker.value = null
+    }
+  }
+})
 const showAddContact = ref(false)
 const showEditContact = ref(false)
 const showPropertyDetails = ref(false)
@@ -1211,30 +1241,91 @@ function initPropertyMap() {
   // Ensure we're on client side
   if (typeof window === 'undefined') return
   
+  // Clean up existing map if any
+  if (propertyMap.value) {
+    try {
+      propertyMap.value.remove()
+    } catch (e) {
+      // Map might already be removed
+    }
+    propertyMap.value = null
+  }
+  if (propertyMapMarker.value) {
+    try {
+      propertyMapMarker.value.remove()
+    } catch (e) {
+      // Marker might already be removed
+    }
+    propertyMapMarker.value = null
+  }
+  
   // Wait for next tick to ensure DOM is ready
   nextTick(() => {
     if (!propertyMapContainer.value) return
     
-    const { initMap, addMarker, reverseGeocode } = useMapbox()
+    // Check if container is visible and has dimensions (critical for mobile)
+    const checkContainer = () => {
+      if (!propertyMapContainer.value) return false
+      
+      const rect = propertyMapContainer.value.getBoundingClientRect()
+      const isVisible = rect.width > 0 && rect.height > 0 && 
+                       rect.top < window.innerHeight && 
+                       rect.bottom > 0
+      
+      return isVisible
+    }
     
-    // Initialize map centered on UK
-    propertyMap.value = initMap(propertyMapContainer.value, {
-      center: [-2.2374, 53.4808], // Manchester, UK
-      zoom: 6,
-      onMapClick: async (lng: number, lat: number) => {
-        await handleMapClick(lng, lat)
-      }
-    })
-    
-    // Force resize after a short delay to ensure mobile rendering
-    if (propertyMap.value) {
+    // If container is not ready, wait a bit more (especially important for mobile modals)
+    if (!checkContainer()) {
       setTimeout(() => {
-        if (propertyMap.value) {
-          propertyMap.value.resize()
-        }
-      }, 100)
+        if (!checkContainer() || !propertyMapContainer.value) return
+        
+        initializeMap()
+      }, 300)
+      return
+    }
+    
+    initializeMap()
+  })
+}
+
+function initializeMap() {
+  if (!propertyMapContainer.value) return
+  
+  const { initMap, addMarker, reverseGeocode } = useMapbox()
+  
+  // Initialize map centered on UK
+  propertyMap.value = initMap(propertyMapContainer.value, {
+    center: [-2.2374, 53.4808], // Manchester, UK
+    zoom: 6,
+    onMapClick: async (lng: number, lat: number) => {
+      await handleMapClick(lng, lat)
     }
   })
+  
+  // Force resize multiple times to ensure mobile rendering
+  if (propertyMap.value) {
+    // Immediate resize
+    setTimeout(() => {
+      if (propertyMap.value) {
+        propertyMap.value.resize()
+      }
+    }, 50)
+    
+    // Resize after a longer delay (for mobile)
+    setTimeout(() => {
+      if (propertyMap.value) {
+        propertyMap.value.resize()
+      }
+    }, 300)
+    
+    // Resize on map load event
+    propertyMap.value.on('load', () => {
+      if (propertyMap.value) {
+        propertyMap.value.resize()
+      }
+    })
+  }
 }
 
 async function handleMapClick(lng: number, lat: number) {

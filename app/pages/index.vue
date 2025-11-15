@@ -114,7 +114,7 @@
               <button
                 v-if="!loading && !searching"
                 @click="searchProperties"
-                :disabled="!addressQuery.trim()"
+                :disabled="!addressQuery || !addressQuery.trim()"
                 class="p-2 text-[#03045e] hover:text-[#8ee0ee] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 type="button"
               >
@@ -128,7 +128,7 @@
 
           <!-- Recent Searches -->
           <div 
-            v-if="showRecentSearches && recentSearches.length > 0 && addressQuery.length === 0" 
+            v-if="showRecentSearches && recentSearches.length > 0 && (!addressQuery || addressQuery.length === 0)" 
             class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
           >
             <div class="px-4 py-2 bg-gray-50 border-b border-gray-200 text-sm font-medium text-gray-700">
@@ -185,7 +185,7 @@
 
           <!-- No results message -->
           <div 
-            v-if="showSuggestions && suggestions.length === 0 && addressQuery.length > 2 && !loading"
+            v-if="showSuggestions && suggestions.length === 0 && addressQuery && addressQuery.length > 2 && !loading"
             class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg p-4 text-center text-gray-500"
           >
             No addresses found. Try a different search term.
@@ -193,9 +193,9 @@
         </div>
 
         <!-- Selected Address Display -->
-        <div v-if="selectedAddress || addressQuery.trim()" class="mt-4 p-4 bg-[#f0f9fb] border border-[#8ee0ee] rounded-lg">
+        <div v-if="selectedAddress || (addressQuery && addressQuery.trim())" class="mt-4 p-4 bg-[#f0f9fb] border border-[#8ee0ee] rounded-lg">
           <h3 class="font-medium text-[#03045e] mb-1">Search Address:</h3>
-          <p class="text-[#03045e]">{{ selectedAddress?.formatted_address || addressQuery }}</p>
+          <p class="text-[#03045e]">{{ selectedAddress?.formatted_address || addressQuery || '' }}</p>
         </div>
       </div>
 
@@ -243,7 +243,7 @@ function handleAddressInput() {
     clearTimeout(debounceTimer)
   }
   
-  if (addressQuery.value.length < 3) {
+  if (!addressQuery.value || addressQuery.value.length < 3) {
     suggestions.value = []
     showSuggestions.value = false
     showRecentSearches.value = false
@@ -259,16 +259,16 @@ function handleAddressInput() {
 
 // Handle input focus
 function handleInputFocus() {
-  if (addressQuery.value.length === 0 && recentSearches.value.length > 0) {
+  if ((!addressQuery.value || addressQuery.value.length === 0) && recentSearches.value.length > 0) {
     showRecentSearches.value = true
-  } else if (addressQuery.value.length >= 3) {
+  } else if (addressQuery.value && addressQuery.value.length >= 3) {
     showSuggestions.value = true
   }
 }
 
 // Fetch address suggestions from server-side API
 async function fetchAddressSuggestions() {
-  if (addressQuery.value.length < 3) return
+  if (!addressQuery.value || addressQuery.value.length < 3) return
   
   loading.value = true
   try {
@@ -310,12 +310,18 @@ function navigateSuggestions(direction: 'up' | 'down') {
 function selectSuggestion(suggestion?: any) {
   if (suggestion) {
     selectedAddress.value = suggestion
-    addressQuery.value = suggestion.formatted_address
+    addressQuery.value = suggestion.formatted_address || ''
     addToRecentSearches(suggestion)
   } else if (selectedIndex.value >= 0 && suggestions.value[selectedIndex.value]) {
     selectedAddress.value = suggestions.value[selectedIndex.value]
-    addressQuery.value = suggestions.value[selectedIndex.value].formatted_address
+    addressQuery.value = suggestions.value[selectedIndex.value]?.formatted_address || ''
     addToRecentSearches(suggestions.value[selectedIndex.value])
+  } else {
+    // If Enter is pressed but no suggestion is selected, trigger search with current input
+    if (addressQuery.value && addressQuery.value.trim()) {
+      searchProperties()
+      return
+    }
   }
   
   showSuggestions.value = false
@@ -325,8 +331,9 @@ function selectSuggestion(suggestion?: any) {
 
 // Select a recent search
 function selectRecentSearch(search: any) {
+  if (!search) return
   selectedAddress.value = search
-  addressQuery.value = search.formatted_address
+  addressQuery.value = search?.formatted_address || ''
   showRecentSearches.value = false
   showSuggestions.value = false
 }
@@ -341,21 +348,28 @@ function hideSuggestions() {
 
 // Search for properties at the selected address
 async function searchProperties() {
-  if (!addressQuery.value.trim()) return
+  if (!addressQuery.value || !addressQuery.value.trim()) return
   
   searching.value = true
   try {
     // Use selectedAddress if available, otherwise create from input text
     const addressData = selectedAddress.value || {
-      formatted_address: addressQuery.value.trim(),
+      formatted_address: (addressQuery.value || '').trim(),
       city: '',
       state: '',
       postcode: '',
       country: 'GB' // Default to UK
     }
     
+    // Ensure formatted_address is not empty
+    if (!addressData.formatted_address || !addressData.formatted_address.trim()) {
+      alert('Please enter a valid address')
+      searching.value = false
+      return
+    }
+    
     const searchParams = {
-      address: addressData.formatted_address,
+      address: addressData.formatted_address || '',
       city: addressData.city || '',
       state: addressData.state || '',
       postal_code: addressData.postcode || '',

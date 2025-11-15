@@ -39,13 +39,20 @@ export const useMapbox = () => {
       return null
     }
 
-    // Ensure container has dimensions
+    // Ensure container has dimensions and is visible (critical for mobile)
     if (mapElement instanceof HTMLElement) {
       const rect = mapElement.getBoundingClientRect()
-      if (rect.width === 0 || rect.height === 0) {
-        console.warn('Map container has no dimensions, setting defaults')
+      const isVisible = rect.width > 0 && rect.height > 0 && 
+                       rect.top < window.innerHeight && 
+                       rect.bottom > 0
+      
+      if (!isVisible || rect.width === 0 || rect.height === 0) {
+        console.warn('Map container has no dimensions or is not visible, setting defaults')
         mapElement.style.minHeight = '256px'
+        mapElement.style.height = '256px'
         mapElement.style.width = '100%'
+        mapElement.style.display = 'block'
+        mapElement.style.visibility = 'visible'
       }
     }
 
