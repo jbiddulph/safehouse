@@ -76,134 +76,137 @@
       </div>
     </nav>
 
-    <div class="flex-1 py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div class="flex-1 relative overflow-hidden" style="min-height: calc(100vh - 4rem);">
       <!-- Background Map -->
       <div 
         ref="backgroundMapContainer" 
-        class="absolute inset-0 w-full h-full pointer-events-none"
-        style="z-index: 0; filter: grayscale(100%); opacity: 0.25;"
-      ></div>
+        class="absolute inset-0 w-full h-full pointer-events-none background-map-container"
+        style="z-index: 0; filter: grayscale(100%); opacity: 0.25; min-height: 100%;"
+      >
+      </div>
       
-      <div class="relative z-10 sm:mx-auto sm:w-full sm:max-w-2xl">
-      <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold text-[#03045e] mb-4">SafeHouse</h1>
-        <p class="text-lg text-gray-600 mb-4">
-          Enter an address to find properties or request emergency access
-        </p>
-        <div v-if="isLoggedIn" class="mb-4">
-          <p class="text-sm text-[#03045e]">Welcome back, {{ userEmail }}!</p>
-        </div>
-      </div>
+      <!-- Centered Search Box Overlay -->
+      <div class="relative z-10 flex items-center justify-center min-h-full py-12 px-4 sm:px-6 lg:px-8">
+        <div class="w-full max-w-2xl">
+          <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-[#03045e] mb-4">SafeHouse</h1>
+            <p class="text-lg text-gray-600 mb-4">
+              Enter an address to find properties or request emergency access
+            </p>
+            <div v-if="isLoggedIn" class="mb-4">
+              <p class="text-sm text-[#03045e]">Welcome back, {{ userEmail }}!</p>
+            </div>
+          </div>
 
-      <!-- Address Search -->
-      <div class="bg-white py-8 px-6 shadow-lg rounded-lg">
-        <div class="relative">
-          <label for="address-input" class="block text-sm font-medium text-gray-700 mb-2">
-            Property Address
-          </label>
-          <div class="relative">
-            <input
-              id="address-input"
-              v-model="addressQuery"
-              type="text"
-              placeholder="Start typing an address..."
-              class="w-full px-4 pr-14 py-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]"
-              @input="handleAddressInput"
-              @keydown.down="navigateSuggestions('down')"
-              @keydown.up="navigateSuggestions('up')"
-              @keydown.enter="selectSuggestion"
-              @focus="handleInputFocus"
-              @blur="hideSuggestions"
-            />
-            
-            <!-- Search Button / Loading indicator -->
-            <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
-              <button
-                v-if="!loading && !searching"
-                @click="searchProperties"
-                :disabled="!addressQuery || !addressQuery.trim()"
-                class="p-2 text-[#03045e] hover:text-[#8ee0ee] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                type="button"
+          <!-- Address Search -->
+          <div class="bg-white py-8 px-6 shadow-lg rounded-lg">
+            <div class="relative">
+              <label for="address-input" class="block text-sm font-medium text-gray-700 mb-2">
+                Property Address
+              </label>
+              <div class="relative">
+                <input
+                  id="address-input"
+                  v-model="addressQuery"
+                  type="text"
+                  placeholder="Start typing an address..."
+                  class="w-full px-4 pr-14 py-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]"
+                  @input="handleAddressInput"
+                  @keydown.down="navigateSuggestions('down')"
+                  @keydown.up="navigateSuggestions('up')"
+                  @keydown.enter="selectSuggestion"
+                  @focus="handleInputFocus"
+                  @blur="hideSuggestions"
+                />
+                
+                <!-- Search Button / Loading indicator -->
+                <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                  <button
+                    v-if="!loading && !searching"
+                    @click="searchProperties"
+                    :disabled="!addressQuery || !addressQuery.trim()"
+                    class="p-2 text-[#03045e] hover:text-[#8ee0ee] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    type="button"
+                  >
+                    <Icon name="mdi:magnify" class="h-6 w-6" />
+                  </button>
+                  <div v-else class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#03045e]"></div>
+                </div>
+              </div>
+
+              <!-- Recent Searches -->
+              <div 
+                v-if="showRecentSearches && recentSearches.length > 0 && (!addressQuery || addressQuery.length === 0)" 
+                class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
               >
-                <Icon name="mdi:magnify" class="h-6 w-6" />
-              </button>
-              <div v-else class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#03045e]"></div>
-            </div>
-          </div>
+                <div class="px-4 py-2 bg-gray-50 border-b border-gray-200 text-sm font-medium text-gray-700">
+                  Recent Searches
+                </div>
+                <div
+                  v-for="(search, index) in recentSearches"
+                  :key="`recent-${index}`"
+                  class="px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0 hover:bg-gray-50"
+                  @click="selectRecentSearch(search)"
+                >
+                  <div class="font-medium">{{ search.formatted_address }}</div>
+                  <div v-if="search.postcode" class="text-sm text-gray-500">
+                    {{ search.postcode }}
+                    <span v-if="search.city"> • {{ search.city }}</span>
+                    <span v-if="search.house_number" class="text-[#8ee0ee] font-medium">
+                      • House #{{ search.house_number }}
+                    </span>
+                  </div>
+                  <div class="text-xs text-gray-400 mt-1">
+                    Searched {{ formatSearchTime(search.timestamp) }}
+                  </div>
+                </div>
+              </div>
 
-          <!-- Recent Searches -->
-          <div 
-            v-if="showRecentSearches && recentSearches.length > 0 && (!addressQuery || addressQuery.length === 0)" 
-            class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
-          >
-            <div class="px-4 py-2 bg-gray-50 border-b border-gray-200 text-sm font-medium text-gray-700">
-              Recent Searches
-            </div>
-            <div
-              v-for="(search, index) in recentSearches"
-              :key="`recent-${index}`"
-              class="px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0 hover:bg-gray-50"
-              @click="selectRecentSearch(search)"
-            >
-              <div class="font-medium">{{ search.formatted_address }}</div>
-              <div v-if="search.postcode" class="text-sm text-gray-500">
-                {{ search.postcode }}
-                <span v-if="search.city"> • {{ search.city }}</span>
-                <span v-if="search.house_number" class="text-[#8ee0ee] font-medium">
-                  • House #{{ search.house_number }}
-                </span>
+              <!-- Address Suggestions -->
+              <div 
+                v-if="showSuggestions && suggestions.length > 0" 
+                class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+              >
+                <div
+                  v-for="(suggestion, index) in suggestions"
+                  :key="index"
+                  :class="[
+                    'px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0',
+                    selectedIndex === index ? 'bg-[#f0f9fb] text-[#03045e]' : 'hover:bg-gray-50'
+                  ]"
+                  @click="selectSuggestion(suggestion)"
+                  @mouseenter="selectedIndex = index"
+                >
+                  <div class="font-medium">{{ suggestion.formatted_address }}</div>
+                  <div v-if="suggestion.postcode" class="text-sm text-gray-500">
+                    {{ suggestion.postcode }}
+                    <span v-if="suggestion.city"> • {{ suggestion.city }}</span>
+                    <span v-if="suggestion.house_number" class="text-[#8ee0ee] font-medium">
+                      • House #{{ suggestion.house_number }}
+                    </span>
+                  </div>
+                  <div v-else-if="suggestion.types" class="text-sm text-gray-500">
+                    {{ suggestion.types?.join(', ') }}
+                  </div>
+                </div>
               </div>
-              <div class="text-xs text-gray-400 mt-1">
-                Searched {{ formatSearchTime(search.timestamp) }}
-              </div>
-            </div>
-          </div>
 
-          <!-- Address Suggestions -->
-          <div 
-            v-if="showSuggestions && suggestions.length > 0" 
-            class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
-          >
-            <div
-              v-for="(suggestion, index) in suggestions"
-              :key="index"
-              :class="[
-                'px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0',
-                selectedIndex === index ? 'bg-[#f0f9fb] text-[#03045e]' : 'hover:bg-gray-50'
-              ]"
-              @click="selectSuggestion(suggestion)"
-              @mouseenter="selectedIndex = index"
-            >
-              <div class="font-medium">{{ suggestion.formatted_address }}</div>
-              <div v-if="suggestion.postcode" class="text-sm text-gray-500">
-                {{ suggestion.postcode }}
-                <span v-if="suggestion.city"> • {{ suggestion.city }}</span>
-                <span v-if="suggestion.house_number" class="text-[#8ee0ee] font-medium">
-                  • House #{{ suggestion.house_number }}
-                </span>
-              </div>
-              <div v-else-if="suggestion.types" class="text-sm text-gray-500">
-                {{ suggestion.types?.join(', ') }}
+              <!-- No results message -->
+              <div 
+                v-if="showSuggestions && suggestions.length === 0 && addressQuery && addressQuery.length > 2 && !loading"
+                class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg p-4 text-center text-gray-500"
+              >
+                No addresses found. Try a different search term.
               </div>
             </div>
-          </div>
 
-          <!-- No results message -->
-          <div 
-            v-if="showSuggestions && suggestions.length === 0 && addressQuery && addressQuery.length > 2 && !loading"
-            class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg p-4 text-center text-gray-500"
-          >
-            No addresses found. Try a different search term.
+            <!-- Selected Address Display -->
+            <div v-if="selectedAddress || (addressQuery && addressQuery.trim())" class="mt-4 p-4 bg-[#f0f9fb] border border-[#8ee0ee] rounded-lg">
+              <h3 class="font-medium text-[#03045e] mb-1">Search Address:</h3>
+              <p class="text-[#03045e]">{{ selectedAddress?.formatted_address || addressQuery || '' }}</p>
+            </div>
           </div>
         </div>
-
-        <!-- Selected Address Display -->
-        <div v-if="selectedAddress || (addressQuery && addressQuery.trim())" class="mt-4 p-4 bg-[#f0f9fb] border border-[#8ee0ee] rounded-lg">
-          <h3 class="font-medium text-[#03045e] mb-1">Search Address:</h3>
-          <p class="text-[#03045e]">{{ selectedAddress?.formatted_address || addressQuery || '' }}</p>
-        </div>
-      </div>
-
       </div>
     </div>
 
@@ -603,60 +606,137 @@ function initBackgroundMap() {
   if (!backgroundMapContainer.value) return
   if (typeof window === 'undefined') return
   
+  // Ensure container has explicit dimensions
+  const container = backgroundMapContainer.value
+  if (container instanceof HTMLElement) {
+    container.style.display = 'block'
+    container.style.visibility = 'visible'
+    container.style.position = 'absolute'
+    container.style.top = '0'
+    container.style.left = '0'
+    container.style.width = '100%'
+    container.style.height = '100%'
+    container.style.minHeight = '100%'
+  }
+  
   nextTick(() => {
     if (!backgroundMapContainer.value) return
     
-    const { initMap } = useMapbox()
-    
-    // Worthing, UK coordinates: -0.3750, 50.8175
-    backgroundMap.value = initMap(backgroundMapContainer.value, {
-      center: [-0.3750, 50.8175], // Worthing, UK
-      zoom: 18,
-      // Disable all interactions for locked map
-      touchZoomRotate: false,
-      touchPitch: false,
-      doubleClickZoom: false,
-      dragRotate: false,
-      dragPan: false,
-      scrollZoom: false,
-      boxZoom: false,
-      keyboard: false,
-      attributionControl: false
-    })
-    
-    if (backgroundMap.value) {
-      // Disable all interactions programmatically
-      backgroundMap.value.dragPan.disable()
-      backgroundMap.value.dragRotate.disable()
-      backgroundMap.value.scrollZoom.disable()
-      backgroundMap.value.boxZoom.disable()
-      backgroundMap.value.doubleClickZoom.disable()
-      backgroundMap.value.touchZoomRotate.disable()
-      backgroundMap.value.touchPitch.disable()
-      backgroundMap.value.keyboard.disable()
+    // Wait a bit more to ensure container is fully rendered
+    requestAnimationFrame(() => {
+      if (!backgroundMapContainer.value) return
       
-      // Apply monochrome filter and opacity after map loads
-      backgroundMap.value.on('load', () => {
-        if (backgroundMapContainer.value) {
-          // Apply CSS filter for monochrome and opacity to the canvas
-          const mapCanvas = backgroundMapContainer.value.querySelector('canvas')
-          if (mapCanvas) {
-            mapCanvas.style.filter = 'grayscale(100%)'
-            mapCanvas.style.opacity = '0.25'
-          }
-          
-          // Also apply to container for consistency
-          backgroundMapContainer.value.style.filter = 'grayscale(100%)'
-        }
+      const { initMap } = useMapbox()
+      
+      // Worthing, UK coordinates: -0.3750, 50.8175
+      backgroundMap.value = initMap(backgroundMapContainer.value, {
+        center: [-0.3750, 50.8175], // Worthing, UK
+        zoom: 18,
+        // Disable all interactions for locked map
+        touchZoomRotate: false,
+        touchPitch: false,
+        doubleClickZoom: false,
+        dragRotate: false,
+        dragPan: false,
+        scrollZoom: false,
+        boxZoom: false,
+        keyboard: false,
+        attributionControl: false
       })
       
-      // Force resize for proper rendering
-      setTimeout(() => {
-        if (backgroundMap.value) {
-          backgroundMap.value.resize()
-        }
-      }, 100)
-    }
+      // Hide attribution immediately after map creation
+      if (backgroundMapContainer.value) {
+        setTimeout(() => {
+          const attribution = backgroundMapContainer.value?.querySelector('.mapboxgl-ctrl-attrib')
+          if (attribution) {
+            attribution.style.display = 'none'
+            attribution.remove()
+          }
+          const logo = backgroundMapContainer.value?.querySelector('.mapboxgl-ctrl-logo')
+          if (logo) {
+            logo.style.display = 'none'
+            logo.remove()
+          }
+        }, 50)
+      }
+      
+      if (backgroundMap.value) {
+        // Disable all interactions programmatically
+        backgroundMap.value.dragPan.disable()
+        backgroundMap.value.dragRotate.disable()
+        backgroundMap.value.scrollZoom.disable()
+        backgroundMap.value.boxZoom.disable()
+        backgroundMap.value.doubleClickZoom.disable()
+        backgroundMap.value.touchZoomRotate.disable()
+        backgroundMap.value.touchPitch.disable()
+        backgroundMap.value.keyboard.disable()
+        
+        // Apply monochrome filter and opacity after map loads
+        backgroundMap.value.on('load', () => {
+          if (backgroundMapContainer.value) {
+            // Apply CSS filter for monochrome and opacity to the canvas
+            const mapCanvas = backgroundMapContainer.value.querySelector('canvas')
+            if (mapCanvas) {
+              mapCanvas.style.filter = 'grayscale(100%)'
+              mapCanvas.style.opacity = '0.25'
+            }
+            
+            // Also apply to container for consistency
+            backgroundMapContainer.value.style.filter = 'grayscale(100%)'
+            
+            // Hide attribution controls
+            const attribution = backgroundMapContainer.value.querySelector('.mapboxgl-ctrl-attrib')
+            if (attribution) {
+              attribution.style.display = 'none'
+            }
+            const logo = backgroundMapContainer.value.querySelector('.mapboxgl-ctrl-logo')
+            if (logo) {
+              logo.style.display = 'none'
+            }
+          }
+          
+          // Force resize after load
+          requestAnimationFrame(() => {
+            if (backgroundMap.value) {
+              backgroundMap.value.resize()
+            }
+          })
+        })
+        
+        // Also hide attribution on style load
+        backgroundMap.value.on('style.load', () => {
+          if (backgroundMapContainer.value) {
+            const attribution = backgroundMapContainer.value.querySelector('.mapboxgl-ctrl-attrib')
+            if (attribution) {
+              attribution.style.display = 'none'
+            }
+            const logo = backgroundMapContainer.value.querySelector('.mapboxgl-ctrl-logo')
+            if (logo) {
+              logo.style.display = 'none'
+            }
+          }
+        })
+        
+        // Force resize multiple times for proper rendering
+        requestAnimationFrame(() => {
+          if (backgroundMap.value) {
+            backgroundMap.value.resize()
+          }
+        })
+        
+        setTimeout(() => {
+          if (backgroundMap.value) {
+            backgroundMap.value.resize()
+          }
+        }, 100)
+        
+        setTimeout(() => {
+          if (backgroundMap.value) {
+            backgroundMap.value.resize()
+          }
+        }, 500)
+      }
+    })
   })
 }
 
@@ -690,3 +770,14 @@ onUnmounted(() => {
   }
 })
 </script>
+
+<style scoped>
+/* Hide Mapbox attribution on background map */
+.background-map-container :deep(.mapboxgl-ctrl-attrib) {
+  display: none !important;
+}
+
+.background-map-container :deep(.mapboxgl-ctrl-logo) {
+  display: none !important;
+}
+</style>

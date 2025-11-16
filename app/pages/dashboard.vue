@@ -555,11 +555,11 @@
             </div>
             
             <!-- Property Link -->
-            <div class="border-t pt-4 space-y-3">
+            <div class="space-y-3">
               <div>
-                <label class="block text-sm font-medium text-gray-700">Link contact with property</label>
-                <select v-model="editingContact.tenant_property_id" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-                  <option value="">Select property (optional)</option>
+                <label class="block text-sm font-medium text-gray-700">Link contact with property <span class="text-red-500">*</span></label>
+                <select v-model="editingContact.tenant_property_id" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+                  <option value="">Select property</option>
                   <option v-for="property in properties" :key="property.id" :value="property.id">
                     {{ property.property_name }}
                   </option>
@@ -632,11 +632,11 @@
             </div>
             
             <!-- Property Link -->
-            <div class="border-t pt-4 space-y-3">
+            <div class="space-y-3">
               <div>
-                <label class="block text-sm font-medium text-gray-700">Link contact with property</label>
-                <select v-model="newContact.tenant_property_id" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-                  <option value="">Select property (optional)</option>
+                <label class="block text-sm font-medium text-gray-700">Link contact with property <span class="text-red-500">*</span></label>
+                <select v-model="newContact.tenant_property_id" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+                  <option value="">Select property</option>
                   <option v-for="property in properties" :key="property.id" :value="property.id">
                     {{ property.property_name }}
                   </option>
@@ -670,7 +670,7 @@
     </div>
 
     <!-- Property Details Modal -->
-    <div v-if="showPropertyDetails" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div v-if="showPropertyDetails" class="fixed inset-0 bg-black overflow-y-auto h-full w-full z-50">
       <div class="relative top-10 mx-auto p-5 border w-4/5 max-w-4xl shadow-lg rounded-md bg-white">
         <div class="mt-3">
           <div class="flex justify-between items-center mb-4">
@@ -704,31 +704,15 @@
             </div>
           </div>
 
-                  <!-- Add Contact to Property -->
-                  <div class="mb-6">
-                    <h4 class="text-md font-medium text-gray-900 mb-3">Add Contact to Property</h4>
-                    <div class="flex space-x-4">
-                      <select v-model="selectedContactId" class="flex-1 border border-gray-300 rounded-md px-3 py-2">
-                        <option value="">Select a contact to add</option>
-                        <option v-for="contact in availableContacts" :key="contact.id" :value="contact.id">
-                          {{ contact.contact_name }} ({{ contact.relationship }})
-                        </option>
-                      </select>
-                      <select v-model="newPropertyContact.relationship_type" class="border border-gray-300 rounded-md px-3 py-2">
-                        <option value="emergency_contact">Emergency Contact</option>
-                        <option value="tenant">Tenant</option>
-                        <option value="property_manager">Property Manager</option>
-                        <option value="maintenance">Maintenance</option>
-                        <option value="neighbor">Neighbor</option>
-                      </select>
-                      <button @click="addContactToProperty" :disabled="!selectedContactId || addingContactToProperty" class="px-4 py-2 bg-[#03045e] text-white rounded-md hover:bg-[#03045e] disabled:opacity-50">
-                        {{ addingContactToProperty ? 'Adding...' : 'Add Contact' }}
-                      </button>
-                    </div>
-                    <p v-if="selectedContactId" class="text-xs text-gray-500 mt-2">
-                      Relationship type automatically set based on contact's primary relationship. You can change it if needed.
-                    </p>
-                  </div>
+          <!-- Property Map -->
+          <div v-if="selectedProperty && hasValidCoordinates(selectedProperty)" class="mb-6">
+            <h4 class="text-md font-medium text-gray-900 mb-3">Property Location</h4>
+            <div 
+              ref="propertyDetailsMapContainer" 
+              class="w-full h-64 rounded-lg overflow-hidden border border-gray-300"
+              style="min-height: 256px; position: relative;"
+            ></div>
+          </div>
 
           <!-- Property Contacts List -->
           <div>
@@ -944,6 +928,7 @@ watch(showAddProperty, (isOpen) => {
     }
   }
 })
+
 const showAddContact = ref(false)
 const showEditContact = ref(false)
 const showPropertyDetails = ref(false)
@@ -957,6 +942,37 @@ const accessCodes = ref([])
 const selectedAccessCodeProperty = ref(null)
 const selectedProperty = ref(null)
 const propertyContacts = ref([])
+
+// Watch for property details modal opening to initialize map
+watch(showPropertyDetails, (isOpen) => {
+  if (isOpen && selectedProperty.value) {
+    // Wait for modal to be fully rendered before initializing map
+    nextTick(() => {
+      setTimeout(() => {
+        initPropertyDetailsMap()
+      }, 400) // Increased delay to ensure modal is fully visible
+    })
+  } else {
+    // Clean up map when modal closes
+    if (propertyDetailsMap.value) {
+      try {
+        propertyDetailsMap.value.remove()
+      } catch (e) {
+        // Map might already be removed
+      }
+      propertyDetailsMap.value = null
+    }
+    if (propertyDetailsMapMarker.value) {
+      try {
+        propertyDetailsMapMarker.value.remove()
+      } catch (e) {
+        // Marker might already be removed
+      }
+      propertyDetailsMapMarker.value = null
+    }
+  }
+})
+
 const creatingProperty = ref(false)
 const creatingContact = ref(false)
 const updatingContact = ref(false)
@@ -989,6 +1005,11 @@ const propertyMap = ref<any>(null)
 const propertyMapMarker = ref<any>(null)
 const mapMarker = ref<{ lat: number; lng: number } | null>(null)
 const reverseGeocoding = ref(false)
+
+// Mapbox for property details modal
+const propertyDetailsMapContainer = ref<HTMLElement | null>(null)
+const propertyDetailsMap = ref<any>(null)
+const propertyDetailsMapMarker = ref<any>(null)
 
 const newContact = ref({
   contact_name: '',
@@ -1919,6 +1940,103 @@ async function copyAccessCode() {
     document.body.removeChild(textArea)
     alert('Access code copied to clipboard!')
   }
+}
+
+function initPropertyDetailsMap() {
+  if (!propertyDetailsMapContainer.value || !selectedProperty.value) return
+
+  const lat = parseFloat(String(selectedProperty.value.latitude))
+  const lng = parseFloat(String(selectedProperty.value.longitude))
+
+  if (isNaN(lat) || isNaN(lng)) return
+
+  // Ensure we're on client side and container is visible
+  if (typeof window === 'undefined') return
+
+  // Ensure container is visible and has dimensions
+  const container = propertyDetailsMapContainer.value
+  if (container instanceof HTMLElement) {
+    container.style.display = 'block'
+    container.style.visibility = 'visible'
+    container.style.position = 'relative'
+    container.style.width = '100%'
+    container.style.height = '256px'
+    container.style.minHeight = '256px'
+    
+    // Force a reflow
+    void container.offsetHeight
+  }
+  
+  // Wait for next tick to ensure DOM is ready
+  nextTick(() => {
+    if (!propertyDetailsMapContainer.value) return
+    
+    // Wait a bit longer for modal animation to complete
+    setTimeout(() => {
+      if (!propertyDetailsMapContainer.value) return
+      
+      // Use requestAnimationFrame for better mobile rendering
+      requestAnimationFrame(() => {
+        if (!propertyDetailsMapContainer.value) return
+        
+        const { initMap, addMarker } = useMapbox()
+        
+        // Initialize map centered on property location
+        propertyDetailsMap.value = initMap(propertyDetailsMapContainer.value, {
+          center: [lng, lat],
+          zoom: 15
+        })
+        
+        // Wait for map to load before adding marker and resizing
+        if (propertyDetailsMap.value) {
+          // Add marker immediately
+          propertyDetailsMapMarker.value = addMarker(propertyDetailsMap.value, lng, lat, {
+            draggable: false
+          })
+          
+          // Listen for map load event to ensure tiles are loaded
+          propertyDetailsMap.value.on('load', () => {
+            // Force resize after map loads to ensure tiles render
+            if (propertyDetailsMap.value) {
+              propertyDetailsMap.value.resize()
+            }
+          })
+          
+          // Also listen for style.load in case load already fired
+          propertyDetailsMap.value.on('style.load', () => {
+            if (propertyDetailsMap.value) {
+              propertyDetailsMap.value.resize()
+            }
+          })
+          
+          // Force resize multiple times to ensure proper rendering
+          requestAnimationFrame(() => {
+            if (propertyDetailsMap.value) {
+              propertyDetailsMap.value.resize()
+            }
+          })
+          
+          setTimeout(() => {
+            if (propertyDetailsMap.value) {
+              propertyDetailsMap.value.resize()
+            }
+          }, 100)
+          
+          setTimeout(() => {
+            if (propertyDetailsMap.value) {
+              propertyDetailsMap.value.resize()
+            }
+          }, 300)
+          
+          setTimeout(() => {
+            if (propertyDetailsMap.value) {
+              propertyDetailsMap.value.resize()
+            }
+          }, 500)
+        }
+      })
+    }, 300) // Increased delay for modal animation
+  })
 }
 
 async function onLogout() {
