@@ -222,7 +222,12 @@
 
       <!-- Edit Allowed Domain Modal -->
       <div v-if="editingAllowed" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 relative">
+          <button @click="cancelEditAllowed" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
           <h3 class="text-lg font-semibold text-gray-900 mb-4">Edit Allowed Domain</h3>
           <form @submit.prevent="updateAllowedDomain" class="space-y-4">
             <div>
@@ -283,7 +288,12 @@
 
       <!-- Edit Blocked Domain Modal -->
       <div v-if="editingBlocked" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 relative">
+          <button @click="cancelEditBlocked" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
           <h3 class="text-lg font-semibold text-gray-900 mb-4">Edit Blocked Domain</h3>
           <form @submit.prevent="updateBlockedDomain" class="space-y-4">
             <div>

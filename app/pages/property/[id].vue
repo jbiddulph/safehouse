@@ -20,9 +20,7 @@
         <!-- Error State -->
         <div v-else-if="error" class="text-center">
           <div class="mb-4">
-            <svg class="mx-auto h-16 w-16 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-            </svg>
+            <Icon name="mdi:alert" class="mx-auto h-16 w-16 text-red-400" />
           </div>
           <h3 class="text-lg font-medium text-gray-900 mb-2">Property Not Found</h3>
           <p class="text-sm text-gray-500 mb-6">
@@ -32,9 +30,7 @@
             to="/" 
             class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-[#03045e] hover:bg-[#03045e]"
           >
-            <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-            </svg>
+            <Icon name="mdi:arrow-left" class="-ml-1 mr-2 h-4 w-4" />
             Back to Home
           </NuxtLink>
         </div>
@@ -45,9 +41,7 @@
           <div class="text-center">
             <div class="mb-4">
               <div class="w-16 h-16 bg-[#f0f9fb] rounded-full flex items-center justify-center mx-auto">
-                <svg class="w-8 h-8 text-[#8ee0ee]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
+                <Icon name="mdi:home" class="w-8 h-8 text-[#8ee0ee]" />
               </div>
             </div>
             <h3 class="text-2xl font-bold text-gray-900">{{ property.property_name }}</h3>
@@ -89,10 +83,7 @@
           </div>
           <div v-else class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
             <p class="text-sm text-gray-600 text-center">
-              <svg class="inline-block w-5 h-5 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
+              <Icon name="mdi:map-marker" class="inline-block w-5 h-5 mr-1 text-gray-400" />
               Location coordinates not available for this property
             </p>
           </div>
@@ -129,15 +120,16 @@
 
     <!-- Email Collection Modal -->
     <div v-if="showEmailModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+      <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 relative">
+        <button @click="closeEmailModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+          <Icon name="mdi:close" class="h-6 w-6" />
+        </button>
         <div class="text-center">
           <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4"
                :class="accessType === 'emergency' ? 'bg-red-100' : 'bg-[#f0f9fb]'">
-            <svg class="h-6 w-6" 
+            <Icon name="mdi:alert" 
                  :class="accessType === 'emergency' ? 'text-red-600' : 'text-[#8ee0ee]'"
-                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-            </svg>
+                 class="h-6 w-6" />
           </div>
           
           <h3 v-if="!emailSent" class="text-lg font-medium text-gray-900 mb-2">
@@ -195,15 +187,11 @@
               <!-- Location Status -->
               <div class="text-xs">
                 <div v-if="locationVerification.isVerified" class="text-[#8ee0ee] flex items-center">
-                  <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                  </svg>
+                  <Icon name="mdi:check-circle" class="w-4 h-4 mr-1" />
                   Verified at property (within {{ locationVerification.distance?.toFixed(0) }}m)
                 </div>
                 <div v-else-if="locationVerification.error" class="text-red-600 flex items-center">
-                  <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                  </svg>
+                  <Icon name="mdi:alert-circle" class="w-4 h-4 mr-1" />
                   {{ locationVerification.error }}
                 </div>
                 <div v-else class="text-gray-500">

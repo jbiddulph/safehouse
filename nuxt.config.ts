@@ -23,7 +23,7 @@ export default defineNuxtConfig({
       include: ['crypto-js']
     }
   },
-  modules: ['@nuxt/eslint', '@nuxt/image', '@nuxt/ui', '@pinia/nuxt', '@nuxtjs/supabase'],
+  modules: ['@nuxt/eslint', '@nuxt/image', '@nuxt/ui', '@nuxt/icon', '@pinia/nuxt', '@nuxtjs/supabase'],
   css: ['~/assets/css/main.css'],
   runtimeConfig: {
     mailtrapUser: process.env.MAILTRAP_USERNAME,

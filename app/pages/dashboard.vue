@@ -30,84 +30,61 @@
               <NuxtLink to="/terms" class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors">
                 Terms & Conditions
               </NuxtLink>
+              
+              <!-- Notification Bell (Admin Only) -->
+              <button v-if="profile?.role === 'admin'" class="relative p-2 text-[#8ee0ee] hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee] rounded-full hover:bg-[#03045e]/50">
+                <Icon name="mdi:bell" class="h-6 w-6" />
+                <!-- Notification Badge -->
+                <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400 ring-2 ring-white"></span>
+              </button>
+
+              <!-- Profile Dropdown -->
+              <div class="relative">
+                <button @click="showProfileMenu = !showProfileMenu" class="flex items-center space-x-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee] hover:bg-[#03045e]/50 px-3 py-2 transition-colors duration-200">
+                  <div v-if="profile?.avatar_url" class="h-8 w-8 rounded-full overflow-hidden border-2 border-[#8ee0ee] shadow-sm">
+                    <img :src="avatarUrl" alt="Profile" class="h-full w-full object-cover" />
+                  </div>
+                  <div v-else class="h-8 w-8 rounded-full bg-[#f0f9fb] flex items-center justify-center border-2 border-[#8ee0ee] shadow-sm">
+                    <Icon name="mdi:account" class="h-5 w-5 text-[#03045e]" />
+                  </div>
+                  <span class="text-sm font-medium text-white">{{ profile?.full_name || auth.user?.value?.email || 'User' }}</span>
+                  <Icon name="mdi:chevron-down" class="h-4 w-4 text-[#8ee0ee]" />
+                </button>
+
+                <!-- Dropdown Menu -->
+                <div v-if="showProfileMenu" @click.away="showProfileMenu = false" class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                  <div class="px-4 py-2 border-b border-gray-100">
+                    <div class="text-sm font-medium text-gray-900">{{ profile?.full_name || 'User' }}</div>
+                    <div class="text-xs text-gray-500">{{ auth.user?.value?.email }}</div>
+                  </div>
+                  <NuxtLink to="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <div class="flex items-center">
+                      <Icon name="mdi:account" class="h-4 w-4 mr-2" />
+                      Profile Settings
+                    </div>
+                  </NuxtLink>
+                  <NuxtLink to="/access-requests" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <div class="flex items-center">
+                      <Icon name="mdi:file-document" class="h-4 w-4 mr-2" />
+                      Access Requests
+                    </div>
+                  </NuxtLink>
+                  <button @click="onLogout" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <div class="flex items-center">
+                      <Icon name="mdi:logout" class="h-4 w-4 mr-2" />
+                      Sign out
+                    </div>
+                  </button>
+                </div>
+              </div>
             </nav>
           </div>
 
           <!-- Mobile Menu Button -->
           <div class="md:hidden">
             <button @click="showMobileMenu = !showMobileMenu" class="text-[#8ee0ee] hover:text-white focus:outline-none">
-              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path v-if="!showMobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <Icon :name="showMobileMenu ? 'mdi:close' : 'mdi:menu'" class="h-6 w-6" />
             </button>
-          </div>
-
-          <!-- User Menu -->
-          <div class="flex items-center space-x-4">
-            <!-- Notifications -->
-
-            <!-- Notification Bell (Admin Only) -->
-            <button v-if="profile?.role === 'admin'" class="relative p-2 text-[#8ee0ee] hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee] rounded-full hover:bg-[#03045e]/50">
-              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
-              </svg>
-              <!-- Notification Badge -->
-              <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400 ring-2 ring-white"></span>
-            </button>
-
-            <!-- Profile Dropdown -->
-            <div class="relative">
-              <button @click="showProfileMenu = !showProfileMenu" class="flex items-center space-x-3 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee] hover:bg-[#03045e]/50 px-3 py-2 transition-colors duration-200">
-                <div v-if="profile?.avatar_url" class="h-10 w-10 rounded-full overflow-hidden border-2 border-[#8ee0ee] shadow-sm">
-                  <img :src="avatarUrl" alt="Profile" class="h-full w-full object-cover" />
-                </div>
-                <div v-else class="h-10 w-10 rounded-full bg-[#f0f9fb] flex items-center justify-center border-2 border-[#8ee0ee] shadow-sm">
-                  <svg class="h-6 w-6 text-[#03045e]" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                  </svg>
-                </div>
-                <div class="text-left">
-                  <div class="text-sm font-medium text-white">{{ profile?.full_name || auth.user?.value?.email || 'User' }}</div>
-                  <div class="text-xs text-[#8ee0ee]">{{ auth.user?.value?.email }}</div>
-                </div>
-                <svg class="h-4 w-4 text-[#8ee0ee]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-
-              <!-- Dropdown Menu -->
-              <div v-if="showProfileMenu" @click.away="showProfileMenu = false" class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
-                <div class="px-4 py-2 border-b border-gray-100">
-                  <div class="text-sm font-medium text-gray-900">{{ profile?.full_name || 'User' }}</div>
-                  <div class="text-xs text-gray-500">{{ auth.user?.value?.email }}</div>
-                </div>
-            <NuxtLink to="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-              <div class="flex items-center">
-                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-                Profile Settings
-              </div>
-            </NuxtLink>
-            <NuxtLink to="/access-requests" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-              <div class="flex items-center">
-                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Access Requests
-              </div>
-            </NuxtLink>
-                <button @click="onLogout" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                  <div class="flex items-center">
-                    <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
-                    Sign out
-                  </div>
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -127,6 +104,25 @@
           <NuxtLink to="/terms" class="block text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors" @click="showMobileMenu = false">
             Terms & Conditions
           </NuxtLink>
+          
+          <!-- Notification Bell (Admin Only) -->
+          <button v-if="profile?.role === 'admin'" class="block w-full text-left px-4 py-2 text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors">
+            <div class="flex items-center">
+              <Icon name="mdi:bell" class="h-5 w-5 mr-2" />
+              Notifications
+            </div>
+          </button>
+          
+          <!-- Profile Links in Mobile Menu -->
+          <NuxtLink to="/profile" class="block text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors" @click="showMobileMenu = false">
+            Profile Settings
+          </NuxtLink>
+          <NuxtLink to="/access-requests" class="block text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors" @click="showMobileMenu = false">
+            Access Requests
+          </NuxtLink>
+          <button @click="() => { onLogout(); showMobileMenu = false; }" class="block w-full text-left text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors">
+            Sign out
+          </button>
         </div>
       </div>
     </nav>
@@ -138,7 +134,7 @@
         <div class="md:flex md:items-center md:justify-between">
           <div class="flex-1 min-w-0">
             <h2 class="text-3xl font-bold leading-7 text-gray-900 sm:text-4xl sm:truncate">
-              Welcome back, {{ profile?.full_name || 'User' }}! 👋
+              Welcome back, {{ profile?.full_name || 'User' }}!
             </h2>
             <p class="mt-2 text-lg text-gray-600">
               Manage your properties and emergency contacts
@@ -146,15 +142,11 @@
           </div>
           <div class="mt-4 flex space-x-3 md:mt-0 md:ml-4">
             <button @click="showAddProperty = true" class="inline-flex items-center px-6 py-3 border border-transparent rounded-lg shadow-lg text-sm font-semibold text-white bg-[#03045e] hover:bg-[#03045e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee] transition-all duration-200 transform hover:scale-105">
-              <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
+              <Icon name="mdi:plus" class="-ml-1 mr-2 h-5 w-5" />
               Add Property
             </button>
             <button @click="showAddContact = true" class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg shadow-lg text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee] transition-all duration-200 transform hover:scale-105">
-              <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-              </svg>
+              <Icon name="mdi:account-plus" class="-ml-1 mr-2 h-5 w-5" />
               Add Contact
             </button>
           </div>
@@ -169,9 +161,7 @@
             to="/domains" 
             class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee] transition-colors duration-200"
           >
-            <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9" />
-            </svg>
+            <Icon name="mdi:web" class="-ml-1 mr-2 h-4 w-4" />
             Domain Management
           </NuxtLink>
           <NuxtLink 
@@ -179,9 +169,7 @@
             to="/profile" 
             class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee] transition-colors duration-200"
           >
-            <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
+            <Icon name="mdi:account" class="-ml-1 mr-2 h-4 w-4" />
             Profile Settings
           </NuxtLink>
           <NuxtLink 
@@ -189,9 +177,7 @@
             to="/admin" 
             class="inline-flex items-center px-4 py-2 border border-red-300 rounded-lg text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
           >
-            <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
+            <Icon name="mdi:shield-account" class="-ml-1 mr-2 h-4 w-4" />
             Admin Panel
           </NuxtLink>
         </div>
@@ -204,9 +190,7 @@
             <div class="flex items-center">
               <div class="flex-shrink-0">
                 <div class="h-12 w-12 bg-[#03045e] rounded-lg flex items-center justify-center">
-                  <svg class="h-6 w-6 text-[#8ee0ee]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                  </svg>
+                  <Icon name="mdi:home" class="h-6 w-6 text-[#8ee0ee]" />
                 </div>
               </div>
               <div class="ml-5 w-0 flex-1">
@@ -224,9 +208,7 @@
             <div class="flex items-center">
               <div class="flex-shrink-0">
                 <div class="h-12 w-12 bg-[#03045e] rounded-lg flex items-center justify-center">
-                  <svg class="h-6 w-6 text-[#8ee0ee]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
+                  <Icon name="mdi:account-group" class="h-6 w-6 text-[#8ee0ee]" />
                 </div>
               </div>
               <div class="ml-5 w-0 flex-1">
@@ -244,9 +226,7 @@
             <div class="flex items-center">
               <div class="flex-shrink-0">
                 <div class="h-12 w-12 bg-[#03045e] rounded-lg flex items-center justify-center">
-                  <svg class="h-6 w-6 text-[#8ee0ee]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
+                  <Icon name="mdi:key" class="h-6 w-6 text-[#8ee0ee]" />
                 </div>
               </div>
               <div class="ml-5 w-0 flex-1">
@@ -264,9 +244,7 @@
             <div class="flex items-center">
               <div class="flex-shrink-0">
                 <div class="h-12 w-12 bg-[#03045e] rounded-lg flex items-center justify-center">
-                  <svg class="h-6 w-6 text-[#8ee0ee]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
+                  <Icon name="mdi:account-multiple" class="h-6 w-6 text-[#8ee0ee]" />
                 </div>
               </div>
               <div class="ml-5 w-0 flex-1">
@@ -279,25 +257,6 @@
           </div>
         </div>
 
-        <div class="bg-white overflow-hidden shadow-xl rounded-xl border border-[#8ee0ee] hover:shadow-2xl transition-shadow duration-300">
-          <div class="p-6">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <div class="h-12 w-12 bg-[#03045e] rounded-lg flex items-center justify-center">
-                  <svg class="h-6 w-6 text-[#8ee0ee]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 19.5c-.77.833.192 2.5 1.732 2.5z" />
-                  </svg>
-                </div>
-              </div>
-              <div class="ml-5 w-0 flex-1">
-                <dl>
-                  <dt class="text-sm font-medium text-gray-500 truncate">Emergency Access</dt>
-                  <dd class="text-2xl font-bold text-[#8ee0ee]">Enabled</dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       <!-- Properties and Contacts Grid -->
@@ -307,16 +266,12 @@
           <div class="px-4 py-5 sm:p-6">
             <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Your Properties</h3>
             <div v-if="properties.length === 0" class="text-center py-6">
-              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-              </svg>
+              <Icon name="mdi:home" class="mx-auto h-12 w-12 text-gray-400" />
               <h3 class="mt-2 text-sm font-medium text-gray-900">No properties</h3>
               <p class="mt-1 text-sm text-gray-500">Get started by adding your first property.</p>
               <div class="mt-6">
                 <button @click="showAddProperty = true" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#03045e] hover:bg-[#03045e]">
-                  <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
+                  <Icon name="mdi:plus" class="-ml-1 mr-2 h-5 w-5" />
                   Add Property
                 </button>
               </div>
@@ -348,9 +303,7 @@
                           <!-- Contact Status -->
                           <div class="mt-2 flex items-center space-x-2">
                             <div class="flex items-center space-x-1">
-                              <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                              </svg>
+                              <Icon name="mdi:account-group" class="h-4 w-4 text-gray-400" />
                               <span v-if="property.safehouse_property_contacts && property.safehouse_property_contacts[0] && property.safehouse_property_contacts[0].count > 0" class="text-xs text-[#8ee0ee] font-medium">
                                 {{ property.safehouse_property_contacts[0].count }} contact{{ property.safehouse_property_contacts[0].count !== 1 ? 's' : '' }} assigned
                               </span>
@@ -388,23 +341,17 @@
             <div class="flex items-center justify-between mb-4">
               <h3 class="text-lg leading-6 font-medium text-gray-900">Emergency Contacts</h3>
               <button @click="showAddContact = true" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-[#03045e] hover:bg-[#03045e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee]">
-                <svg class="-ml-0.5 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
+                <Icon name="mdi:plus" class="-ml-0.5 mr-2 h-4 w-4" />
                 Add Contact
               </button>
             </div>
             <div v-if="contacts.length === 0" class="text-center py-6">
-              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
+              <Icon name="mdi:account-group" class="mx-auto h-12 w-12 text-gray-400" />
               <h3 class="mt-2 text-sm font-medium text-gray-900">No contacts yet</h3>
               <p class="mt-1 text-sm text-gray-500">Add emergency contacts for property access.</p>
               <div class="mt-6">
                 <button @click="showAddContact = true" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#03045e] hover:bg-[#03045e]">
-                  <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
+                  <Icon name="mdi:plus" class="-ml-1 mr-2 h-5 w-5" />
                   Add Your First Contact
                 </button>
               </div>
@@ -452,7 +399,12 @@
     <div v-if="showAddProperty" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
       <div class="relative top-10 mx-auto p-5 border w-full max-w-6xl shadow-lg rounded-md bg-white">
         <div class="mt-3">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Add New Property</h3>
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-gray-900">Add New Property</h3>
+            <button @click="showAddProperty = false" class="text-gray-400 hover:text-gray-600">
+              <Icon name="mdi:close" class="h-6 w-6" />
+            </button>
+          </div>
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- Form Section -->
             <form @submit.prevent="createProperty" class="space-y-4">
@@ -567,7 +519,12 @@
     <div v-if="showEditContact" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
       <div class="relative top-10 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
         <div class="mt-3">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Edit Contact</h3>
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-gray-900">Edit Contact</h3>
+            <button @click="showEditContact = false" class="text-gray-400 hover:text-gray-600">
+              <Icon name="mdi:close" class="h-6 w-6" />
+            </button>
+          </div>
           <form @submit.prevent="updateContact" class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-700">Contact Name</label>
@@ -590,37 +547,31 @@
                 <option value="friend">Friend</option>
                 <option value="colleague">Colleague</option>
                 <option value="neighbor">Neighbor</option>
+                <option value="tenant">Tenant</option>
                 <option value="property_manager">Property Manager</option>
                 <option value="maintenance">Maintenance</option>
                 <option value="other">Other</option>
               </select>
             </div>
             
-            <!-- Tenant Information -->
-            <div class="border-t pt-4">
-              <div class="flex items-center mb-3">
-                <input v-model="editingContact.is_tenant" type="checkbox" class="h-4 w-4 text-[#8ee0ee] border-gray-300 rounded">
-                <label class="ml-2 block text-sm font-medium text-gray-700">This contact is a tenant</label>
+            <!-- Property Link -->
+            <div class="border-t pt-4 space-y-3">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Link contact with property</label>
+                <select v-model="editingContact.tenant_property_id" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+                  <option value="">Select property (optional)</option>
+                  <option v-for="property in properties" :key="property.id" :value="property.id">
+                    {{ property.property_name }}
+                  </option>
+                </select>
               </div>
-              
-              <div v-if="editingContact.is_tenant" class="space-y-3">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700">Property (if tenant)</label>
-                  <select v-model="editingContact.tenant_property_id" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-                    <option value="">Select property</option>
-                    <option v-for="property in properties" :key="property.id" :value="property.id">
-                      {{ property.property_name }}
-                    </option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700">Emergency Access Level</label>
-                  <select v-model="editingContact.emergency_access_level" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-                    <option value="standard">Standard</option>
-                    <option value="limited">Limited</option>
-                    <option value="full">Full</option>
-                  </select>
-                </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Emergency Access Level</label>
+                <select v-model="editingContact.emergency_access_level" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+                  <option value="standard">Standard</option>
+                  <option value="limited">Limited</option>
+                  <option value="full">Full</option>
+                </select>
               </div>
             </div>
             
@@ -645,7 +596,12 @@
     <div v-if="showAddContact" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
       <div class="relative top-10 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
         <div class="mt-3">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Add Contact</h3>
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-gray-900">Add Contact</h3>
+            <button @click="showAddContact = false" class="text-gray-400 hover:text-gray-600">
+              <Icon name="mdi:close" class="h-6 w-6" />
+            </button>
+          </div>
           <form @submit.prevent="createContact" class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-700">Contact Name</label>
@@ -668,37 +624,31 @@
                 <option value="friend">Friend</option>
                 <option value="colleague">Colleague</option>
                 <option value="neighbor">Neighbor</option>
+                <option value="tenant">Tenant</option>
                 <option value="property_manager">Property Manager</option>
                 <option value="maintenance">Maintenance</option>
                 <option value="other">Other</option>
               </select>
             </div>
             
-            <!-- Tenant Information -->
-            <div class="border-t pt-4">
-              <div class="flex items-center mb-3">
-                <input v-model="newContact.is_tenant" type="checkbox" class="h-4 w-4 text-[#8ee0ee] border-gray-300 rounded">
-                <label class="ml-2 block text-sm font-medium text-gray-700">This contact is a tenant</label>
+            <!-- Property Link -->
+            <div class="border-t pt-4 space-y-3">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Link contact with property</label>
+                <select v-model="newContact.tenant_property_id" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+                  <option value="">Select property (optional)</option>
+                  <option v-for="property in properties" :key="property.id" :value="property.id">
+                    {{ property.property_name }}
+                  </option>
+                </select>
               </div>
-              
-              <div v-if="newContact.is_tenant" class="space-y-3">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700">Property (if tenant)</label>
-                  <select v-model="newContact.tenant_property_id" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-                    <option value="">Select property</option>
-                    <option v-for="property in properties" :key="property.id" :value="property.id">
-                      {{ property.property_name }}
-                    </option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700">Emergency Access Level</label>
-                  <select v-model="newContact.emergency_access_level" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-                    <option value="standard">Standard</option>
-                    <option value="limited">Limited</option>
-                    <option value="full">Full</option>
-                  </select>
-                </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Emergency Access Level</label>
+                <select v-model="newContact.emergency_access_level" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+                  <option value="standard">Standard</option>
+                  <option value="limited">Limited</option>
+                  <option value="full">Full</option>
+                </select>
               </div>
             </div>
             
@@ -726,9 +676,7 @@
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-medium text-gray-900">{{ selectedProperty?.property_name }} - Contacts</h3>
             <button @click="showPropertyDetails = false" class="text-gray-400 hover:text-gray-600">
-              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <Icon name="mdi:close" class="h-6 w-6" />
             </button>
           </div>
           
@@ -824,9 +772,7 @@
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-medium text-gray-900">QR Code for {{ selectedQRProperty?.property_name }}</h3>
             <button @click="showQRModal = false" class="text-gray-400 hover:text-gray-600">
-              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <Icon name="mdi:close" class="h-6 w-6" />
             </button>
           </div>
           
@@ -881,9 +827,7 @@
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-medium text-gray-900">Access Code for {{ selectedAccessCodeProperty?.property_name }}</h3>
             <button @click="showAccessCodeModal = false" class="text-gray-400 hover:text-gray-600">
-              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <Icon name="mdi:close" class="h-6 w-6" />
             </button>
           </div>
           
@@ -1091,6 +1035,7 @@ const defaultRelationshipType = computed(() => {
     'friend': 'emergency_contact',
     'colleague': 'emergency_contact',
     'neighbor': 'neighbor',
+    'tenant': 'tenant',
     'property_manager': 'property_manager',
     'maintenance': 'maintenance',
     'other': 'emergency_contact'
@@ -1648,25 +1593,25 @@ async function createContact() {
     if (success) {
       contacts.value.unshift(contact)
       
-      // If this is a tenant with a selected property, automatically link them
-      if (newContact.value.is_tenant && newContact.value.tenant_property_id) {
+      // If a property is selected, automatically link the contact to it
+      if (newContact.value.tenant_property_id) {
         try {
           const { success, propertyContact } = await $fetch('/api/property-contacts/add', {
             method: 'POST',
             body: {
               propertyId: newContact.value.tenant_property_id,
               contactId: contact.id,
-              relationshipType: 'tenant',
+              relationshipType: 'emergency_contact',
               canGrantAccess: false,
               notificationPriority: 1
             }
           })
           
           if (success) {
-            console.log('Tenant automatically linked to property')
+            console.log('Contact automatically linked to property')
           }
         } catch (error) {
-          console.error('Failed to autenant to property:', error)
+          console.error('Failed to link contact to property:', error)
           // Don't fail the contact creation if property linking fails
         }
       }

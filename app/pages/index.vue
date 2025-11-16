@@ -125,9 +125,7 @@
                 class="p-2 text-[#03045e] hover:text-[#8ee0ee] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 type="button"
               >
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+                <Icon name="mdi:magnify" class="h-6 w-6" />
               </button>
               <div v-else class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#03045e]"></div>
             </div>
@@ -464,9 +462,7 @@ function showSearchResults(properties: any[]) {
           <p class="text-sm text-gray-600 mt-1">Click on any property to view details</p>
         </div>
         <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
+          <Icon name="mdi:close" class="w-6 h-6" />
         </button>
       </div>
       <div class="space-y-3">
@@ -490,9 +486,7 @@ function showNoPropertiesFound() {
   modal.innerHTML = `
     <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 text-center">
       <div class="mb-4">
-        <svg class="w-16 h-16 text-gray-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-        </svg>
+        <Icon name="mdi:home-search" class="w-16 h-16 text-gray-400 mx-auto" />
       </div>
       <h2 class="text-xl font-bold text-gray-900 mb-2">No Properties Found</h2>
       <p class="text-gray-600 mb-6">
