@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen bg-[#f0f9fb] flex flex-col">
+  <div class="min-h-screen bg-[#f0f9fb] flex flex-col relative">
     <!-- Top Navigation -->
-    <nav class="bg-[#03045e] shadow-lg border-b border-[#03045e]">
+    <nav class="bg-[#03045e] shadow-lg border-b border-[#03045e] relative z-30">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <!-- Logo and Title -->
@@ -76,17 +76,17 @@
       </div>
     </nav>
 
-    <div class="flex-1 relative overflow-hidden" style="min-height: calc(100vh - 4rem);">
+    <div class="relative overflow-hidden" style="height: calc(100vh - 4rem);">
       <!-- Background Map -->
       <div 
         ref="backgroundMapContainer" 
         class="absolute inset-0 w-full h-full pointer-events-none background-map-container"
-        style="z-index: 0; filter: grayscale(100%); opacity: 0.25; min-height: 100%;"
+        style="z-index: 0; filter: grayscale(100%); opacity: 0.7;"
       >
       </div>
       
       <!-- Centered Search Box Overlay -->
-      <div class="relative z-10 flex items-center justify-center min-h-full py-12 px-4 sm:px-6 lg:px-8">
+      <div class="absolute inset-0 z-50 flex items-center justify-center h-full py-12 px-4 sm:px-6 lg:px-8 pointer-events-auto">
         <div class="w-full max-w-2xl">
           <div class="text-center mb-8">
             <h1 class="text-4xl font-bold text-[#03045e] mb-4">SafeHouse</h1>
@@ -201,14 +201,15 @@
             </div>
 
             <!-- Selected Address Display -->
-            <div v-if="selectedAddress || (addressQuery && addressQuery.trim())" class="mt-4 p-4 bg-[#f0f9fb] border border-[#8ee0ee] rounded-lg">
+            <div v-if="selectedAddress && addressExistsInDatabase" class="mt-4 p-4 bg-[#f0f9fb] border border-[#8ee0ee] rounded-lg">
               <h3 class="font-medium text-[#03045e] mb-1">Search Address:</h3>
-              <p class="text-[#03045e]">{{ selectedAddress?.formatted_address || addressQuery || '' }}</p>
+              <p class="text-[#03045e]">{{ selectedAddress?.formatted_address || '' }}</p>
             </div>
           </div>
         </div>
       </div>
     </div>
+    
 
     <!-- Footer -->
     <footer class="bg-[#03045e] border-t border-[#03045e] mt-auto">
@@ -233,6 +234,7 @@ const addressQuery = ref('')
 const suggestions = ref([])
 const showMobileMenu = ref(false)
 const selectedAddress = ref(null)
+const addressExistsInDatabase = ref(false)
 const selectedIndex = ref(-1)
 const showSuggestions = ref(false)
 const loading = ref(false)
@@ -251,6 +253,10 @@ let debounceTimer: NodeJS.Timeout | null = null
 
 // Handle address input with debouncing
 function handleAddressInput() {
+  // Reset address existence flag when user types
+  addressExistsInDatabase.value = false
+  selectedAddress.value = null
+  
   if (debounceTimer) {
     clearTimeout(debounceTimer)
   }
@@ -319,12 +325,16 @@ function navigateSuggestions(direction: 'up' | 'down') {
 }
 
 // Select a suggestion
-function selectSuggestion(suggestion?: any) {
+async function selectSuggestion(suggestion?: any) {
+  let addressToSelect = null
+  
   if (suggestion) {
+    addressToSelect = suggestion
     selectedAddress.value = suggestion
     addressQuery.value = suggestion.formatted_address || ''
     addToRecentSearches(suggestion)
   } else if (selectedIndex.value >= 0 && suggestions.value[selectedIndex.value]) {
+    addressToSelect = suggestions.value[selectedIndex.value]
     selectedAddress.value = suggestions.value[selectedIndex.value]
     addressQuery.value = suggestions.value[selectedIndex.value]?.formatted_address || ''
     addToRecentSearches(suggestions.value[selectedIndex.value])
@@ -336,16 +346,25 @@ function selectSuggestion(suggestion?: any) {
     }
   }
   
+  // Check if the selected address exists in the database
+  if (addressToSelect) {
+    await checkAddressExists(addressToSelect)
+  }
+  
   showSuggestions.value = false
   showRecentSearches.value = false
   selectedIndex.value = -1
 }
 
 // Select a recent search
-function selectRecentSearch(search: any) {
+async function selectRecentSearch(search: any) {
   if (!search) return
   selectedAddress.value = search
   addressQuery.value = search?.formatted_address || ''
+  
+  // Check if the selected address exists in the database
+  await checkAddressExists(search)
+  
   showRecentSearches.value = false
   showSuggestions.value = false
 }
@@ -356,6 +375,42 @@ function hideSuggestions() {
     showSuggestions.value = false
     showRecentSearches.value = false
   }, 200)
+}
+
+// Check if an address exists in the database
+async function checkAddressExists(address: any) {
+  if (!address) {
+    addressExistsInDatabase.value = false
+    return
+  }
+  
+  try {
+    const addressData = {
+      formatted_address: address.formatted_address || '',
+      city: address.city || '',
+      state: address.state || '',
+      postcode: address.postcode || '',
+      country: address.country || 'GB'
+    }
+    
+    const searchParams = {
+      address: addressData.formatted_address || '',
+      city: addressData.city || '',
+      state: addressData.state || '',
+      postal_code: addressData.postcode || '',
+      country: addressData.country || 'GB'
+    }
+    
+    const response = await $fetch('/api/properties/search', {
+      query: searchParams
+    })
+    
+    // Set addressExistsInDatabase based on whether properties were found
+    addressExistsInDatabase.value = response.success && response.properties && response.properties.length > 0
+  } catch (error) {
+    console.error('Error checking if address exists:', error)
+    addressExistsInDatabase.value = false
+  }
 }
 
 // Search for properties at the selected address
@@ -631,7 +686,7 @@ function initBackgroundMap() {
       // Worthing, UK coordinates: -0.3750, 50.8175
       backgroundMap.value = initMap(backgroundMapContainer.value, {
         center: [-0.3750, 50.8175], // Worthing, UK
-        zoom: 18,
+        zoom: 14,
         // Disable all interactions for locked map
         touchZoomRotate: false,
         touchPitch: false,

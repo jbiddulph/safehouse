@@ -3,8 +3,7 @@
 
 /* Mapbox mobile rendering fixes */
 .mapboxgl-map {
-  width: 100% !important;
-  height: 100% !important;
+  min-height: 100%;
   position: relative !important;
 }
 
@@ -17,11 +16,11 @@
   left: 0 !important;
 }
 
-.mapboxgl-canvas-container {
+/* .mapboxgl-canvas-container {
   width: 100% !important;
   height: 100% !important;
   position: relative !important;
-}
+} */
 
 /* Ensure map containers are visible on mobile */
 .mapboxgl-container {
