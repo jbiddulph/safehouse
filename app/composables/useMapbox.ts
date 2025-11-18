@@ -54,6 +54,8 @@ export const useMapbox = () => {
       mapElement.style.display = 'block'
       mapElement.style.visibility = 'visible'
       mapElement.style.position = 'relative'
+      mapElement.style.transform = 'translateZ(0)' // Force hardware acceleration
+      mapElement.style.willChange = 'transform' // Optimize for mobile
       
       // Ensure minimum dimensions
       if (!mapElement.style.height || mapElement.style.height === '0px' || mapElement.style.height === 'auto') {
@@ -84,8 +86,20 @@ export const useMapbox = () => {
         // Force another reflow
         void mapElement.offsetHeight
       }
+      
+      // Check for WebGL support (critical for mobile)
+      const canvas = document.createElement('canvas')
+      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
+      if (!gl) {
+        console.warn('WebGL is not supported on this device')
+        // Still try to initialize, Mapbox will fall back to raster tiles
+      }
     }
 
+    // Detect mobile device
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                     (typeof window !== 'undefined' && window.innerWidth < 768)
+    
     const map = new mapboxgl.Map({
       container: mapElement,
       style: 'mapbox://styles/mapbox/streets-v12',
@@ -102,8 +116,10 @@ export const useMapbox = () => {
       keyboard: options.keyboard !== false,
       attributionControl: options.attributionControl !== false,
       // Mobile-specific optimizations
-      antialias: true,
-      preserveDrawingBuffer: false
+      antialias: isMobile ? false : true, // Disable antialiasing on mobile for better performance
+      preserveDrawingBuffer: false,
+      // Force WebGL context creation
+      failIfMajorPerformanceCaveat: false // Allow map to work even on low-end devices
     })
 
     // Ensure map canvas has proper styling for mobile
@@ -130,7 +146,34 @@ export const useMapbox = () => {
         setTimeout(() => {
           map.resize()
         }, 100)
+        // Extra resize for mobile devices after longer delay
+        setTimeout(() => {
+          map.resize()
+        }, 500)
       })
+    })
+    
+    // Handle WebGL context lost (can happen on mobile)
+    map.on('webglcontextlost', () => {
+      console.warn('WebGL context lost, attempting to restore...')
+    })
+    
+    map.on('webglcontextrestored', () => {
+      console.log('WebGL context restored')
+      map.resize()
+    })
+    
+    // Handle render errors (common on mobile)
+    map.on('error', (e) => {
+      console.error('Map error:', e)
+      // Try to resize on error to recover
+      setTimeout(() => {
+        try {
+          map.resize()
+        } catch (err) {
+          console.error('Failed to resize map after error:', err)
+        }
+      }, 100)
     })
 
     // Also resize on container resize (for responsive layouts)

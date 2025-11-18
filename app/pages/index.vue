@@ -677,11 +677,19 @@ function initBackgroundMap() {
   nextTick(() => {
     if (!backgroundMapContainer.value) return
     
-    // Wait a bit more to ensure container is fully rendered
-    requestAnimationFrame(() => {
+    // Wait longer on mobile devices to ensure container is fully rendered
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                     (typeof window !== 'undefined' && window.innerWidth < 768)
+    const delay = isMobile ? 500 : 100
+    
+    setTimeout(() => {
       if (!backgroundMapContainer.value) return
       
-      const { initMap } = useMapbox()
+      // Wait a bit more to ensure container is fully rendered
+      requestAnimationFrame(() => {
+        if (!backgroundMapContainer.value) return
+        
+        const { initMap } = useMapbox()
       
       // Worthing, UK coordinates: -0.3750, 50.8175
       backgroundMap.value = initMap(backgroundMapContainer.value, {
@@ -791,7 +799,8 @@ function initBackgroundMap() {
           }
         }, 500)
       }
-    })
+      })
+    }, delay)
   })
 }
 
