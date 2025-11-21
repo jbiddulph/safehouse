@@ -36,6 +36,15 @@ export default defineEventHandler(async (event) => {
   )
 
   try {
+    // Normalize tenant_property_id: convert empty string to null
+    const normalizedTenantPropertyId = tenant_property_id && tenant_property_id.trim() !== '' 
+      ? tenant_property_id 
+      : null
+    
+    // If tenant_property_id is provided, automatically set is_tenant to true
+    // (since the frontend now uses "Link contact with property" instead of "is_tenant" checkbox)
+    const finalIsTenant = normalizedTenantPropertyId ? true : (is_tenant || false)
+    
     // If this is being set as primary, unset any existing primary contact
     if (is_primary) {
       await supabase
@@ -50,13 +59,13 @@ export default defineEventHandler(async (event) => {
         user_id,
         contact_name,
         email,
-        phone,
+        phone: phone && phone.trim() !== '' ? phone : null,
         relationship,
         is_primary,
-        is_tenant,
-        tenant_property_id: is_tenant ? tenant_property_id : null,
-        lease_start_date: is_tenant ? lease_start_date : null,
-        lease_end_date: is_tenant ? lease_end_date : null,
+        is_tenant: finalIsTenant,
+        tenant_property_id: finalIsTenant ? normalizedTenantPropertyId : null,
+        lease_start_date: finalIsTenant ? (lease_start_date || null) : null,
+        lease_end_date: finalIsTenant ? (lease_end_date || null) : null,
         emergency_access_level,
         notification_preferences: {
           email: true,
@@ -69,18 +78,23 @@ export default defineEventHandler(async (event) => {
 
     if (error) {
       console.error('Contact creation error:', error)
+      console.error('Error details:', JSON.stringify(error, null, 2))
       throw createError({
         statusCode: 500,
-        statusMessage: 'Failed to create contact'
+        statusMessage: `Failed to create contact: ${error.message || 'Unknown error'}`
       })
     }
 
     return { success: true, contact: data }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Contact creation error:', error)
+    // If it's already a createError, re-throw it
+    if (error.statusCode) {
+      throw error
+    }
     throw createError({
       statusCode: 500,
-      statusMessage: 'Failed to create contact'
+      statusMessage: `Failed to create contact: ${error.message || 'Unknown error'}`
     })
   }
 })
