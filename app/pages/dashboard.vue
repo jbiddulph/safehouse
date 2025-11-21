@@ -665,7 +665,10 @@
               </div>
               <div>
                 <p class="text-sm font-medium text-gray-500">QR Code</p>
-                <p class="text-sm text-gray-900 font-mono">{{ selectedProperty?.qr_code }}</p>
+                <p class="text-sm text-gray-900 font-mono mb-2">{{ selectedProperty?.qr_code }}</p>
+                <button @click="showQRCode(selectedProperty)" class="text-xs text-[#03045e] hover:text-[#8ee0ee] font-medium">
+                  View QR Code →
+                </button>
               </div>
               <div>
                 <p class="text-sm font-medium text-gray-500">NFC ID</p>
