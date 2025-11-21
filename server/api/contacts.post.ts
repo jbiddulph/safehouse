@@ -10,8 +10,6 @@ export default defineEventHandler(async (event) => {
     is_primary = false,
     is_tenant = false,
     tenant_property_id,
-    lease_start_date,
-    lease_end_date,
     emergency_access_level = 'standard',
     user_id 
   } = body
@@ -64,8 +62,6 @@ export default defineEventHandler(async (event) => {
         is_primary,
         is_tenant: finalIsTenant,
         tenant_property_id: finalIsTenant ? normalizedTenantPropertyId : null,
-        lease_start_date: finalIsTenant ? (lease_start_date || null) : null,
-        lease_end_date: finalIsTenant ? (lease_end_date || null) : null,
         emergency_access_level,
         notification_preferences: {
           email: true,

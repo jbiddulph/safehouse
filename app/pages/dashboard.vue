@@ -183,82 +183,6 @@
         </div>
       </div>
 
-      <!-- Stats Cards -->
-      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-        <div class="bg-white overflow-hidden shadow-xl rounded-xl border border-[#8ee0ee] hover:shadow-2xl transition-shadow duration-300">
-          <div class="p-6">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <div class="h-12 w-12 bg-[#03045e] rounded-lg flex items-center justify-center">
-                  <Icon name="mdi:home" class="h-6 w-6 text-[#8ee0ee]" />
-                </div>
-              </div>
-              <div class="ml-5 w-0 flex-1">
-                <dl>
-                  <dt class="text-sm font-medium text-gray-500 truncate">Properties</dt>
-                  <dd class="text-2xl font-bold text-gray-900">{{ properties.length }}</dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white overflow-hidden shadow-xl rounded-xl border border-[#8ee0ee] hover:shadow-2xl transition-shadow duration-300">
-          <div class="p-6">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <div class="h-12 w-12 bg-[#03045e] rounded-lg flex items-center justify-center">
-                  <Icon name="mdi:account-group" class="h-6 w-6 text-[#8ee0ee]" />
-                </div>
-              </div>
-              <div class="ml-5 w-0 flex-1">
-                <dl>
-                  <dt class="text-sm font-medium text-gray-500 truncate">Emergency Contacts</dt>
-                  <dd class="text-2xl font-bold text-gray-900">{{ contacts.length }}</dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white overflow-hidden shadow-xl rounded-xl border border-[#8ee0ee] hover:shadow-2xl transition-shadow duration-300">
-          <div class="p-6">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <div class="h-12 w-12 bg-[#03045e] rounded-lg flex items-center justify-center">
-                  <Icon name="mdi:key" class="h-6 w-6 text-[#8ee0ee]" />
-                </div>
-              </div>
-              <div class="ml-5 w-0 flex-1">
-                <dl>
-                  <dt class="text-sm font-medium text-gray-500 truncate">Active Access Codes</dt>
-                  <dd class="text-2xl font-bold text-gray-900">{{ activeAccessCodes }}</dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white overflow-hidden shadow-xl rounded-xl border border-[#8ee0ee] hover:shadow-2xl transition-shadow duration-300">
-          <div class="p-6">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <div class="h-12 w-12 bg-[#03045e] rounded-lg flex items-center justify-center">
-                  <Icon name="mdi:account-multiple" class="h-6 w-6 text-[#8ee0ee]" />
-                </div>
-              </div>
-              <div class="ml-5 w-0 flex-1">
-                <dl>
-                  <dt class="text-sm font-medium text-gray-500 truncate">Properties with Contacts</dt>
-                  <dd class="text-2xl font-bold text-gray-900">{{ propertiesWithContacts }}</dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
       <!-- Properties and Contacts Grid -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Properties Section -->
@@ -317,15 +241,10 @@
                       
                       <!-- Action Buttons Row -->
                       <div class="flex items-center gap-2 pt-3 border-t border-gray-200">
-                        <button @click.stop="viewPropertyDetails(property)" class="flex-1 px-2 py-1.5 text-xs font-medium text-white bg-[#03045e] rounded hover:bg-[#03045e] transition-colors">
-                          Manage
+                        <button @click.stop="editProperty(property)" class="flex-1 px-2 py-1.5 text-xs font-medium text-white bg-[#03045e] rounded hover:bg-[#03045e] transition-colors">
+                          Edit
                         </button>
-                        <button @click.stop="showQRCode(property)" class="flex-1 px-2 py-1.5 text-xs font-medium text-white bg-[#03045e] rounded hover:bg-[#03045e] transition-colors">
-                          QR Code
-                        </button>
-                        <button @click.stop="showAccessCode(property)" class="flex-1 px-2 py-1.5 text-xs font-medium text-white bg-[#03045e] rounded hover:bg-[#03045e] transition-colors">
-                          Access Code
-                        </button>
+                        <span class="text-gray-300">|</span>
                         <button @click.stop="deleteProperty(property.id)" class="flex-1 px-2 py-1.5 text-xs font-medium text-white bg-[#03045e] rounded hover:bg-[#03045e] transition-colors">
                           Delete
                         </button>
@@ -388,6 +307,63 @@
                     </button>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mt-8">
+        <div class="bg-white overflow-hidden shadow-xl rounded-xl border border-[#8ee0ee] hover:shadow-2xl transition-shadow duration-300">
+          <div class="p-6">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div class="h-12 w-12 bg-[#03045e] rounded-lg flex items-center justify-center">
+                  <Icon name="mdi:home" class="h-6 w-6 text-[#8ee0ee]" />
+                </div>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dl>
+                  <dt class="text-sm font-medium text-gray-500 truncate">Properties</dt>
+                  <dd class="text-2xl font-bold text-gray-900">{{ properties.length }}</dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow-xl rounded-xl border border-[#8ee0ee] hover:shadow-2xl transition-shadow duration-300">
+          <div class="p-6">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div class="h-12 w-12 bg-[#03045e] rounded-lg flex items-center justify-center">
+                  <Icon name="mdi:account-group" class="h-6 w-6 text-[#8ee0ee]" />
+                </div>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dl>
+                  <dt class="text-sm font-medium text-gray-500 truncate">Emergency Contacts</dt>
+                  <dd class="text-2xl font-bold text-gray-900">{{ contacts.length }}</dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow-xl rounded-xl border border-[#8ee0ee] hover:shadow-2xl transition-shadow duration-300">
+          <div class="p-6">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div class="h-12 w-12 bg-[#03045e] rounded-lg flex items-center justify-center">
+                  <Icon name="mdi:account-multiple" class="h-6 w-6 text-[#8ee0ee]" />
+                </div>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dl>
+                  <dt class="text-sm font-medium text-gray-500 truncate">Properties with Contacts</dt>
+                  <dd class="text-2xl font-bold text-gray-900">{{ propertiesWithContacts }}</dd>
+                </dl>
               </div>
             </div>
           </div>
@@ -804,72 +780,121 @@
       </div>
     </div>
 
-    <!-- Access Code Modal -->
-    <div v-if="showAccessCodeModal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+    <!-- Edit Property Modal -->
+    <div v-if="showEditProperty" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div class="relative top-10 mx-auto p-5 border w-full max-w-6xl shadow-lg rounded-md bg-white">
         <div class="mt-3">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-medium text-gray-900">Access Code for {{ selectedAccessCodeProperty?.property_name }}</h3>
-            <button @click="showAccessCodeModal = false" class="text-gray-400 hover:text-gray-600">
+            <h3 class="text-lg font-medium text-gray-900">Edit Property</h3>
+            <button @click="showEditProperty = false" class="text-gray-400 hover:text-gray-600">
               <Icon name="mdi:close" class="h-6 w-6" />
             </button>
           </div>
-          
-          <div v-if="accessCodeLoading" class="text-center py-8">
-            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#03045e]"></div>
-            <p class="mt-2 text-sm text-gray-500">Loading access codes...</p>
-          </div>
-          
-          <div v-else-if="accessCodes.length > 0" class="space-y-4">
-            <div v-for="code in accessCodes" :key="code.id" class="bg-gray-50 p-4 rounded-lg">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-sm font-medium text-gray-700">{{ code.code_type }}</span>
-                <span v-if="code.is_active" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#f0f9fb] text-[#03045e]">
-                  Active
-                </span>
-                <span v-else class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                  Inactive
-                </span>
-              </div>
-              <div class="text-center">
-                <div class="text-2xl font-mono font-bold text-gray-900 mb-2">{{ code.access_code }}</div>
-                <p class="text-xs text-gray-500 mb-2">{{ code.access_reason }}</p>
-                <p class="text-xs text-gray-400">
-                  Expires: {{ new Date(code.expires_at).toLocaleDateString() }}
-                  <span v-if="code.max_uses" class="ml-2">• Max uses: {{ code.max_uses }}</span>
-                </p>
-              </div>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Form Section -->
+            <form @submit.prevent="updateProperty" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Property Name</label>
+              <input v-model="editingProperty.property_name" type="text" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900">
             </div>
-            
-            <div class="mt-4 text-xs text-gray-500">
-              <p class="mb-2">Share this access code with people who need emergency access to this property.</p>
-              <p class="text-gray-400">They can use this code when scanning the QR code to request access.</p>
-            </div>
-            
-            <div class="mt-4 flex space-x-2">
-              <button 
-                @click="generateNewAccessCode" 
-                class="flex-1 bg-[#03045e] text-white px-3 py-2 rounded-md text-sm hover:bg-[#03045e]"
+            <div class="relative">
+              <label class="block text-sm font-medium text-gray-700">Address</label>
+              <input 
+                v-model="editAddressQuery" 
+                @input="fetchEditAddressSuggestions"
+                @focus="handleEditAddressInputFocus"
+                @blur="hideEditAddressSuggestions"
+                type="text" 
+                required 
+                placeholder="Start typing an address..."
+                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
               >
-                Generate New Code
-              </button>
-              <button 
-                @click="copyAccessCode" 
-                class="flex-1 bg-gray-600 text-white px-3 py-2 rounded-md text-sm hover:bg-gray-700"
+              
+              <!-- Address Suggestions -->
+              <div 
+                v-if="showEditAddressSuggestions && editAddressSuggestions.length > 0" 
+                class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
               >
-                Copy Code
+                <div
+                  v-for="(suggestion, index) in editAddressSuggestions"
+                  :key="index"
+                  :class="[
+                    'px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0',
+                    selectedEditAddressIndex === index ? 'bg-[#f0f9fb] text-[#03045e]' : 'hover:bg-gray-50'
+                  ]"
+                  @click="selectEditAddressSuggestion(suggestion)"
+                  @mouseenter="selectedEditAddressIndex = index"
+                >
+                  <div class="font-medium">{{ suggestion.formatted_address }}</div>
+                  <div v-if="suggestion.postcode" class="text-sm text-gray-500">
+                    {{ suggestion.postcode }}
+                    <span v-if="suggestion.city"> • {{ suggestion.city }}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- No results message -->
+              <div 
+                v-if="showEditAddressSuggestions && editAddressSuggestions.length === 0 && editAddressQuery.length > 2 && !loadingEditAddressSuggestions"
+                class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg p-4 text-center text-gray-500"
+              >
+                No addresses found. Try a different search term.
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">City</label>
+                <input v-model="editingProperty.city" type="text" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">State</label>
+                <input v-model="editingProperty.state" type="text" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900">
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Postal Code</label>
+              <input v-model="editingProperty.postal_code" type="text" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900">
+            </div>
+            <!-- Country is hidden, defaults to GB (United Kingdom) -->
+            <input type="hidden" v-model="editingProperty.country">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Property Type</label>
+              <select v-model="editingProperty.property_type" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900">
+                <option value="residential">Residential</option>
+                <option value="commercial">Commercial</option>
+                <option value="vacation">Vacation</option>
+              </select>
+            </div>
+            <div class="flex justify-end space-x-3 pt-4">
+              <button @click="showEditProperty = false" type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
+                Cancel
+              </button>
+              <button type="submit" :disabled="updatingProperty" class="px-4 py-2 text-sm font-medium text-white bg-[#03045e] rounded-md hover:bg-[#03045e] disabled:opacity-50">
+                {{ updatingProperty ? 'Updating...' : 'Update Property' }}
               </button>
             </div>
-          </div>
+          </form>
           
-          <div v-else class="text-center py-8">
-            <p class="text-sm text-gray-500 mb-4">No access codes found for this property.</p>
-            <button 
-              @click="generateNewAccessCode" 
-              class="bg-[#03045e] text-white px-4 py-2 rounded-md text-sm hover:bg-[#03045e]"
+          <!-- Map Section -->
+          <div class="lg:sticky lg:top-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Select Location on Map</label>
+            <p class="text-xs text-gray-500 mb-2">Click on the map to set the property location</p>
+            <div 
+              ref="editPropertyMapContainer" 
+              class="w-full h-96 rounded-lg border border-gray-300 overflow-hidden relative"
+              style="min-height: 384px; width: 100%; position: relative;"
             >
-              Generate Access Code
-            </button>
+              <div v-if="editReverseGeocoding" class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
+                <div class="text-center">
+                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#03045e] mx-auto mb-2"></div>
+                  <p class="text-sm text-gray-600">Getting address...</p>
+                </div>
+              </div>
+            </div>
+            <p v-if="editMapMarker" class="mt-2 text-xs text-gray-600">
+              Location set: {{ editMapMarker.lat.toFixed(6) }}, {{ editMapMarker.lng.toFixed(6) }}
+            </p>
+          </div>
           </div>
         </div>
       </div>
@@ -931,17 +956,44 @@ watch(showAddProperty, (isOpen) => {
 
 const showAddContact = ref(false)
 const showEditContact = ref(false)
+const showEditProperty = ref(false)
 const showPropertyDetails = ref(false)
 const showQRModal = ref(false)
 const qrCodeLoading = ref(false)
 const qrCodeData = ref(null)
 const selectedQRProperty = ref(null)
-const showAccessCodeModal = ref(false)
-const accessCodeLoading = ref(false)
-const accessCodes = ref([])
-const selectedAccessCodeProperty = ref(null)
 const selectedProperty = ref(null)
 const propertyContacts = ref([])
+
+// Watch for edit property modal opening to initialize map
+watch(showEditProperty, (isOpen) => {
+  if (isOpen && editingProperty.value.id) {
+    // Wait for modal to be fully rendered before initializing map
+    nextTick(() => {
+      setTimeout(() => {
+        initEditPropertyMap()
+      }, 200)
+    })
+  } else {
+    // Clean up map when modal closes
+    if (editPropertyMap.value) {
+      try {
+        editPropertyMap.value.remove()
+      } catch (e) {
+        // Map might already be removed
+      }
+      editPropertyMap.value = null
+    }
+    if (editPropertyMapMarker.value) {
+      try {
+        editPropertyMapMarker.value.remove()
+      } catch (e) {
+        // Marker might already be removed
+      }
+      editPropertyMapMarker.value = null
+    }
+  }
+})
 
 // Watch for property details modal opening to initialize map
 watch(showPropertyDetails, (isOpen) => {
@@ -974,6 +1026,7 @@ watch(showPropertyDetails, (isOpen) => {
 })
 
 const creatingProperty = ref(false)
+const updatingProperty = ref(false)
 const creatingContact = ref(false)
 const updatingContact = ref(false)
 const addingContactToProperty = ref(false)
@@ -1010,6 +1063,35 @@ const reverseGeocoding = ref(false)
 const propertyDetailsMapContainer = ref<HTMLElement | null>(null)
 const propertyDetailsMap = ref<any>(null)
 const propertyDetailsMapMarker = ref<any>(null)
+
+// Edit property form data
+const editingProperty = ref({
+  id: '',
+  property_name: '',
+  address: '',
+  city: '',
+  state: '',
+  postal_code: '',
+  country: 'GB',
+  property_type: 'residential',
+  latitude: null as number | null,
+  longitude: null as number | null
+})
+
+// Address autocomplete for edit property form
+const editAddressQuery = ref('')
+const editAddressSuggestions = ref([])
+const showEditAddressSuggestions = ref(false)
+const loadingEditAddressSuggestions = ref(false)
+const selectedEditAddressIndex = ref(-1)
+const selectedEditAddress = ref(null)
+
+// Mapbox for edit property form
+const editPropertyMapContainer = ref<HTMLElement | null>(null)
+const editPropertyMap = ref<any>(null)
+const editPropertyMapMarker = ref<any>(null)
+const editMapMarker = ref<{ lat: number; lng: number } | null>(null)
+const editReverseGeocoding = ref(false)
 
 const newContact = ref({
   contact_name: '',
@@ -1084,9 +1166,6 @@ const avatarUrl = computed(() => {
   return `${profile.value.avatar_url}?t=${timestamp}`
 })
 
-// Active access codes count
-const activeAccessCodes = ref(0)
-
 // Computed property for properties with contacts
 const propertiesWithContacts = computed(() => {
   return properties.value.filter(property => 
@@ -1119,7 +1198,6 @@ onMounted(async () => {
   // Load properties and contacts
   await loadProperties()
   await loadContacts()
-  await loadActiveAccessCodes()
 })
 
 async function loadProfile() {
@@ -1189,16 +1267,6 @@ async function loadContacts() {
   } catch (error) {
     console.error('Failed to load contacts:', error)
     contacts.value = []
-  }
-}
-
-async function loadActiveAccessCodes() {
-  try {
-    const { activeAccessCodes: count } = await $fetch('/api/access-codes/active')
-    activeAccessCodes.value = count
-  } catch (error) {
-    console.error('Failed to load active access codes:', error)
-    activeAccessCodes.value = 0
   }
 }
 
@@ -1874,71 +1942,308 @@ async function copyQRUrl() {
   }
 }
 
-async function showAccessCode(property) {
-  selectedAccessCodeProperty.value = property
-  showAccessCodeModal.value = true
-  accessCodeLoading.value = true
-  accessCodes.value = []
-  
-  try {
-    const { accessCodes: codes } = await $fetch(`/api/access-codes/property/${property.id}`)
-    accessCodes.value = codes || []
-  } catch (error) {
-    console.error('Failed to load access codes:', error)
-    accessCodes.value = []
-  } finally {
-    accessCodeLoading.value = false
+// Edit property functions
+async function editProperty(property) {
+  editingProperty.value = {
+    id: property.id,
+    property_name: property.property_name,
+    address: property.address,
+    city: property.city,
+    state: property.state || '',
+    postal_code: property.postal_code || '',
+    country: property.country || 'GB',
+    property_type: property.property_type || 'residential',
+    latitude: property.latitude ? parseFloat(property.latitude) : null,
+    longitude: property.longitude ? parseFloat(property.longitude) : null
   }
-}
-
-async function generateNewAccessCode() {
-  if (!selectedAccessCodeProperty.value) return
   
-  try {
-    const { success, accessCode } = await $fetch('/api/access-codes/generate', {
-      method: 'POST',
-      body: {
-        propertyId: selectedAccessCodeProperty.value.id,
-        codeType: 'emergency',
-        accessGrantedTo: 'Property Owner',
-        accessReason: 'Manual access code generation',
-        expiresInHours: 24 * 365, // 1 year
-        maxUses: null
-      }
-    })
-    
-    if (success) {
-      accessCodes.value.unshift(accessCode)
-      alert('New access code generated successfully!')
+  // Set address query for autocomplete
+  editAddressQuery.value = property.address || ''
+  
+  // Set map marker if coordinates exist
+  if (editingProperty.value.latitude && editingProperty.value.longitude) {
+    editMapMarker.value = {
+      lat: editingProperty.value.latitude,
+      lng: editingProperty.value.longitude
     }
-  } catch (error) {
-    console.error('Failed to generate access code:', error)
-    alert('Failed to generate access code')
   }
+  
+  showEditProperty.value = true
 }
 
-async function copyAccessCode() {
-  if (accessCodes.value.length === 0) return
+async function updateProperty() {
+  if (!editingProperty.value.id) return
   
-  const activeCode = accessCodes.value.find(code => code.is_active)
-  if (!activeCode) {
-    alert('No active access code to copy')
+  if (!editingProperty.value.latitude || !editingProperty.value.longitude) {
+    alert('Please select a location on the map')
     return
   }
   
+  updatingProperty.value = true
   try {
-    await navigator.clipboard.writeText(activeCode.access_code)
-    alert('Access code copied to clipboard!')
+    const { success, property: updatedProperty } = await $fetch('/api/properties/update', {
+      method: 'POST',
+      body: {
+        id: editingProperty.value.id,
+        property_name: editingProperty.value.property_name,
+        address: editingProperty.value.address,
+        city: editingProperty.value.city,
+        state: editingProperty.value.state,
+        postal_code: editingProperty.value.postal_code,
+        country: editingProperty.value.country,
+        property_type: editingProperty.value.property_type,
+        latitude: editingProperty.value.latitude,
+        longitude: editingProperty.value.longitude
+      }
+    })
+
+    if (success) {
+      // Update the property in the frontend array
+      const index = properties.value.findIndex(p => p.id === editingProperty.value.id)
+      if (index > -1) {
+        properties.value[index] = updatedProperty
+      }
+      
+      showEditProperty.value = false
+      alert('Property updated successfully!')
+    }
   } catch (error) {
-    console.error('Failed to copy access code:', error)
-    // Fallback for older browsers
-    const textArea = document.createElement('textarea')
-    textArea.value = activeCode.access_code
-    document.body.appendChild(textArea)
-    textArea.select()
-    document.execCommand('copy')
-    document.body.removeChild(textArea)
-    alert('Access code copied to clipboard!')
+    console.error('Failed to update property:', error)
+    alert('Failed to update property: ' + (error.data?.message || error.message))
+  } finally {
+    updatingProperty.value = false
+  }
+}
+
+// Edit property map functions
+function initEditPropertyMap() {
+  if (!editPropertyMapContainer.value) return
+  
+  // Ensure we're on client side
+  if (typeof window === 'undefined') return
+  
+  // Clean up existing map if any
+  if (editPropertyMap.value) {
+    try {
+      editPropertyMap.value.remove()
+    } catch (e) {
+      // Map might already be removed
+    }
+    editPropertyMap.value = null
+  }
+  if (editPropertyMapMarker.value) {
+    try {
+      editPropertyMapMarker.value.remove()
+    } catch (e) {
+      // Marker might already be removed
+    }
+    editPropertyMapMarker.value = null
+  }
+  
+  nextTick(() => {
+    if (!editPropertyMapContainer.value) return
+    
+    const container = editPropertyMapContainer.value
+    if (container instanceof HTMLElement) {
+      container.style.display = 'block'
+      container.style.visibility = 'visible'
+      container.style.position = 'relative'
+      
+      requestAnimationFrame(() => {
+        if (!editPropertyMapContainer.value) return
+        
+        const { initMap, addMarker, reverseGeocode } = useMapbox()
+        
+        // Initialize map at property location or default to UK
+        const center: [number, number] = editingProperty.value.latitude && editingProperty.value.longitude
+          ? [editingProperty.value.longitude, editingProperty.value.latitude]
+          : [-2.2374, 53.4808]
+        
+        editPropertyMap.value = initMap(editPropertyMapContainer.value, {
+          center,
+          zoom: editingProperty.value.latitude && editingProperty.value.longitude ? 15 : 6,
+          onMapClick: async (lng: number, lat: number) => {
+            await handleEditMapClick(lng, lat)
+          }
+        })
+        
+        // Add existing marker if coordinates exist
+        if (editingProperty.value.latitude && editingProperty.value.longitude) {
+          editPropertyMapMarker.value = addMarker(editPropertyMap.value, editingProperty.value.longitude, editingProperty.value.latitude, {
+            draggable: true,
+            onDragEnd: async (newLng: number, newLat: number) => {
+              await handleEditMapClick(newLng, newLat)
+            }
+          })
+        }
+        
+        // Force resize
+        if (editPropertyMap.value) {
+          requestAnimationFrame(() => {
+            if (editPropertyMap.value) {
+              editPropertyMap.value.resize()
+            }
+          })
+          setTimeout(() => {
+            if (editPropertyMap.value) {
+              editPropertyMap.value.resize()
+            }
+          }, 100)
+          setTimeout(() => {
+            if (editPropertyMap.value) {
+              editPropertyMap.value.resize()
+            }
+          }, 500)
+          editPropertyMap.value.on('load', () => {
+            requestAnimationFrame(() => {
+              if (editPropertyMap.value) {
+                editPropertyMap.value.resize()
+              }
+            })
+          })
+        }
+      })
+    }
+  })
+}
+
+async function handleEditMapClick(lng: number, lat: number) {
+  if (!editPropertyMap.value) return
+  
+  editReverseGeocoding.value = true
+  
+  try {
+    const { addMarker, reverseGeocode } = useMapbox()
+    
+    // Remove existing marker
+    if (editPropertyMapMarker.value) {
+      editPropertyMapMarker.value.remove()
+    }
+    
+    // Add new marker
+    editPropertyMapMarker.value = addMarker(editPropertyMap.value, lng, lat, {
+      draggable: true,
+      onDragEnd: async (newLng: number, newLat: number) => {
+        await handleEditMapClick(newLng, newLat)
+      }
+    })
+    
+    editMapMarker.value = { lat, lng }
+    
+    // Reverse geocode to get address
+    try {
+      const addressData = await reverseGeocode(lng, lat)
+      
+      if (addressData) {
+        // Populate form fields
+        editingProperty.value.address = addressData.address || addressData.formatted_address || ''
+        editingProperty.value.city = addressData.city || ''
+        editingProperty.value.state = addressData.state || ''
+        editingProperty.value.postal_code = addressData.postcode || ''
+        editingProperty.value.latitude = parseFloat(addressData.lat)
+        editingProperty.value.longitude = parseFloat(addressData.lon)
+        editingProperty.value.country = addressData.country || 'GB'
+        
+        // Update address query
+        editAddressQuery.value = addressData.formatted_address || addressData.address || ''
+      }
+    } catch (geocodeError) {
+      console.error('Reverse geocoding error:', geocodeError)
+      // Still set coordinates even if geocoding fails
+      editingProperty.value.latitude = lat
+      editingProperty.value.longitude = lng
+    }
+  } catch (error) {
+    console.error('Map click error:', error)
+  } finally {
+    editReverseGeocoding.value = false
+  }
+}
+
+// Edit address autocomplete functions
+async function fetchEditAddressSuggestions() {
+  if (editAddressQuery.value.length < 3) {
+    editAddressSuggestions.value = []
+    showEditAddressSuggestions.value = false
+    return
+  }
+  
+  loadingEditAddressSuggestions.value = true
+  try {
+    const response = await $fetch('/api/address-autocomplete', {
+      query: {
+        q: editAddressQuery.value
+      }
+    })
+    
+    if (response.success && response.suggestions) {
+      editAddressSuggestions.value = response.suggestions
+      showEditAddressSuggestions.value = true
+    } else {
+      editAddressSuggestions.value = []
+      showEditAddressSuggestions.value = false
+    }
+  } catch (error) {
+    console.error('Failed to fetch address suggestions:', error)
+    editAddressSuggestions.value = []
+    showEditAddressSuggestions.value = false
+  } finally {
+    loadingEditAddressSuggestions.value = false
+  }
+}
+
+function handleEditAddressInputFocus() {
+  if (editAddressQuery.value.length >= 3) {
+    showEditAddressSuggestions.value = true
+  }
+}
+
+function hideEditAddressSuggestions() {
+  // Delay hiding to allow click events to fire
+  setTimeout(() => {
+    showEditAddressSuggestions.value = false
+  }, 200)
+}
+
+function selectEditAddressSuggestion(suggestion: any) {
+  editingProperty.value.address = suggestion.formatted_address || suggestion.address || ''
+  editingProperty.value.city = suggestion.city || ''
+  editingProperty.value.state = suggestion.state || ''
+  editingProperty.value.postal_code = suggestion.postcode || ''
+  editingProperty.value.country = suggestion.country || 'GB'
+  editingProperty.value.latitude = parseFloat(suggestion.lat)
+  editingProperty.value.longitude = parseFloat(suggestion.lon)
+  
+  editAddressQuery.value = suggestion.formatted_address || suggestion.address || ''
+  showEditAddressSuggestions.value = false
+  
+  // Update map marker
+  if (editPropertyMap.value && editingProperty.value.latitude && editingProperty.value.longitude) {
+    const { addMarker } = useMapbox()
+    
+    // Remove existing marker
+    if (editPropertyMapMarker.value) {
+      editPropertyMapMarker.value.remove()
+    }
+    
+    // Add new marker
+    editPropertyMapMarker.value = addMarker(editPropertyMap.value, editingProperty.value.longitude, editingProperty.value.latitude, {
+      draggable: true,
+      onDragEnd: async (newLng: number, newLat: number) => {
+        await handleEditMapClick(newLng, newLat)
+      }
+    })
+    
+    // Pan map to new location
+    editPropertyMap.value.flyTo({
+      center: [editingProperty.value.longitude, editingProperty.value.latitude],
+      zoom: 15
+    })
+    
+    editMapMarker.value = {
+      lat: editingProperty.value.latitude,
+      lng: editingProperty.value.longitude
+    }
   }
 }
 
