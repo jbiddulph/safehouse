@@ -456,6 +456,20 @@
                 <option value="vacation">Vacation</option>
               </select>
             </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Property Photo</label>
+              <input 
+                ref="newPropertyPhotoInput"
+                type="file" 
+                accept="image/*" 
+                @change="handleNewPropertyPhotoChange"
+                class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#03045e] file:text-white hover:file:bg-[#03045e]"
+              />
+              <p class="mt-1 text-xs text-gray-500">Upload a photo of your property (max 10MB)</p>
+              <div v-if="newPropertyPhotoPreview" class="mt-2">
+                <img :src="newPropertyPhotoPreview" alt="Property photo preview" class="w-full h-48 object-cover rounded-lg border border-gray-300" />
+              </div>
+            </div>
             <div class="flex justify-end space-x-3 pt-4">
               <button @click="showAddProperty = false" type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
                 Cancel
@@ -654,6 +668,15 @@
             <button @click="showPropertyDetails = false" class="text-gray-400 hover:text-gray-600">
               <Icon name="mdi:close" class="h-6 w-6" />
             </button>
+          </div>
+          
+          <!-- Property Photo -->
+          <div v-if="selectedProperty?.photo_url" class="mb-6 -mx-5 -mt-3">
+            <img 
+              :src="selectedProperty.photo_url" 
+              :alt="selectedProperty.property_name"
+              class="w-full h-64 object-cover rounded-t-lg"
+            />
           </div>
           
           <!-- Property Info -->
@@ -868,6 +891,25 @@
                 <option value="vacation">Vacation</option>
               </select>
             </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Property Photo</label>
+              <div v-if="editingProperty.photo_url" class="mb-2">
+                <p class="text-xs text-gray-500 mb-1">Current photo:</p>
+                <img :src="editingProperty.photo_url" alt="Current property photo" class="w-full h-48 object-cover rounded-lg border border-gray-300" />
+              </div>
+              <input 
+                ref="editPropertyPhotoInput"
+                type="file" 
+                accept="image/*" 
+                @change="handleEditPropertyPhotoChange"
+                class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#03045e] file:text-white hover:file:bg-[#03045e]"
+              />
+              <p class="mt-1 text-xs text-gray-500">Upload a new photo to replace the current one (max 10MB)</p>
+              <div v-if="editPropertyPhotoPreview" class="mt-2">
+                <p class="text-xs text-gray-500 mb-1">New photo preview:</p>
+                <img :src="editPropertyPhotoPreview" alt="New property photo preview" class="w-full h-48 object-cover rounded-lg border border-gray-300" />
+              </div>
+            </div>
             <div class="flex justify-end space-x-3 pt-4">
               <button @click="showEditProperty = false" type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
                 Cancel
@@ -1078,8 +1120,18 @@ const editingProperty = ref({
   country: 'GB',
   property_type: 'residential',
   latitude: null as number | null,
-  longitude: null as number | null
+  longitude: null as number | null,
+  photo_url: null as string | null
 })
+
+// Property photo upload
+const newPropertyPhotoInput = ref<HTMLInputElement | null>(null)
+const newPropertyPhotoFile = ref<File | null>(null)
+const newPropertyPhotoPreview = ref<string | null>(null)
+
+const editPropertyPhotoInput = ref<HTMLInputElement | null>(null)
+const editPropertyPhotoFile = ref<File | null>(null)
+const editPropertyPhotoPreview = ref<string | null>(null)
 
 // Address autocomplete for edit property form
 const editAddressQuery = ref('')
@@ -1610,6 +1662,42 @@ function selectAddressSuggestion(suggestion: any) {
   selectedAddressIndex.value = -1
 }
 
+function handleNewPropertyPhotoChange(event: Event) {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  
+  if (file) {
+    newPropertyPhotoFile.value = file
+    // Create preview
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      newPropertyPhotoPreview.value = e.target?.result as string
+    }
+    reader.readAsDataURL(file)
+  } else {
+    newPropertyPhotoFile.value = null
+    newPropertyPhotoPreview.value = null
+  }
+}
+
+function handleEditPropertyPhotoChange(event: Event) {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  
+  if (file) {
+    editPropertyPhotoFile.value = file
+    // Create preview
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      editPropertyPhotoPreview.value = e.target?.result as string
+    }
+    reader.readAsDataURL(file)
+  } else {
+    editPropertyPhotoFile.value = null
+    editPropertyPhotoPreview.value = null
+  }
+}
+
 async function createProperty() {
   const client = useSupabaseClient()
   const { data: { session } } = await client.auth.getSession()
@@ -1637,6 +1725,49 @@ async function createProperty() {
     })
 
     if (success) {
+      // Upload photo if one was selected
+      let photoUrl = null
+      if (newPropertyPhotoFile.value) {
+        try {
+          const formData = new FormData()
+          formData.append('photo', newPropertyPhotoFile.value)
+          formData.append('propertyId', property.id)
+          formData.append('propertyCaption', newProperty.value.property_name)
+          
+          const uploadResponse = await $fetch('/api/properties/upload-photo', {
+            method: 'POST',
+            body: formData
+          })
+          
+          if (uploadResponse.success) {
+            photoUrl = uploadResponse.url
+            
+            // Update property with photo URL
+            await $fetch('/api/properties/update', {
+              method: 'POST',
+              body: {
+                id: property.id,
+                property_name: property.property_name,
+                address: property.address,
+                city: property.city,
+                state: property.state,
+                postal_code: property.postal_code,
+                country: property.country,
+                property_type: property.property_type,
+                latitude: property.latitude,
+                longitude: property.longitude,
+                photo_url: photoUrl
+              }
+            })
+            
+            property.photo_url = photoUrl
+          }
+        } catch (photoError) {
+          console.error('Failed to upload property photo:', photoError)
+          // Don't fail property creation if photo upload fails
+        }
+      }
+      
       properties.value.unshift(property)
       showAddProperty.value = false
       // Reset form
@@ -1650,6 +1781,12 @@ async function createProperty() {
         property_type: 'residential',
         latitude: null,
         longitude: null
+      }
+      // Reset photo
+      newPropertyPhotoFile.value = null
+      newPropertyPhotoPreview.value = null
+      if (newPropertyPhotoInput.value) {
+        newPropertyPhotoInput.value.value = ''
       }
       // Reset address autocomplete
       addressQuery.value = ''
@@ -1957,7 +2094,15 @@ async function editProperty(property) {
     country: property.country || 'GB',
     property_type: property.property_type || 'residential',
     latitude: property.latitude ? parseFloat(property.latitude) : null,
-    longitude: property.longitude ? parseFloat(property.longitude) : null
+    longitude: property.longitude ? parseFloat(property.longitude) : null,
+    photo_url: property.photo_url || null
+  }
+  
+  // Reset photo file and preview
+  editPropertyPhotoFile.value = null
+  editPropertyPhotoPreview.value = null
+  if (editPropertyPhotoInput.value) {
+    editPropertyPhotoInput.value.value = ''
   }
   
   // Set address query for autocomplete
@@ -1984,6 +2129,29 @@ async function updateProperty() {
   
   updatingProperty.value = true
   try {
+    // Upload photo if a new one was selected
+    let photoUrl = editingProperty.value.photo_url
+    if (editPropertyPhotoFile.value) {
+      try {
+        const formData = new FormData()
+        formData.append('photo', editPropertyPhotoFile.value)
+        formData.append('propertyId', editingProperty.value.id)
+        formData.append('propertyCaption', editingProperty.value.property_name)
+        
+        const uploadResponse = await $fetch('/api/properties/upload-photo', {
+          method: 'POST',
+          body: formData
+        })
+        
+        if (uploadResponse.success) {
+          photoUrl = uploadResponse.url
+        }
+      } catch (photoError) {
+        console.error('Failed to upload property photo:', photoError)
+        // Continue with update even if photo upload fails
+      }
+    }
+    
     const { success, property: updatedProperty } = await $fetch('/api/properties/update', {
       method: 'POST',
       body: {
@@ -1996,7 +2164,8 @@ async function updateProperty() {
         country: editingProperty.value.country,
         property_type: editingProperty.value.property_type,
         latitude: editingProperty.value.latitude,
-        longitude: editingProperty.value.longitude
+        longitude: editingProperty.value.longitude,
+        photo_url: photoUrl
       }
     })
 
@@ -2005,6 +2174,13 @@ async function updateProperty() {
       const index = properties.value.findIndex(p => p.id === editingProperty.value.id)
       if (index > -1) {
         properties.value[index] = updatedProperty
+      }
+      
+      // Reset photo file and preview
+      editPropertyPhotoFile.value = null
+      editPropertyPhotoPreview.value = null
+      if (editPropertyPhotoInput.value) {
+        editPropertyPhotoInput.value.value = ''
       }
       
       showEditProperty.value = false

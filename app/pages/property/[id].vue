@@ -37,9 +37,18 @@
 
         <!-- Property Details -->
         <div v-else-if="property" class="space-y-6">
+          <!-- Property Photo -->
+          <div v-if="property.photo_url" class="w-full -mx-4 sm:-mx-10 -mt-8 mb-6">
+            <img 
+              :src="property.photo_url" 
+              :alt="property.property_name"
+              class="w-full h-64 object-cover rounded-t-lg"
+            />
+          </div>
+          
           <!-- Property Header -->
           <div class="text-center">
-            <div class="mb-4">
+            <div v-if="!property.photo_url" class="mb-4">
               <div class="w-16 h-16 bg-[#f0f9fb] rounded-full flex items-center justify-center mx-auto">
                 <Icon name="mdi:home" class="w-8 h-8 text-[#8ee0ee]" />
               </div>
@@ -244,7 +253,7 @@ const route = useRoute()
 const propertyId = route.params.id as string
 
 // Reactive data
-const property = ref(null)
+const property = ref<any>(null)
 const loading = ref(true)
 const error = ref(false)
 const requestingAccess = ref(false)

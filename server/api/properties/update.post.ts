@@ -12,7 +12,8 @@ export default defineEventHandler(async (event) => {
     country = 'GB', 
     property_type = 'residential',
     latitude,
-    longitude
+    longitude,
+    photo_url
   } = body
 
   if (!id || !property_name || !address || !city) {
@@ -43,20 +44,27 @@ export default defineEventHandler(async (event) => {
   )
 
   try {
+    const updateData: any = {
+      property_name,
+      address,
+      city,
+      state,
+      postal_code,
+      country,
+      property_type,
+      latitude: parseFloat(latitude),
+      longitude: parseFloat(longitude),
+      updated_at: new Date().toISOString()
+    }
+    
+    // Only update photo_url if provided
+    if (photo_url !== undefined) {
+      updateData.photo_url = photo_url
+    }
+    
     const { data, error } = await supabase
       .from('safehouse_properties')
-      .update({
-        property_name,
-        address,
-        city,
-        state,
-        postal_code,
-        country,
-        property_type,
-        latitude: parseFloat(latitude),
-        longitude: parseFloat(longitude),
-        updated_at: new Date().toISOString()
-      })
+      .update(updateData)
       .eq('id', id)
       .select()
       .single()
