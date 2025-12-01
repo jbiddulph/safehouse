@@ -2,3 +2,6 @@
 ALTER TABLE public.safehouse_properties 
 ADD COLUMN photo_url text;
 
+
+
+

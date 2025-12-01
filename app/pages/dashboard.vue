@@ -3,7 +3,7 @@
     <!-- Top Navigation -->
     <nav class="bg-[#03045e] shadow-lg border-b border-[#03045e]">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
+        <div class="flex justify-between items-center h-16">
           <!-- Logo and Title -->
           <div class="flex items-center space-x-8">
             <div class="flex-shrink-0 flex items-center space-x-3">
@@ -30,61 +30,66 @@
               <NuxtLink to="/terms" class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors">
                 Terms & Conditions
               </NuxtLink>
-              
-              <!-- Notification Bell (Admin Only) -->
-              <button v-if="profile?.role === 'admin'" class="relative p-2 text-[#8ee0ee] hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee] rounded-full hover:bg-[#03045e]/50">
-                <Icon name="mdi:bell" class="h-6 w-6" />
-                <!-- Notification Badge -->
-                <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400 ring-2 ring-white"></span>
-              </button>
-
-              <!-- Profile Dropdown -->
-              <div class="relative">
-                <button @click="showProfileMenu = !showProfileMenu" class="flex items-center space-x-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee] hover:bg-[#03045e]/50 px-3 py-2 transition-colors duration-200">
-                  <div v-if="profile?.avatar_url" class="h-8 w-8 rounded-full overflow-hidden border-2 border-[#8ee0ee] shadow-sm">
-                    <img :src="avatarUrl" alt="Profile" class="h-full w-full object-cover" />
-                  </div>
-                  <div v-else class="h-8 w-8 rounded-full bg-[#f0f9fb] flex items-center justify-center border-2 border-[#8ee0ee] shadow-sm">
-                    <Icon name="mdi:account" class="h-5 w-5 text-[#03045e]" />
-                  </div>
-                  <span class="text-sm font-medium text-white">{{ profile?.full_name || auth.user?.value?.email || 'User' }}</span>
-                  <Icon name="mdi:chevron-down" class="h-4 w-4 text-[#8ee0ee]" />
-                </button>
-
-                <!-- Dropdown Menu -->
-                <div v-if="showProfileMenu" @click.away="showProfileMenu = false" class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
-                  <div class="px-4 py-2 border-b border-gray-100">
-                    <div class="text-sm font-medium text-gray-900">{{ profile?.full_name || 'User' }}</div>
-                    <div class="text-xs text-gray-500">{{ auth.user?.value?.email }}</div>
-                  </div>
-                  <NuxtLink to="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    <div class="flex items-center">
-                      <Icon name="mdi:account" class="h-4 w-4 mr-2" />
-                      Profile Settings
-                    </div>
-                  </NuxtLink>
-                  <NuxtLink to="/access-requests" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    <div class="flex items-center">
-                      <Icon name="mdi:file-document" class="h-4 w-4 mr-2" />
-                      Access Requests
-                    </div>
-                  </NuxtLink>
-                  <button @click="onLogout" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    <div class="flex items-center">
-                      <Icon name="mdi:logout" class="h-4 w-4 mr-2" />
-                      Sign out
-                    </div>
-                  </button>
-                </div>
-              </div>
             </nav>
           </div>
 
-          <!-- Mobile Menu Button -->
-          <div class="md:hidden">
-            <button @click="showMobileMenu = !showMobileMenu" class="text-[#8ee0ee] hover:text-white focus:outline-none">
-              <Icon :name="showMobileMenu ? 'mdi:close' : 'mdi:menu'" class="h-6 w-6" />
-            </button>
+          <!-- Right Side: Profile Dropdown + Mobile Menu Button -->
+          <div class="flex items-center space-x-3">
+            <!-- Profile Dropdown (desktop) -->
+            <div class="relative hidden md:block">
+              <button
+                @click="showProfileMenu = !showProfileMenu"
+                class="flex items-center space-x-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee] hover:bg-[#03045e]/50 px-3 py-2 transition-colors duration-200"
+              >
+                <div v-if="profile?.avatar_url" class="h-8 w-8 rounded-full overflow-hidden border-2 border-[#8ee0ee] shadow-sm">
+                  <img :src="avatarUrl" alt="Profile" class="h-full w-full object-cover" />
+                </div>
+                <div v-else class="h-8 w-8 rounded-full bg-[#f0f9fb] flex items-center justify-center border-2 border-[#8ee0ee] shadow-sm">
+                  <Icon name="mdi:account" class="h-5 w-5 text-[#03045e]" />
+                </div>
+                <span class="text-sm font-medium text-white">
+                  {{ profile?.full_name || auth.user?.value?.email || 'User' }}
+                </span>
+                <Icon name="mdi:chevron-down" class="h-4 w-4 text-[#8ee0ee]" />
+              </button>
+
+              <!-- Dropdown Menu -->
+              <div
+                v-if="showProfileMenu"
+                @click.away="showProfileMenu = false"
+                class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200"
+              >
+                <div class="px-4 py-2 border-b border-gray-100">
+                  <div class="text-sm font-medium text-gray-900">{{ profile?.full_name || 'User' }}</div>
+                  <div class="text-xs text-gray-500">{{ auth.user?.value?.email }}</div>
+                </div>
+                <NuxtLink to="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  <div class="flex items-center">
+                    <Icon name="mdi:account" class="h-4 w-4 mr-2" />
+                    Profile Settings
+                  </div>
+                </NuxtLink>
+                <NuxtLink to="/access-requests" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  <div class="flex items-center">
+                    <Icon name="mdi:file-document" class="h-4 w-4 mr-2" />
+                    Access Requests
+                  </div>
+                </NuxtLink>
+                <button @click="onLogout" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  <div class="flex items-center">
+                    <Icon name="mdi:logout" class="h-4 w-4 mr-2" />
+                    Sign out
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <div class="md:hidden">
+              <button @click="showMobileMenu = !showMobileMenu" class="text-[#8ee0ee] hover:text-white focus:outline-none">
+                <Icon :name="showMobileMenu ? 'mdi:close' : 'mdi:menu'" class="h-6 w-6" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -104,14 +109,6 @@
           <NuxtLink to="/terms" class="block text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors" @click="showMobileMenu = false">
             Terms & Conditions
           </NuxtLink>
-          
-          <!-- Notification Bell (Admin Only) -->
-          <button v-if="profile?.role === 'admin'" class="block w-full text-left px-4 py-2 text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors">
-            <div class="flex items-center">
-              <Icon name="mdi:bell" class="h-5 w-5 mr-2" />
-              Notifications
-            </div>
-          </button>
           
           <!-- Profile Links in Mobile Menu -->
           <NuxtLink to="/profile" class="block text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors" @click="showMobileMenu = false">

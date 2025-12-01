@@ -1,11 +1,11 @@
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
-  const searchTerm = query.q as string
+  const searchTerm = (query.q as string)?.trim()
 
-  if (!searchTerm || searchTerm.length < 3) {
+  if (!searchTerm || searchTerm.length < 2) {
     return {
-      success: false,
-      message: 'Search term must be at least 3 characters'
+      success: true,
+      suggestions: []
     }
   }
 
@@ -15,25 +15,25 @@ export default defineEventHandler(async (event) => {
   if (!googleApiKey) {
     return {
       success: false,
-      message: 'Google API key not configured'
+      message: 'Google API key not configured',
+      suggestions: []
     }
   }
 
   try {
-    console.log('Searching Google Places for:', searchTerm)
+    console.log('Searching UK addresses for:', searchTerm)
 
-    // Use Google Places API Text Search with correct fields
+    // Use Google Places Autocomplete API - better for address suggestions
     // Restrict to UK only using components parameter
-    const searchParams = new URLSearchParams({
+    const autocompleteParams = new URLSearchParams({
       input: searchTerm,
-      inputtype: 'textquery',
-      fields: 'place_id,formatted_address,geometry,types',
-      components: 'country:gb', // Restrict to United Kingdom
+      types: 'address', // Restrict to addresses only
+      components: 'country:gb', // Restrict to United Kingdom only
       key: googleApiKey
     })
 
-    const response = await fetch(
-      `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?${searchParams.toString()}`,
+    const autocompleteResponse = await fetch(
+      `https://maps.googleapis.com/maps/api/place/autocomplete/json?${autocompleteParams.toString()}`,
       {
         headers: {
           'Accept': 'application/json'
@@ -41,31 +41,32 @@ export default defineEventHandler(async (event) => {
       }
     )
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
+    if (!autocompleteResponse.ok) {
+      throw new Error(`HTTP error! status: ${autocompleteResponse.status}`)
     }
 
-    const data = await response.json()
+    const autocompleteData = await autocompleteResponse.json()
     
-    if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
-      console.error('Google Places API error:', data.status, data.error_message)
+    if (autocompleteData.status !== 'OK' && autocompleteData.status !== 'ZERO_RESULTS') {
+      console.error('Google Places Autocomplete API error:', autocompleteData.status, autocompleteData.error_message)
       return {
         success: false,
-        message: `Google Places API error: ${data.error_message || data.status}`,
+        message: `Google Places API error: ${autocompleteData.error_message || autocompleteData.status}`,
         suggestions: []
       }
     }
 
-    console.log('Google Places results count:', data.candidates?.length || 0)
+    const predictions = autocompleteData.predictions || []
+    console.log('Google Places Autocomplete results count:', predictions.length)
     
     // Get detailed information for each place
     const suggestions = await Promise.all(
-      (data.candidates || []).map(async (place: any) => {
+      predictions.slice(0, 10).map(async (prediction: any) => {
         try {
           // Get detailed place information including address components
           const detailsParams = new URLSearchParams({
-            place_id: place.place_id,
-            fields: 'address_components,formatted_address,geometry,types',
+            place_id: prediction.place_id,
+            fields: 'address_components,formatted_address,geometry',
             key: googleApiKey
           })
 
@@ -83,36 +84,54 @@ export default defineEventHandler(async (event) => {
             if (detailsData.status === 'OK' && detailsData.result) {
               const result = detailsData.result
               const components = result.address_components || []
-              const address: any = {}
+              const address: any = {
+                formatted_address: result.formatted_address || prediction.description,
+                address: '',
+                city: '',
+                state: '',
+                postcode: '',
+                country: 'GB'
+              }
               
               components.forEach((component: any) => {
                 const types = component.types
-                if (types.includes('street_number')) address.house_number = component.long_name
-                if (types.includes('route')) address.road = component.long_name
-                if (types.includes('postal_code')) address.postcode = component.long_name
-                if (types.includes('locality') || types.includes('administrative_area_level_2')) {
+                if (types.includes('street_number')) {
+                  address.address = component.long_name
+                }
+                if (types.includes('route')) {
+                  address.address = address.address 
+                    ? `${address.address} ${component.long_name}` 
+                    : component.long_name
+                }
+                if (types.includes('postal_code')) {
+                  address.postcode = component.long_name
+                }
+                if (types.includes('locality') || types.includes('postal_town')) {
                   address.city = component.long_name
                 }
-                if (types.includes('administrative_area_level_1')) address.state = component.long_name
+                if (types.includes('administrative_area_level_1')) {
+                  address.state = component.long_name
+                }
                 if (types.includes('country')) {
-                  // Use short_name (ISO code) for country, fallback to long_name
-                  address.country = component.short_name || component.long_name
+                  address.country = component.short_name || 'GB'
                 }
               })
 
+              // Build formatted address if not provided
+              if (!address.address && address.city) {
+                address.address = result.formatted_address || prediction.description
+              }
+
               return {
-                formatted_address: result.formatted_address || place.formatted_address,
-                place_id: place.place_id,
-                types: result.types || place.types || ['address'],
-                lat: result.geometry?.location?.lat?.toString() || place.geometry?.location?.lat?.toString(),
-                lon: result.geometry?.location?.lng?.toString() || place.geometry?.location?.lng?.toString(),
-                house_number: address.house_number,
-                road: address.road,
-                postcode: address.postcode,
+                formatted_address: result.formatted_address || prediction.description,
+                address: address.address || result.formatted_address || prediction.description,
                 city: address.city,
                 state: address.state,
-                country: address.country,
-                full_address: result.formatted_address || place.formatted_address
+                postcode: address.postcode,
+                country: address.country || 'GB',
+                lat: result.geometry?.location?.lat?.toString() || null,
+                lon: result.geometry?.location?.lng?.toString() || null,
+                place_id: prediction.place_id
               }
             }
           }
@@ -122,33 +141,33 @@ export default defineEventHandler(async (event) => {
 
         // Fallback to basic information if details fetch fails
         return {
-          formatted_address: place.formatted_address,
-          place_id: place.place_id,
-          types: place.types || ['address'],
-          lat: place.geometry?.location?.lat?.toString(),
-          lon: place.geometry?.location?.lng?.toString(),
-          house_number: null,
-          road: null,
-          postcode: null,
-          city: null,
-          state: null,
-          country: null,
-          full_address: place.formatted_address
+          formatted_address: prediction.description,
+          address: prediction.description,
+          city: '',
+          state: '',
+          postcode: '',
+          country: 'GB',
+          lat: null,
+          lon: null,
+          place_id: prediction.place_id
         }
       })
     )
 
-    console.log('Final suggestions count:', suggestions.length)
+    // Filter out any null results from failed detail fetches
+    const validSuggestions = suggestions.filter(s => s !== null && s !== undefined)
+    
+    console.log('Final UK address suggestions count:', validSuggestions.length)
     
     return {
       success: true,
-      suggestions
+      suggestions: validSuggestions
     }
   } catch (error) {
     console.error('Google Places API error:', error)
     return {
       success: false,
-      message: 'Failed to fetch address suggestions from Google Places',
+      message: 'Failed to fetch UK address suggestions',
       suggestions: []
     }
   }
