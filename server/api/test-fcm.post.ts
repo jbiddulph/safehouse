@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
       const success = await sendPushNotification(
         fcm_token,
         '🧪 FCM Test Notification',
-        'This is a test notification from SafeHouse FCM integration',
+        'This is a test notification from MySafeHouse FCM integration',
         {
           type: 'test',
           timestamp: new Date().toISOString()
@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
       const result = await sendMulticastNotification(
         [fcm_token],
         '🧪 FCM Multicast Test',
-        'This is a multicast test notification from SafeHouse FCM',
+        'This is a multicast test notification from MySafeHouse FCM',
         {
           type: 'test_multicast',
           timestamp: new Date().toISOString()

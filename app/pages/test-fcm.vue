@@ -181,7 +181,7 @@ function testNotification() {
     }
 
     const notification = new Notification('FCM Test', {
-      body: 'This is a test notification from SafeHouse FCM',
+      body: 'This is a test notification from MySafeHouse FCM',
       icon: '/favicon.ico',
       tag: 'fcm-test'
     })

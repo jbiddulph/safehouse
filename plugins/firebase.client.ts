@@ -50,7 +50,7 @@ export default defineNuxtPlugin(async () => {
     
     // Show notification
     if (payload.notification) {
-      const notification = new Notification(payload.notification.title || 'SafeHouse', {
+      const notification = new Notification(payload.notification.title || 'MySafeHouse', {
         body: payload.notification.body,
         icon: '/icon-192x192.png', // Add your app icon
         badge: '/badge-72x72.png', // Add your badge icon

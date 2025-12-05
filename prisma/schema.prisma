@@ -353,7 +353,7 @@ model auth_users {
   @@map("users")
   @@schema("auth")
   
-  // Relations to SafeHouse models
+  // Relations to MySafeHouse models
   granted_access_codes safehouse_access_codes[]
   allowed_domains safehouse_allowed_domains[]
   blocked_domains safehouse_blocked_domains[]
@@ -1885,7 +1885,7 @@ enum one_time_token_type {
   @@schema("auth")
 }
 
-// SafeHouse Property Management Models
+// MySafeHouse Property Management Models
 model safehouse_properties {
   id                      String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user_id                 String   @db.Uuid
