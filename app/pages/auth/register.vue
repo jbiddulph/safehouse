@@ -8,9 +8,9 @@
           <div class="flex items-center space-x-8">
             <div class="flex-shrink-0 flex items-center space-x-3">
               <div class="h-8 w-8 bg-[#ffffff] rounded-lg flex items-center justify-center">
-                <img src="/images/logo.png" alt="MySafeHouse" class="h-full w-full object-cover" />
+                <img src="/images/logo.png" alt="SafeHouse" class="h-full w-full object-cover" />
               </div>
-              <NuxtLink to="/" class="text-2xl font-bold text-white">MySafeHouse</NuxtLink>
+              <NuxtLink to="/" class="text-2xl font-bold text-white">SafeHouse</NuxtLink>
             </div>
             
             <!-- Navigation Menu -->
@@ -55,7 +55,7 @@
         <div class="text-center">
           <h2 class="text-3xl font-bold text-[#03045e] mb-2">Create your account</h2>
           <p class="text-lg text-gray-600">
-            Join MySafeHouse to manage your properties and access requests
+            Join SafeHouse to manage your properties and access requests
           </p>
         </div>
 
@@ -90,6 +90,57 @@
                 </UButton>
               </div>
             </div>
+          </div>
+
+          <!-- Payment Plan Selection -->
+          <div v-if="selectedPlan" class="bg-[#f0f9fb] p-4 rounded-lg border border-[#8ee0ee]">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Selected Payment Plan</label>
+            <select
+              v-model="selectedPlan"
+              class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 bg-white"
+            >
+              <option v-for="option in planOptions" :key="option.value" :value="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+            
+            <!-- Additional Credits (only for premium plan) -->
+            <div v-if="selectedPlan === 'premium'" class="mt-4">
+              <label for="additionalCredits" class="block text-sm font-medium text-gray-700 mb-2">
+                Additional Credits (Optional)
+              </label>
+              <UInput
+                id="additionalCredits"
+                v-model.number="additionalCredits"
+                type="number"
+                min="0"
+                max="10"
+                placeholder="0"
+                class="w-full"
+              />
+              <p class="text-xs text-gray-500 mt-1">£12 per additional credit per year</p>
+            </div>
+
+            <!-- Payment Summary -->
+            <div class="mt-4 pt-4 border-t border-[#8ee0ee]">
+              <div class="flex justify-between items-center">
+                <span class="text-sm font-medium text-gray-700">Base Plan:</span>
+                <span class="text-sm font-semibold text-[#03045e]">£24/year</span>
+              </div>
+              <div v-if="selectedPlan === 'premium' && additionalCredits > 0" class="flex justify-between items-center mt-2">
+                <span class="text-sm font-medium text-gray-700">Additional Credits ({{ additionalCredits }}):</span>
+                <span class="text-sm font-semibold text-[#03045e]">£{{ additionalCredits * 12 }}/year</span>
+              </div>
+              <div class="flex justify-between items-center mt-2 pt-2 border-t border-gray-300">
+                <span class="text-base font-bold text-[#03045e]">Total:</span>
+                <span class="text-lg font-bold text-[#03045e]">£{{ totalPrice }}/year</span>
+              </div>
+            </div>
+          </div>
+          <div v-else class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+            <p class="text-sm text-yellow-800">
+              Please <NuxtLink to="/payments" class="font-medium text-[#03045e] underline">select a payment plan</NuxtLink> first.
+            </p>
           </div>
 
           <!-- Form Fields -->
@@ -176,7 +227,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex items-center justify-center">
           <p class="text-sm text-[#8ee0ee]">
-            Copyright © 2025 MySafeHouse. All rights reserved.
+            Copyright © 2025 SafeHouse. All rights reserved.
           </p>
         </div>
       </div>
@@ -185,6 +236,7 @@
 </template>
 
 <script setup lang="ts">
+const route = useRoute()
 const fullName = ref('')
 const email = ref('')
 const phone = ref('')
@@ -192,12 +244,41 @@ const password = ref('')
 const loading = ref(false)
 const auth = useAuthStore()
 
+// Payment plan state
+const selectedPlan = ref<string | null>(null)
+const additionalCredits = ref(0)
+
 // Avatar upload state
 const avatarFile = ref<File | null>(null)
 const avatarPreview = ref<string | null>(null)
 
+// Plan options
+const planOptions = [
+  { label: 'Basic Plan - £24/year (1 property)', value: 'basic' },
+  { label: 'Premium Plan - £24/year + £12 per additional credit', value: 'premium' }
+]
+
+// Computed total price
+const totalPrice = computed(() => {
+  const basePrice = 24
+  if (selectedPlan.value === 'premium') {
+    return basePrice + (additionalCredits.value * 12)
+  }
+  return basePrice
+})
 
 definePageMeta({ middleware: ['guest-only'] })
+
+// Get plan from query params
+onMounted(() => {
+  const planParam = route.query.plan as string
+  if (planParam === 'basic' || planParam === 'premium') {
+    selectedPlan.value = planParam
+  } else {
+    // Redirect to payments page if no plan selected
+    navigateTo('/payments')
+  }
+})
 
 
 function onAvatarChange(event: Event) {
@@ -237,18 +318,37 @@ function removeAvatar() {
 }
 
 async function onSubmit() {
+  if (!selectedPlan.value) {
+    alert('Please select a payment plan first.')
+    return
+  }
+
   loading.value = true
   try {
-    const result = await auth.signUpWithEmail(email.value, password.value, fullName.value, phone.value, avatarFile.value)
+    const result = await auth.signUpWithEmail(
+      email.value, 
+      password.value, 
+      fullName.value, 
+      phone.value, 
+      avatarFile.value,
+      selectedPlan.value,
+      additionalCredits.value
+    )
     if (result.user) {
       // Check if user needs email confirmation
       if (result.user.email_confirmed_at) {
-        // User is already confirmed, redirect to dashboard
-        alert('Registration successful! You are now logged in.')
-        await navigateTo('/dashboard')
+        // User is already confirmed, redirect to Stripe checkout
+        await navigateToStripeCheckout(result.user.id)
       } else {
-        // User needs email confirmation
-        alert('Registration successful! Please check your email and click the confirmation link before logging in.')
+        // User needs email confirmation - store subscription info in session/localStorage
+        if (process.client) {
+          localStorage.setItem('pending_subscription', JSON.stringify({
+            plan: selectedPlan.value,
+            additionalCredits: additionalCredits.value,
+            userId: result.user.id
+          }))
+        }
+        alert('Registration successful! Please check your email and click the confirmation link. You will be redirected to payment after confirming your email.')
         await navigateTo('/auth/login')
       }
     }
@@ -261,6 +361,29 @@ async function onSubmit() {
     }
   } finally {
     loading.value = false
+  }
+}
+
+async function navigateToStripeCheckout(userId: string) {
+  try {
+    const response = await $fetch('/api/stripe/create-checkout-session', {
+      method: 'POST',
+      body: {
+        userId,
+        subscriptionType: selectedPlan.value,
+        additionalCredits: additionalCredits.value || 0,
+        totalAmount: totalPrice.value
+      }
+    })
+    
+    if (response.checkoutUrl) {
+      window.location.href = response.checkoutUrl
+    } else {
+      throw new Error('Failed to create checkout session')
+    }
+  } catch (error: any) {
+    console.error('Stripe checkout error:', error)
+    alert('Failed to redirect to payment page. Please try again or contact support.')
   }
 }
 </script>

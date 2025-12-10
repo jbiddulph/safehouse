@@ -353,7 +353,7 @@ model auth_users {
   @@map("users")
   @@schema("auth")
   
-  // Relations to MySafeHouse models
+  // Relations to SafeHouse models
   granted_access_codes safehouse_access_codes[]
   allowed_domains safehouse_allowed_domains[]
   blocked_domains safehouse_blocked_domains[]
@@ -958,16 +958,22 @@ model profiles {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model safehouse_profiles {
-  id         String     @id @db.Uuid
-  email      String?    @unique
-  full_name  String?
-  phone      String?    // Mobile phone number
-  avatar_url String?
-  fcm_token  String?    // Firebase Cloud Messaging token for push notifications
-  role       String     @default("standard") // User role: "standard" or "admin"
-  created_at DateTime   @default(now()) @db.Timestamptz(6)
-  updated_at DateTime   @default(now()) @db.Timestamptz(6)
-  users      auth_users @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  id                    String     @id @db.Uuid
+  email                 String?    @unique
+  full_name             String?
+  phone                 String?    // Mobile phone number
+  avatar_url            String?
+  fcm_token             String?    // Firebase Cloud Messaging token for push notifications
+  role                  String     @default("standard") // User role: "standard" or "admin"
+  subscription_type     String?    @default("basic") @db.VarChar(50) // "basic" or "premium"
+  stripe_customer_id    String?    @db.VarChar(255)
+  stripe_subscription_id String?   @db.VarChar(255)
+  subscription_ends_at  DateTime?  @db.Timestamptz(6)
+  subscription_status   String?    @default("inactive") @db.VarChar(50) // "active", "inactive", "cancelled", "past_due"
+  additional_credits    Int?       @default(0) // Number of additional property credits
+  created_at            DateTime   @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime   @default(now()) @db.Timestamptz(6)
+  users                 auth_users @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([role])
   @@schema("public")
@@ -1885,7 +1891,7 @@ enum one_time_token_type {
   @@schema("auth")
 }
 
-// MySafeHouse Property Management Models
+// SafeHouse Property Management Models
 model safehouse_properties {
   id                      String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user_id                 String   @db.Uuid

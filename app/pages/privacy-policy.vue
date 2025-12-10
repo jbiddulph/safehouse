@@ -8,9 +8,9 @@
           <div class="flex items-center space-x-8">
             <div class="flex-shrink-0 flex items-center space-x-3">
               <div class="h-8 w-8 bg-[#ffffff] rounded-lg flex items-center justify-center">
-                <img src="/images/logo.png" alt="MySafeHouse" class="h-full w-full object-cover" />
+                <img src="/images/logo.png" alt="SafeHouse" class="h-full w-full object-cover" />
               </div>
-              <NuxtLink to="/" class="text-2xl font-bold text-white">MySafeHouse</NuxtLink>
+              <NuxtLink to="/" class="text-2xl font-bold text-white">SafeHouse</NuxtLink>
             </div>
             
             <!-- Navigation Menu -->
@@ -68,7 +68,7 @@
           
           <h2 class="text-2xl font-semibold text-[#03045e] mt-8 mb-4">Introduction</h2>
           <p class="text-gray-700 mb-4">
-            MySafeHouse ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy 
+            SafeHouse ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy 
             explains how we collect, use, disclose, and safeguard your information when you use our platform.
           </p>
           
@@ -118,7 +118,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex items-center justify-center">
           <p class="text-sm text-[#8ee0ee]">
-            Copyright © 2025 MySafeHouse. All rights reserved.
+            Copyright © 2025 SafeHouse. All rights reserved.
           </p>
         </div>
       </div>

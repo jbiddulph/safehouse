@@ -31,7 +31,15 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  async function signUpWithEmail(email: string, password: string, fullName?: string, phone?: string, avatarFile?: File) {
+  async function signUpWithEmail(
+    email: string, 
+    password: string, 
+    fullName?: string, 
+    phone?: string, 
+    avatarFile?: File,
+    subscriptionType?: string,
+    additionalCredits?: number
+  ) {
     try {
       const { data, error } = await client.auth.signUp({ 
         email, 
@@ -54,6 +62,12 @@ export const useAuthStore = defineStore('auth', () => {
           }
           if (avatarFile) {
             formData.append('avatarFile', avatarFile)
+          }
+          if (subscriptionType) {
+            formData.append('subscriptionType', subscriptionType)
+          }
+          if (additionalCredits !== undefined) {
+            formData.append('additionalCredits', additionalCredits.toString())
           }
 
           await $fetch('/api/auth/create-profile', {

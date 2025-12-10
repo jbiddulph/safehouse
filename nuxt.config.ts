@@ -33,12 +33,14 @@ export default defineNuxtConfig({
     firebaseServiceAccountKey: process.env.FIREBASE_SERVICE_ACCOUNT_KEY,
     firebaseProjectId: process.env.FIREBASE_PROJECT_ID,
     googleApiKey: process.env.GOOGLE_API,
+    stripeSecretKey: process.env.STRIPE_SECRET_KEY,
     public: {
       baseUrl: process.env.BASE_URL || process.env.NETLIFY_URL || 'https://safehouse2025.netlify.app',
       supabaseUrl: process.env.SUPABASE_URL,
       supabaseKey: process.env.SUPABASE_ANON_KEY,
       googleApiKey: process.env.GOOGLE_API,
       mapboxApiKey: process.env.MAPBOX_API,
+      stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
       firebaseConfig: {
         apiKey: process.env.FIREBASE_API_KEY,
         authDomain: process.env.FIREBASE_AUTH_DOMAIN,

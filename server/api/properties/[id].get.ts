@@ -39,7 +39,6 @@ export default defineEventHandler(async (event) => {
         emergency_access_enabled,
         latitude,
         longitude,
-        photo_url,
         created_at,
         updated_at
       `)

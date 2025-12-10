@@ -7,6 +7,9 @@ export default defineEventHandler(async (event) => {
   const email = formData.get('email') as string
   const phone = formData.get('phone') as string
   const avatarFile = formData.get('avatarFile') as File
+  const subscriptionType = formData.get('subscriptionType') as string | null
+  const additionalCreditsStr = formData.get('additionalCredits') as string | null
+  const additionalCredits = additionalCreditsStr ? parseInt(additionalCreditsStr, 10) : 0
 
   if (!userId || !fullName || !email) {
     throw createError({
@@ -62,17 +65,29 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
+    // Prepare profile data
+    const profileData: any = {
+      id: userId,
+      full_name: fullName,
+      email: email,
+      phone: phone,
+      avatar_url: avatarUrl,
+      role: 'standard' // Default role for new users
+    }
+
+    // Add subscription fields if provided
+    if (subscriptionType) {
+      profileData.subscription_type = subscriptionType
+      profileData.subscription_status = 'pending' // Will be updated after payment
+    }
+    if (additionalCredits !== undefined && additionalCredits > 0) {
+      profileData.additional_credits = additionalCredits
+    }
+
     // First try to insert, if it fails due to duplicate key, update instead
     const { data, error } = await supabase
       .from('safehouse_profiles')
-      .insert({
-        id: userId,
-        full_name: fullName,
-        email: email,
-        phone: phone,
-        avatar_url: avatarUrl,
-        role: 'standard' // Default role for new users
-      })
+      .insert(profileData)
       .select()
       .single()
 
@@ -80,15 +95,26 @@ export default defineEventHandler(async (event) => {
       // If it's a duplicate key error, try to update instead
       if (error.code === '23505') {
         console.log('Profile already exists, updating instead...')
-        const { data: updateData, error: updateError } = await supabase
+        const updateData: any = {
+          full_name: fullName,
+          email: email,
+          phone: phone,
+          avatar_url: avatarUrl,
+          role: 'standard' // Ensure role is set on update too
+        }
+
+        // Update subscription fields if provided
+        if (subscriptionType) {
+          updateData.subscription_type = subscriptionType
+          updateData.subscription_status = 'pending'
+        }
+        if (additionalCredits !== undefined && additionalCredits > 0) {
+          updateData.additional_credits = additionalCredits
+        }
+
+        const { data: updateDataResult, error: updateError } = await supabase
           .from('safehouse_profiles')
-          .update({
-            full_name: fullName,
-            email: email,
-            phone: phone,
-            avatar_url: avatarUrl,
-            role: 'standard' // Ensure role is set on update too
-          })
+          .update(updateData)
           .eq('id', userId)
           .select()
           .single()
@@ -101,7 +127,7 @@ export default defineEventHandler(async (event) => {
           })
         }
 
-        return { success: true, profile: updateData, action: 'updated' }
+        return { success: true, profile: updateDataResult, action: 'updated' }
       } else {
         console.error('Profile creation error:', error)
         throw createError({

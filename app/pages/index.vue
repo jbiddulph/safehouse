@@ -8,9 +8,9 @@
           <div class="flex items-center space-x-8">
             <div class="flex-shrink-0 flex items-center space-x-3">
               <div class="h-8 w-8 bg-[#ffffff] rounded-lg flex items-center justify-center">
-                <img src="/images/logo.png" alt="MySafeHouse" class="h-full w-full object-cover" />
+                <img src="/images/logo.png" alt="SafeHouse" class="h-full w-full object-cover" />
               </div>
-              <h1 class="text-2xl font-bold text-white">MySafeHouse</h1>
+              <h1 class="text-2xl font-bold text-white">SafeHouse</h1>
             </div>
             
             <!-- Navigation Menu -->
@@ -89,7 +89,7 @@
       <div class="absolute inset-0 z-50 flex items-center justify-center h-full py-12 px-4 sm:px-6 lg:px-8 pointer-events-auto">
         <div class="w-full max-w-2xl">
           <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-[#03045e] mb-4">MySafeHouse</h1>
+            <h1 class="text-4xl font-bold text-[#03045e] mb-4">SafeHouse</h1>
             <p class="text-lg text-gray-600 mb-4">
               Enter an address to find properties or request emergency access
             </p>
@@ -109,7 +109,7 @@
                   id="address-input"
                   v-model="addressQuery"
                   type="text"
-                  placeholder="Start typing a UK address..."
+                  placeholder="Start typing an address..."
                   class="w-full px-4 pr-14 py-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]"
                   @input="handleAddressInput"
                   @keydown.down="navigateSuggestions('down')"
@@ -134,6 +134,34 @@
                 </div>
               </div>
 
+              <!-- Recent Searches -->
+              <div 
+                v-if="showRecentSearches && recentSearches.length > 0 && (!addressQuery || addressQuery.length === 0)" 
+                class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+              >
+                <div class="px-4 py-2 bg-gray-50 border-b border-gray-200 text-sm font-medium text-gray-700">
+                  Recent Searches
+                </div>
+                <div
+                  v-for="(search, index) in recentSearches"
+                  :key="`recent-${index}`"
+                  class="px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0 hover:bg-gray-50"
+                  @click="selectRecentSearch(search)"
+                >
+                  <div class="font-medium">{{ search.formatted_address }}</div>
+                  <div v-if="search.postcode" class="text-sm text-gray-500">
+                    {{ search.postcode }}
+                    <span v-if="search.city"> • {{ search.city }}</span>
+                    <span v-if="search.house_number" class="text-[#8ee0ee] font-medium">
+                      • House #{{ search.house_number }}
+                    </span>
+                  </div>
+                  <div class="text-xs text-gray-400 mt-1">
+                    Searched {{ formatSearchTime(search.timestamp) }}
+                  </div>
+                </div>
+              </div>
+
               <!-- Address Suggestions -->
               <div 
                 v-if="showSuggestions && suggestions.length > 0" 
@@ -150,70 +178,32 @@
                   @mouseenter="selectedIndex = index"
                 >
                   <div class="font-medium">{{ suggestion.formatted_address }}</div>
-                  <div v-if="suggestion.property_name" class="text-sm text-[#8ee0ee] font-medium">
-                    {{ suggestion.property_name }}
+                  <div v-if="suggestion.postcode" class="text-sm text-gray-500">
+                    {{ suggestion.postcode }}
+                    <span v-if="suggestion.city"> • {{ suggestion.city }}</span>
+                    <span v-if="suggestion.house_number" class="text-[#8ee0ee] font-medium">
+                      • House #{{ suggestion.house_number }}
+                    </span>
                   </div>
-                  <div v-if="suggestion.postcode || suggestion.city" class="text-sm text-gray-500">
-                    <span v-if="suggestion.postcode">{{ suggestion.postcode }}</span>
-                    <span v-if="suggestion.postcode && suggestion.city"> • </span>
-                    <span v-if="suggestion.city">{{ suggestion.city }}</span>
-                    <span v-if="!suggestion.property_name" class="ml-2 text-xs text-gray-400">UK Address</span>
+                  <div v-else-if="suggestion.types" class="text-sm text-gray-500">
+                    {{ suggestion.types?.join(', ') }}
                   </div>
                 </div>
               </div>
 
               <!-- No results message -->
               <div 
-                v-if="showSuggestions && suggestions.length === 0 && addressQuery && addressQuery.length >= 2 && !loading"
+                v-if="showSuggestions && suggestions.length === 0 && addressQuery && addressQuery.length > 2 && !loading"
                 class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg p-4 text-center text-gray-500"
               >
-                No UK addresses found. Try a different search term.
+                No addresses found. Try a different search term.
               </div>
             </div>
 
             <!-- Selected Address Display -->
-            <div 
-              v-if="selectedAddress" 
-              @click="handleSelectedAddressClick"
-              :class="[
-                'mt-4 p-4 border rounded-lg transition-all',
-                (nearbyProperty || (selectedAddress?.id && !selectedAddress?.id.startsWith('ChIJ')))
-                  ? 'bg-[#f0f9fb] border-[#8ee0ee] cursor-pointer hover:bg-[#e0f2f5] hover:shadow-md' 
-                  : 'bg-[#f0f9fb] border-[#8ee0ee]'
-              ]"
-            >
-              <div class="flex items-start justify-between">
-                <div class="flex-1">
-                  <h3 class="font-medium text-[#03045e] mb-1">
-                    {{ selectedAddress?.property_name ? 'Selected Property:' : 'Selected Address:' }}
-                    <span v-if="nearbyProperty || (selectedAddress?.id && !selectedAddress?.id.startsWith('ChIJ'))" class="text-xs text-[#8ee0ee] font-normal ml-2">(Click to view property)</span>
-                  </h3>
-                  <p v-if="selectedAddress?.property_name" class="text-[#03045e] font-semibold">{{ selectedAddress?.property_name }}</p>
-                  <p class="text-[#03045e] text-sm">{{ selectedAddress?.formatted_address || '' }}</p>
-                  <p v-if="selectedAddress?.postcode || selectedAddress?.city" class="text-[#03045e] text-xs mt-1">
-                    {{ [selectedAddress?.postcode, selectedAddress?.city].filter(Boolean).join(', ') }}
-                  </p>
-                </div>
-                <div v-if="nearbyProperty || (selectedAddress?.id && !selectedAddress?.id.startsWith('ChIJ'))" class="ml-3">
-                  <Icon name="mdi:arrow-right" class="h-5 w-5 text-[#8ee0ee]" />
-                </div>
-              </div>
-              
-              <!-- Nearby Property Suggestion -->
-              <div v-if="checkingNearby" class="mt-3 pt-3 border-t border-[#8ee0ee]/30">
-                <p class="text-xs text-gray-500">Checking for nearby properties...</p>
-              </div>
-              
-              <div v-else-if="nearbyProperty" class="mt-3 pt-3 border-t border-[#8ee0ee]/30">
-                <div class="flex items-start justify-between">
-                  <div class="flex-1">
-                    <p class="text-xs text-[#8ee0ee] font-medium mb-1">✓ Property Found Nearby</p>
-                    <p class="text-sm font-semibold text-[#03045e]">{{ nearbyProperty.property_name }}</p>
-                    <p class="text-xs text-gray-600">{{ nearbyProperty.address }}, {{ nearbyProperty.city }}</p>
-                    <p class="text-xs text-gray-500 mt-1">Approx. {{ nearbyProperty.distance }}m away</p>
-                  </div>
-                </div>
-              </div>
+            <div v-if="selectedAddress && addressExistsInDatabase" class="mt-4 p-4 bg-[#f0f9fb] border border-[#8ee0ee] rounded-lg">
+              <h3 class="font-medium text-[#03045e] mb-1">Search Address:</h3>
+              <p class="text-[#03045e]">{{ selectedAddress?.formatted_address || '' }}</p>
             </div>
           </div>
         </div>
@@ -226,7 +216,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex items-center justify-center">
           <p class="text-sm text-[#8ee0ee]">
-            Copyright © 2025 MySafeHouse. All rights reserved.
+            Copyright © 2025 SafeHouse. All rights reserved.
           </p>
         </div>
       </div>
@@ -239,35 +229,22 @@ definePageMeta({
   layout: false
 })
 
-// Type definitions
-interface PropertySuggestion {
-  id: string
-  formatted_address: string
-  address: string
-  city: string
-  state: string
-  postcode: string
-  country: string
-  property_name: string
-  lat: string | null
-  lon: string | null
-}
-
 // Reactive data
 const addressQuery = ref('')
-const suggestions = ref<PropertySuggestion[]>([])
+const suggestions = ref([])
 const showMobileMenu = ref(false)
-const selectedAddress = ref<PropertySuggestion | null>(null)
+const selectedAddress = ref(null)
+const addressExistsInDatabase = ref(false)
 const selectedIndex = ref(-1)
 const showSuggestions = ref(false)
 const loading = ref(false)
 const searching = ref(false)
-const nearbyProperty = ref<any>(null)
-const checkingNearby = ref(false)
+const recentSearches = ref([])
 
 // Background map for homepage
 const backgroundMapContainer = ref<HTMLElement | null>(null)
 const backgroundMap = ref<any>(null)
+const showRecentSearches = ref(false)
 const isLoggedIn = ref(false)
 const userEmail = ref('')
 
@@ -276,18 +253,22 @@ let debounceTimer: NodeJS.Timeout | null = null
 
 // Handle address input with debouncing
 function handleAddressInput() {
+  // Reset address existence flag when user types
+  addressExistsInDatabase.value = false
   selectedAddress.value = null
-  nearbyProperty.value = null // Clear nearby property when user types
   
   if (debounceTimer) {
     clearTimeout(debounceTimer)
   }
   
-  if (!addressQuery.value || addressQuery.value.length < 2) {
+  if (!addressQuery.value || addressQuery.value.length < 3) {
     suggestions.value = []
     showSuggestions.value = false
+    showRecentSearches.value = false
     return
   }
+  
+  showRecentSearches.value = false
   
   debounceTimer = setTimeout(async () => {
     await fetchAddressSuggestions()
@@ -296,14 +277,16 @@ function handleAddressInput() {
 
 // Handle input focus
 function handleInputFocus() {
-  if (addressQuery.value && addressQuery.value.length >= 2 && suggestions.value.length > 0) {
+  if ((!addressQuery.value || addressQuery.value.length === 0) && recentSearches.value.length > 0) {
+    showRecentSearches.value = true
+  } else if (addressQuery.value && addressQuery.value.length >= 3) {
     showSuggestions.value = true
   }
 }
 
-// Fetch UK address suggestions from Google Places API
+// Fetch address suggestions from server-side API
 async function fetchAddressSuggestions() {
-  if (!addressQuery.value || addressQuery.value.length < 2) return
+  if (!addressQuery.value || addressQuery.value.length < 3) return
   
   loading.value = true
   try {
@@ -314,31 +297,17 @@ async function fetchAddressSuggestions() {
     })
     
     if (response.success && response.suggestions) {
-      // Map the response to match the expected format
-      suggestions.value = response.suggestions.map((suggestion: any) => ({
-        id: suggestion.place_id || null, // Use place_id as temporary ID
-        formatted_address: suggestion.formatted_address || suggestion.address,
-        address: suggestion.address || suggestion.formatted_address,
-        city: suggestion.city || '',
-        state: suggestion.state || '',
-        postcode: suggestion.postcode || '',
-        country: suggestion.country || 'GB',
-        property_name: null, // Not a property, just an address
-        lat: suggestion.lat,
-        lon: suggestion.lon
-      }))
-      showSuggestions.value = true
+      suggestions.value = response.suggestions
     } else {
       console.error('Address autocomplete error:', response.message)
       suggestions.value = []
-      showSuggestions.value = false
     }
     
+    showSuggestions.value = true
     selectedIndex.value = -1
   } catch (error) {
-    console.error('Error fetching UK address suggestions:', error)
+    console.error('Error fetching address suggestions:', error)
     suggestions.value = []
-    showSuggestions.value = false
   } finally {
     loading.value = false
   }
@@ -357,16 +326,18 @@ function navigateSuggestions(direction: 'up' | 'down') {
 
 // Select a suggestion
 async function selectSuggestion(suggestion?: any) {
-  let selected: any = null
+  let addressToSelect = null
   
   if (suggestion) {
-    selected = suggestion
+    addressToSelect = suggestion
     selectedAddress.value = suggestion
     addressQuery.value = suggestion.formatted_address || ''
+    addToRecentSearches(suggestion)
   } else if (selectedIndex.value >= 0 && suggestions.value[selectedIndex.value]) {
-    selected = suggestions.value[selectedIndex.value]
-    selectedAddress.value = selected
-    addressQuery.value = selected?.formatted_address || ''
+    addressToSelect = suggestions.value[selectedIndex.value]
+    selectedAddress.value = suggestions.value[selectedIndex.value]
+    addressQuery.value = suggestions.value[selectedIndex.value]?.formatted_address || ''
+    addToRecentSearches(suggestions.value[selectedIndex.value])
   } else {
     // If Enter is pressed but no suggestion is selected, trigger search with current input
     if (addressQuery.value && addressQuery.value.trim()) {
@@ -375,86 +346,82 @@ async function selectSuggestion(suggestion?: any) {
     }
   }
   
+  // Check if the selected address exists in the database
+  if (addressToSelect) {
+    await checkAddressExists(addressToSelect)
+  }
+  
   showSuggestions.value = false
+  showRecentSearches.value = false
   selectedIndex.value = -1
-  
-  // Check for nearby properties if this is a UK address with coordinates
-  if (selected && selected.lat && selected.lon && selected.id && selected.id.startsWith('ChIJ')) {
-    await checkForNearbyProperty(parseFloat(selected.lat), parseFloat(selected.lon))
-  } else {
-    nearbyProperty.value = null
-  }
 }
 
-// Check for nearby properties in the database
-async function checkForNearbyProperty(lat: number, lon: number) {
-  if (!lat || !lon || isNaN(lat) || isNaN(lon)) {
-    nearbyProperty.value = null
-    return
-  }
+// Select a recent search
+async function selectRecentSearch(search: any) {
+  if (!search) return
+  selectedAddress.value = search
+  addressQuery.value = search?.formatted_address || ''
   
-  checkingNearby.value = true
-  try {
-    const response = await $fetch('/api/properties/nearby', {
-      query: {
-        lat: lat.toString(),
-        lon: lon.toString(),
-        radius: '100' // 100 meters radius
-      }
-    })
-    
-    if (response.success && response.properties && response.properties.length > 0) {
-      // Get the closest property
-      nearbyProperty.value = response.properties[0]
-    } else {
-      nearbyProperty.value = null
-    }
-  } catch (error) {
-    console.error('Error checking for nearby properties:', error)
-    nearbyProperty.value = null
-  } finally {
-    checkingNearby.value = false
-  }
-}
-
-// Handle click on selected address card
-function handleSelectedAddressClick() {
-  // If there's a nearby property, navigate to it
-  if (nearbyProperty && nearbyProperty.id) {
-    navigateTo(`/property/${nearbyProperty.id}`)
-    return
-  }
+  // Check if the selected address exists in the database
+  await checkAddressExists(search)
   
-  // If the selected address is already a property (has an id that's not a Google place_id), navigate to it
-  if (selectedAddress.value && selectedAddress.value.id && !selectedAddress.value.id.startsWith('ChIJ')) {
-    navigateTo(`/property/${selectedAddress.value.id}`)
-    return
-  }
+  showRecentSearches.value = false
+  showSuggestions.value = false
 }
 
 // Hide suggestions
 function hideSuggestions() {
   setTimeout(() => {
     showSuggestions.value = false
+    showRecentSearches.value = false
   }, 200)
+}
+
+// Check if an address exists in the database
+async function checkAddressExists(address: any) {
+  if (!address) {
+    addressExistsInDatabase.value = false
+    return
+  }
+  
+  try {
+    const addressData = {
+      formatted_address: address.formatted_address || '',
+      city: address.city || '',
+      state: address.state || '',
+      postcode: address.postcode || '',
+      country: address.country || 'GB'
+    }
+    
+    const searchParams = {
+      address: addressData.formatted_address || '',
+      city: addressData.city || '',
+      state: addressData.state || '',
+      postal_code: addressData.postcode || '',
+      country: addressData.country || 'GB'
+    }
+    
+    const response = await $fetch('/api/properties/search', {
+      query: searchParams
+    })
+    
+    // Set addressExistsInDatabase based on whether properties were found
+    addressExistsInDatabase.value = response.success && response.properties && response.properties.length > 0
+  } catch (error) {
+    console.error('Error checking if address exists:', error)
+    addressExistsInDatabase.value = false
+  }
 }
 
 // Search for properties at the selected address
 async function searchProperties() {
   if (!addressQuery.value || !addressQuery.value.trim()) return
   
-  // If a suggestion is selected and it's a property (has an id that's not a place_id), navigate directly
-  if (selectedAddress.value && selectedAddress.value.id && !selectedAddress.value.id.startsWith('ChIJ')) {
-    await navigateTo(`/property/${selectedAddress.value.id}`)
-    return
-  }
-  
   searching.value = true
   try {
     // Use selectedAddress if available, otherwise create from input text
     const addressData = selectedAddress.value || {
       formatted_address: (addressQuery.value || '').trim(),
-      address: (addressQuery.value || '').trim(),
       city: '',
       state: '',
       postcode: '',
@@ -463,22 +430,28 @@ async function searchProperties() {
     
     // Ensure formatted_address is not empty
     if (!addressData.formatted_address || !addressData.formatted_address.trim()) {
-      alert('Please select an address from the suggestions or enter a valid UK address')
+      alert('Please enter a valid address')
       searching.value = false
       return
     }
     
     const searchParams = {
-      address: addressData.address || addressData.formatted_address || '',
+      address: addressData.formatted_address || '',
       city: addressData.city || '',
       state: addressData.state || '',
       postal_code: addressData.postcode || '',
       country: addressData.country || 'GB' // Default to UK
     }
 
+    console.log('Searching properties with params:', searchParams)
+    console.log('Calling API URL:', '/api/properties/search')
+    console.log('Query params:', searchParams)
+
     const response = await $fetch('/api/properties/search', {
       query: searchParams
     })
+
+    console.log('Search response:', response)
     
     if (response.success && response.properties) {
       if (response.properties.length > 0) {
@@ -492,8 +465,14 @@ async function searchProperties() {
       console.error('Property search error:', response)
       alert('Failed to search properties: ' + (response.message || 'Unknown error'))
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error searching properties:', error)
+    console.error('Error details:', {
+      message: error.message,
+      status: error.status,
+      statusText: error.statusText,
+      data: error.data
+    })
     alert('Failed to search properties: ' + (error.message || 'Network error'))
   } finally {
     searching.value = false
@@ -569,7 +548,7 @@ function showNoPropertiesFound() {
       </div>
       <h2 class="text-xl font-bold text-gray-900 mb-2">No Properties Found</h2>
       <p class="text-gray-600 mb-6">
-        No MySafeHouse properties were found at this address. 
+        No SafeHouse properties were found at this address. 
         The property may not be registered in our system yet.
       </p>
       <div class="space-y-3">
@@ -586,6 +565,62 @@ function showNoPropertiesFound() {
   document.body.appendChild(modal)
 }
 
+// Add to recent searches
+function addToRecentSearches(address: any) {
+  const searchEntry = {
+    ...address,
+    timestamp: Date.now()
+  }
+  
+  // Remove if already exists
+  recentSearches.value = recentSearches.value.filter(
+    search => search.formatted_address !== address.formatted_address
+  )
+  
+  // Add to beginning
+  recentSearches.value.unshift(searchEntry)
+  
+  // Keep only last 10
+  recentSearches.value = recentSearches.value.slice(0, 10)
+  
+  // Save to localStorage
+  if (process.client) {
+    localStorage.setItem('safehouse_recent_searches', JSON.stringify(recentSearches.value))
+  }
+}
+
+// Format search time
+function formatSearchTime(timestamp: number) {
+  const now = Date.now()
+  const diff = now - timestamp
+  
+  if (diff < 60000) { // Less than 1 minute
+    return 'just now'
+  } else if (diff < 3600000) { // Less than 1 hour
+    const minutes = Math.floor(diff / 60000)
+    return `${minutes} minute${minutes > 1 ? 's' : ''} ago`
+  } else if (diff < 86400000) { // Less than 1 day
+    const hours = Math.floor(diff / 3600000)
+    return `${hours} hour${hours > 1 ? 's' : ''} ago`
+  } else {
+    const days = Math.floor(diff / 86400000)
+    return `${days} day${days > 1 ? 's' : ''} ago`
+  }
+}
+
+// Load recent searches from localStorage
+function loadRecentSearches() {
+  if (process.client) {
+    try {
+      const stored = localStorage.getItem('safehouse_recent_searches')
+      if (stored) {
+        recentSearches.value = JSON.parse(stored)
+      }
+    } catch (error) {
+      console.error('Error loading recent searches:', error)
+    }
+  }
+}
 
 // Check authentication status
 async function checkAuthStatus() {
@@ -769,8 +804,9 @@ function initBackgroundMap() {
   })
 }
 
-// Initialize auth status
+// Initialize recent searches and auth status
 onMounted(() => {
+  loadRecentSearches()
   checkAuthStatus()
   
   // Initialize background map

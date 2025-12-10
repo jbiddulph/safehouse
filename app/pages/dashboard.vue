@@ -3,7 +3,7 @@
     <!-- Top Navigation -->
     <nav class="bg-[#03045e] shadow-lg border-b border-[#03045e]">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
+        <div class="flex justify-between h-16">
           <!-- Logo and Title -->
           <div class="flex items-center space-x-8">
             <div class="flex-shrink-0 flex items-center space-x-3">
@@ -11,9 +11,9 @@
                 <!-- <svg class="h-5 w-5 text-[#03045e]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg> -->
-                <img src="/images/logo.png" alt="MySafeHouse" class="h-full w-full object-cover" />
+                <img src="/images/logo.png" alt="SafeHouse" class="h-full w-full object-cover" />
               </div>
-              <h1 class="text-2xl font-bold text-white">MySafeHouse</h1>
+              <h1 class="text-2xl font-bold text-white">SafeHouse</h1>
             </div>
             
             <!-- Navigation Menu -->
@@ -30,66 +30,61 @@
               <NuxtLink to="/terms" class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors">
                 Terms & Conditions
               </NuxtLink>
+              
+              <!-- Notification Bell (Admin Only) -->
+              <button v-if="profile?.role === 'admin'" class="relative p-2 text-[#8ee0ee] hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee] rounded-full hover:bg-[#03045e]/50">
+                <Icon name="mdi:bell" class="h-6 w-6" />
+                <!-- Notification Badge -->
+                <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400 ring-2 ring-white"></span>
+              </button>
+
+              <!-- Profile Dropdown -->
+              <div class="relative">
+                <button @click="showProfileMenu = !showProfileMenu" class="flex items-center space-x-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee] hover:bg-[#03045e]/50 px-3 py-2 transition-colors duration-200">
+                  <div v-if="profile?.avatar_url" class="h-8 w-8 rounded-full overflow-hidden border-2 border-[#8ee0ee] shadow-sm">
+                    <img :src="avatarUrl" alt="Profile" class="h-full w-full object-cover" />
+                  </div>
+                  <div v-else class="h-8 w-8 rounded-full bg-[#f0f9fb] flex items-center justify-center border-2 border-[#8ee0ee] shadow-sm">
+                    <Icon name="mdi:account" class="h-5 w-5 text-[#03045e]" />
+                  </div>
+                  <span class="text-sm font-medium text-white">{{ profile?.full_name || auth.user?.value?.email || 'User' }}</span>
+                  <Icon name="mdi:chevron-down" class="h-4 w-4 text-[#8ee0ee]" />
+                </button>
+
+                <!-- Dropdown Menu -->
+                <div v-if="showProfileMenu" @click.away="showProfileMenu = false" class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                  <div class="px-4 py-2 border-b border-gray-100">
+                    <div class="text-sm font-medium text-gray-900">{{ profile?.full_name || 'User' }}</div>
+                    <div class="text-xs text-gray-500">{{ auth.user?.value?.email }}</div>
+                  </div>
+                  <NuxtLink to="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <div class="flex items-center">
+                      <Icon name="mdi:account" class="h-4 w-4 mr-2" />
+                      Profile Settings
+                    </div>
+                  </NuxtLink>
+                  <NuxtLink to="/access-requests" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <div class="flex items-center">
+                      <Icon name="mdi:file-document" class="h-4 w-4 mr-2" />
+                      Access Requests
+                    </div>
+                  </NuxtLink>
+                  <button @click="onLogout" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <div class="flex items-center">
+                      <Icon name="mdi:logout" class="h-4 w-4 mr-2" />
+                      Sign out
+                    </div>
+                  </button>
+                </div>
+              </div>
             </nav>
           </div>
 
-          <!-- Right Side: Profile Dropdown + Mobile Menu Button -->
-          <div class="flex items-center space-x-3">
-            <!-- Profile Dropdown (desktop) -->
-            <div class="relative hidden md:block">
-              <button
-                @click="showProfileMenu = !showProfileMenu"
-                class="flex items-center space-x-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee] hover:bg-[#03045e]/50 px-3 py-2 transition-colors duration-200"
-              >
-                <div v-if="profile?.avatar_url" class="h-8 w-8 rounded-full overflow-hidden border-2 border-[#8ee0ee] shadow-sm">
-                  <img :src="avatarUrl" alt="Profile" class="h-full w-full object-cover" />
-                </div>
-                <div v-else class="h-8 w-8 rounded-full bg-[#f0f9fb] flex items-center justify-center border-2 border-[#8ee0ee] shadow-sm">
-                  <Icon name="mdi:account" class="h-5 w-5 text-[#03045e]" />
-                </div>
-                <span class="text-sm font-medium text-white">
-                  {{ profile?.full_name || auth.user?.value?.email || 'User' }}
-                </span>
-                <Icon name="mdi:chevron-down" class="h-4 w-4 text-[#8ee0ee]" />
-              </button>
-
-              <!-- Dropdown Menu -->
-              <div
-                v-if="showProfileMenu"
-                @click.away="showProfileMenu = false"
-                class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200"
-              >
-                <div class="px-4 py-2 border-b border-gray-100">
-                  <div class="text-sm font-medium text-gray-900">{{ profile?.full_name || 'User' }}</div>
-                  <div class="text-xs text-gray-500">{{ auth.user?.value?.email }}</div>
-                </div>
-                <NuxtLink to="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                  <div class="flex items-center">
-                    <Icon name="mdi:account" class="h-4 w-4 mr-2" />
-                    Profile Settings
-                  </div>
-                </NuxtLink>
-                <NuxtLink to="/access-requests" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                  <div class="flex items-center">
-                    <Icon name="mdi:file-document" class="h-4 w-4 mr-2" />
-                    Access Requests
-                  </div>
-                </NuxtLink>
-                <button @click="onLogout" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                  <div class="flex items-center">
-                    <Icon name="mdi:logout" class="h-4 w-4 mr-2" />
-                    Sign out
-                  </div>
-                </button>
-              </div>
-            </div>
-
-            <!-- Mobile Menu Button -->
-            <div class="md:hidden">
-              <button @click="showMobileMenu = !showMobileMenu" class="text-[#8ee0ee] hover:text-white focus:outline-none">
-                <Icon :name="showMobileMenu ? 'mdi:close' : 'mdi:menu'" class="h-6 w-6" />
-              </button>
-            </div>
+          <!-- Mobile Menu Button -->
+          <div class="md:hidden">
+            <button @click="showMobileMenu = !showMobileMenu" class="text-[#8ee0ee] hover:text-white focus:outline-none">
+              <Icon :name="showMobileMenu ? 'mdi:close' : 'mdi:menu'" class="h-6 w-6" />
+            </button>
           </div>
         </div>
       </div>
@@ -109,6 +104,14 @@
           <NuxtLink to="/terms" class="block text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors" @click="showMobileMenu = false">
             Terms & Conditions
           </NuxtLink>
+          
+          <!-- Notification Bell (Admin Only) -->
+          <button v-if="profile?.role === 'admin'" class="block w-full text-left px-4 py-2 text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors">
+            <div class="flex items-center">
+              <Icon name="mdi:bell" class="h-5 w-5 mr-2" />
+              Notifications
+            </div>
+          </button>
           
           <!-- Profile Links in Mobile Menu -->
           <NuxtLink to="/profile" class="block text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors" @click="showMobileMenu = false">
@@ -453,20 +456,6 @@
                 <option value="vacation">Vacation</option>
               </select>
             </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Property Photo</label>
-              <input 
-                ref="newPropertyPhotoInput"
-                type="file" 
-                accept="image/*" 
-                @change="handleNewPropertyPhotoChange"
-                class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#03045e] file:text-white hover:file:bg-[#03045e]"
-              />
-              <p class="mt-1 text-xs text-gray-500">Upload a photo of your property (max 10MB)</p>
-              <div v-if="newPropertyPhotoPreview" class="mt-2">
-                <img :src="newPropertyPhotoPreview" alt="Property photo preview" class="w-full h-48 object-cover rounded-lg border border-gray-300" />
-              </div>
-            </div>
             <div class="flex justify-end space-x-3 pt-4">
               <button @click="showAddProperty = false" type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
                 Cancel
@@ -665,15 +654,6 @@
             <button @click="showPropertyDetails = false" class="text-gray-400 hover:text-gray-600">
               <Icon name="mdi:close" class="h-6 w-6" />
             </button>
-          </div>
-          
-          <!-- Property Photo -->
-          <div v-if="selectedProperty?.photo_url" class="mb-6 -mx-5 -mt-3">
-            <img 
-              :src="selectedProperty.photo_url" 
-              :alt="selectedProperty.property_name"
-              class="w-full h-64 object-cover rounded-t-lg"
-            />
           </div>
           
           <!-- Property Info -->
@@ -888,25 +868,6 @@
                 <option value="vacation">Vacation</option>
               </select>
             </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Property Photo</label>
-              <div v-if="editingProperty.photo_url" class="mb-2">
-                <p class="text-xs text-gray-500 mb-1">Current photo:</p>
-                <img :src="editingProperty.photo_url" alt="Current property photo" class="w-full h-48 object-cover rounded-lg border border-gray-300" />
-              </div>
-              <input 
-                ref="editPropertyPhotoInput"
-                type="file" 
-                accept="image/*" 
-                @change="handleEditPropertyPhotoChange"
-                class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#03045e] file:text-white hover:file:bg-[#03045e]"
-              />
-              <p class="mt-1 text-xs text-gray-500">Upload a new photo to replace the current one (max 10MB)</p>
-              <div v-if="editPropertyPhotoPreview" class="mt-2">
-                <p class="text-xs text-gray-500 mb-1">New photo preview:</p>
-                <img :src="editPropertyPhotoPreview" alt="New property photo preview" class="w-full h-48 object-cover rounded-lg border border-gray-300" />
-              </div>
-            </div>
             <div class="flex justify-end space-x-3 pt-4">
               <button @click="showEditProperty = false" type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
                 Cancel
@@ -947,7 +908,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex items-center justify-center">
           <p class="text-sm text-[#8ee0ee]">
-            Copyright © 2025 MySafeHouse. All rights reserved.
+            Copyright © 2025 SafeHouse. All rights reserved.
           </p>
         </div>
       </div>
@@ -1117,18 +1078,8 @@ const editingProperty = ref({
   country: 'GB',
   property_type: 'residential',
   latitude: null as number | null,
-  longitude: null as number | null,
-  photo_url: null as string | null
+  longitude: null as number | null
 })
-
-// Property photo upload
-const newPropertyPhotoInput = ref<HTMLInputElement | null>(null)
-const newPropertyPhotoFile = ref<File | null>(null)
-const newPropertyPhotoPreview = ref<string | null>(null)
-
-const editPropertyPhotoInput = ref<HTMLInputElement | null>(null)
-const editPropertyPhotoFile = ref<File | null>(null)
-const editPropertyPhotoPreview = ref<string | null>(null)
 
 // Address autocomplete for edit property form
 const editAddressQuery = ref('')
@@ -1659,42 +1610,6 @@ function selectAddressSuggestion(suggestion: any) {
   selectedAddressIndex.value = -1
 }
 
-function handleNewPropertyPhotoChange(event: Event) {
-  const target = event.target as HTMLInputElement
-  const file = target.files?.[0]
-  
-  if (file) {
-    newPropertyPhotoFile.value = file
-    // Create preview
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      newPropertyPhotoPreview.value = e.target?.result as string
-    }
-    reader.readAsDataURL(file)
-  } else {
-    newPropertyPhotoFile.value = null
-    newPropertyPhotoPreview.value = null
-  }
-}
-
-function handleEditPropertyPhotoChange(event: Event) {
-  const target = event.target as HTMLInputElement
-  const file = target.files?.[0]
-  
-  if (file) {
-    editPropertyPhotoFile.value = file
-    // Create preview
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      editPropertyPhotoPreview.value = e.target?.result as string
-    }
-    reader.readAsDataURL(file)
-  } else {
-    editPropertyPhotoFile.value = null
-    editPropertyPhotoPreview.value = null
-  }
-}
-
 async function createProperty() {
   const client = useSupabaseClient()
   const { data: { session } } = await client.auth.getSession()
@@ -1722,49 +1637,6 @@ async function createProperty() {
     })
 
     if (success) {
-      // Upload photo if one was selected
-      let photoUrl = null
-      if (newPropertyPhotoFile.value) {
-        try {
-          const formData = new FormData()
-          formData.append('photo', newPropertyPhotoFile.value)
-          formData.append('propertyId', property.id)
-          formData.append('propertyCaption', newProperty.value.property_name)
-          
-          const uploadResponse = await $fetch('/api/properties/upload-photo', {
-            method: 'POST',
-            body: formData
-          })
-          
-          if (uploadResponse.success) {
-            photoUrl = uploadResponse.url
-            
-            // Update property with photo URL
-            await $fetch('/api/properties/update', {
-              method: 'POST',
-              body: {
-                id: property.id,
-                property_name: property.property_name,
-                address: property.address,
-                city: property.city,
-                state: property.state,
-                postal_code: property.postal_code,
-                country: property.country,
-                property_type: property.property_type,
-                latitude: property.latitude,
-                longitude: property.longitude,
-                photo_url: photoUrl
-              }
-            })
-            
-            property.photo_url = photoUrl
-          }
-        } catch (photoError) {
-          console.error('Failed to upload property photo:', photoError)
-          // Don't fail property creation if photo upload fails
-        }
-      }
-      
       properties.value.unshift(property)
       showAddProperty.value = false
       // Reset form
@@ -1778,12 +1650,6 @@ async function createProperty() {
         property_type: 'residential',
         latitude: null,
         longitude: null
-      }
-      // Reset photo
-      newPropertyPhotoFile.value = null
-      newPropertyPhotoPreview.value = null
-      if (newPropertyPhotoInput.value) {
-        newPropertyPhotoInput.value.value = ''
       }
       // Reset address autocomplete
       addressQuery.value = ''
@@ -2091,15 +1957,7 @@ async function editProperty(property) {
     country: property.country || 'GB',
     property_type: property.property_type || 'residential',
     latitude: property.latitude ? parseFloat(property.latitude) : null,
-    longitude: property.longitude ? parseFloat(property.longitude) : null,
-    photo_url: property.photo_url || null
-  }
-  
-  // Reset photo file and preview
-  editPropertyPhotoFile.value = null
-  editPropertyPhotoPreview.value = null
-  if (editPropertyPhotoInput.value) {
-    editPropertyPhotoInput.value.value = ''
+    longitude: property.longitude ? parseFloat(property.longitude) : null
   }
   
   // Set address query for autocomplete
@@ -2126,29 +1984,6 @@ async function updateProperty() {
   
   updatingProperty.value = true
   try {
-    // Upload photo if a new one was selected
-    let photoUrl = editingProperty.value.photo_url
-    if (editPropertyPhotoFile.value) {
-      try {
-        const formData = new FormData()
-        formData.append('photo', editPropertyPhotoFile.value)
-        formData.append('propertyId', editingProperty.value.id)
-        formData.append('propertyCaption', editingProperty.value.property_name)
-        
-        const uploadResponse = await $fetch('/api/properties/upload-photo', {
-          method: 'POST',
-          body: formData
-        })
-        
-        if (uploadResponse.success) {
-          photoUrl = uploadResponse.url
-        }
-      } catch (photoError) {
-        console.error('Failed to upload property photo:', photoError)
-        // Continue with update even if photo upload fails
-      }
-    }
-    
     const { success, property: updatedProperty } = await $fetch('/api/properties/update', {
       method: 'POST',
       body: {
@@ -2161,8 +1996,7 @@ async function updateProperty() {
         country: editingProperty.value.country,
         property_type: editingProperty.value.property_type,
         latitude: editingProperty.value.latitude,
-        longitude: editingProperty.value.longitude,
-        photo_url: photoUrl
+        longitude: editingProperty.value.longitude
       }
     })
 
@@ -2171,13 +2005,6 @@ async function updateProperty() {
       const index = properties.value.findIndex(p => p.id === editingProperty.value.id)
       if (index > -1) {
         properties.value[index] = updatedProperty
-      }
-      
-      // Reset photo file and preview
-      editPropertyPhotoFile.value = null
-      editPropertyPhotoPreview.value = null
-      if (editPropertyPhotoInput.value) {
-        editPropertyPhotoInput.value.value = ''
       }
       
       showEditProperty.value = false

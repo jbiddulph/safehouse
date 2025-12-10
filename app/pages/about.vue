@@ -8,9 +8,9 @@
           <div class="flex items-center space-x-8">
             <div class="flex-shrink-0 flex items-center space-x-3">
               <div class="h-8 w-8 bg-[#ffffff] rounded-lg flex items-center justify-center">
-                <img src="/images/logo.png" alt="MySafeHouse" class="h-full w-full object-cover" />
+                <img src="/images/logo.png" alt="SafeHouse" class="h-full w-full object-cover" />
               </div>
-              <NuxtLink to="/" class="text-2xl font-bold text-white">MySafeHouse</NuxtLink>
+              <NuxtLink to="/" class="text-2xl font-bold text-white">SafeHouse</NuxtLink>
             </div>
             
             <!-- Navigation Menu -->
@@ -65,7 +65,7 @@
         
         <div class="prose prose-lg max-w-none">
           <p class="text-gray-700 mb-4">
-            MySafeHouse is a comprehensive property access management platform designed to provide secure, 
+            SafeHouse is a comprehensive property access management platform designed to provide secure, 
             convenient, and emergency access solutions for property owners and authorized users.
           </p>
           
@@ -88,7 +88,7 @@
           
           <h2 class="text-2xl font-semibold text-[#03045e] mt-8 mb-4">Our Commitment</h2>
           <p class="text-gray-700 mb-4">
-            At MySafeHouse, we are committed to protecting your property and ensuring that access is granted 
+            At SafeHouse, we are committed to protecting your property and ensuring that access is granted 
             only to authorized individuals. We use industry-leading security practices and continuously 
             work to improve our platform to meet your needs.
           </p>
@@ -101,7 +101,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex items-center justify-center">
           <p class="text-sm text-[#8ee0ee]">
-            Copyright © 2025 MySafeHouse. All rights reserved.
+            Copyright © 2025 SafeHouse. All rights reserved.
           </p>
         </div>
       </div>

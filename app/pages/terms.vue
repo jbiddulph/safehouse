@@ -8,9 +8,9 @@
           <div class="flex items-center space-x-8">
             <div class="flex-shrink-0 flex items-center space-x-3">
               <div class="h-8 w-8 bg-[#ffffff] rounded-lg flex items-center justify-center">
-                <img src="/images/logo.png" alt="MySafeHouse" class="h-full w-full object-cover" />
+                <img src="/images/logo.png" alt="SafeHouse" class="h-full w-full object-cover" />
               </div>
-              <NuxtLink to="/" class="text-2xl font-bold text-white">MySafeHouse</NuxtLink>
+              <NuxtLink to="/" class="text-2xl font-bold text-white">SafeHouse</NuxtLink>
             </div>
             
             <!-- Navigation Menu -->
@@ -68,19 +68,19 @@
           
           <h2 class="text-2xl font-semibold text-[#03045e] mt-8 mb-4">Acceptance of Terms</h2>
           <p class="text-gray-700 mb-4">
-            By accessing and using MySafeHouse, you accept and agree to be bound by the terms and provision 
+            By accessing and using SafeHouse, you accept and agree to be bound by the terms and provision 
             of this agreement. If you do not agree to these terms, please do not use our service.
           </p>
           
           <h2 class="text-2xl font-semibold text-[#03045e] mt-8 mb-4">Use License</h2>
           <p class="text-gray-700 mb-4">
-            Permission is granted to temporarily use MySafeHouse for personal, non-commercial purposes. 
+            Permission is granted to temporarily use SafeHouse for personal, non-commercial purposes. 
             This is the grant of a license, not a transfer of title, and under this license you may not:
           </p>
           <ul class="list-disc list-inside text-gray-700 space-y-2 mb-4 ml-4">
             <li>Modify or copy the materials</li>
             <li>Use the materials for any commercial purpose or for any public display</li>
-            <li>Attempt to reverse engineer any software contained in MySafeHouse</li>
+            <li>Attempt to reverse engineer any software contained in SafeHouse</li>
             <li>Remove any copyright or other proprietary notations from the materials</li>
           </ul>
           
@@ -103,7 +103,7 @@
           
           <h2 class="text-2xl font-semibold text-[#03045e] mt-8 mb-4">Limitation of Liability</h2>
           <p class="text-gray-700 mb-4">
-            MySafeHouse shall not be liable for any indirect, incidental, special, consequential, or punitive 
+            SafeHouse shall not be liable for any indirect, incidental, special, consequential, or punitive 
             damages resulting from your use or inability to use the service. We do not guarantee that the 
             service will be available at all times or free from errors.
           </p>
@@ -136,7 +136,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex items-center justify-center">
           <p class="text-sm text-[#8ee0ee]">
-            Copyright © 2025 MySafeHouse. All rights reserved.
+            Copyright © 2025 SafeHouse. All rights reserved.
           </p>
         </div>
       </div>
