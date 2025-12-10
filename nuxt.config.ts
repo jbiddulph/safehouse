@@ -30,8 +30,6 @@ export default defineNuxtConfig({
     mailtrapPass: process.env.MAILTRAP_PASSWORD,
     supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
     databaseUrl: process.env.DATABASE_URL,
-    firebaseServiceAccountKey: process.env.FIREBASE_SERVICE_ACCOUNT_KEY,
-    firebaseProjectId: process.env.FIREBASE_PROJECT_ID,
     googleApiKey: process.env.GOOGLE_API,
     stripeSecretKey: process.env.STRIPE_SECRET_KEY,
     public: {
@@ -40,16 +38,7 @@ export default defineNuxtConfig({
       supabaseKey: process.env.SUPABASE_ANON_KEY,
       googleApiKey: process.env.GOOGLE_API,
       mapboxApiKey: process.env.MAPBOX_API,
-      stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
-      firebaseConfig: {
-        apiKey: process.env.FIREBASE_API_KEY,
-        authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-        messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-        appId: process.env.FIREBASE_APP_ID,
-        vapidKey: process.env.FIREBASE_VAPID_KEY
-      }
+      stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY
     }
   },
   supabase: {

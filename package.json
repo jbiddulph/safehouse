@@ -30,8 +30,6 @@
     "@types/qrcode": "^1.5.5",
     "@types/ua-parser-js": "^0.7.39",
     "eslint": "^9.35.0",
-    "firebase": "^12.2.1",
-    "firebase-admin": "^13.5.0",
     "leaflet": "^1.9.4",
     "mapbox-gl": "^3.16.0",
     "nodemailer": "^7.0.6",

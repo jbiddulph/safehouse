@@ -1,6 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
-import { sendMulticastNotification } from '../../utils/firebase'
 import { sendAccessRequestNotification, sendAccessRequestConfirmation } from '../../utils/email'
 import { logAccessRequest } from '../../utils/access-logger'
 
@@ -187,67 +186,7 @@ export default defineEventHandler(async (event) => {
     // TODO: Implement actual SMS/Email sending
     console.log(`Verification code for ${requester_phone || requester_email}: ${verificationCode}`)
 
-    // 9. Send FCM push notifications to property owner and emergency contacts
-    try {
-      // Get base URL from request headers if available, otherwise use config or production URL
-      const host = getHeader(event, 'host') || getHeader(event, 'x-forwarded-host')
-      const protocol = getHeader(event, 'x-forwarded-proto') || 'https'
-      const dynamicBaseUrl = host ? `${protocol}://${host}` : null
-      const baseUrl = dynamicBaseUrl || config.public.baseUrl || 'https://safehouse2025.netlify.app'
-      
-      const propertyDisplayAddress = [
-        property.address,
-        property.city,
-        property.state,
-        property.postal_code
-      ].filter(Boolean).join(', ')
-      const approvalLink = `${baseUrl}/api/access-requests/owner-action?request=${request.id}&token=${request.verification_token}&action=approve`
-      const denialLink = `${baseUrl}/api/access-requests/owner-action?request=${request.id}&token=${request.verification_token}&action=deny`
-
-      // Get property owner's FCM token
-      const { data: propertyOwner } = await supabase
-        .from('safehouse_profiles')
-        .select('fcm_token')
-        .eq('id', property.user_id)
-        .single()
-
-      // Get emergency contacts' FCM tokens
-      const { data: emergencyContacts } = await supabase
-        .from('safehouse_contacts')
-        .select('fcm_token')
-        .eq('user_id', property.user_id)
-        .eq('is_primary', true)
-        .not('fcm_token', 'is', null)
-
-      // Collect all FCM tokens
-      const fcmTokens = []
-      if (propertyOwner?.fcm_token) {
-        fcmTokens.push(propertyOwner.fcm_token)
-      }
-      if (emergencyContacts) {
-        fcmTokens.push(...emergencyContacts.map(contact => contact.fcm_token).filter(Boolean))
-      }
-
-      // Send push notification
-      if (fcmTokens.length > 0) {
-        await sendMulticastNotification(
-          fcmTokens,
-          '🚨 Emergency Access Request',
-          `${request.requester_name || 'Unknown'} is requesting access to ${property.property_name}`,
-          {
-            type: 'access_request',
-            request_id: request.id,
-            property_id: property_id,
-            requester_name: request.requester_name || 'Unknown',
-            property_name: property.property_name
-          }
-        )
-        console.log(`Sent FCM notification to ${fcmTokens.length} devices`)
-      }
-    } catch (fcmError) {
-      console.error('Failed to send FCM notification:', fcmError)
-      // Don't fail the request if FCM fails
-    }
+    // 9. Push notifications removed - Firebase not in use
 
     // 10. Send email notifications to property owner and emergency contacts
     try {
