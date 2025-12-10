@@ -29,7 +29,8 @@ export default defineNuxtConfig({
     mailtrapUser: process.env.MAILTRAP_USERNAME,
     mailtrapPass: process.env.MAILTRAP_PASSWORD,
     supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
-    databaseUrl: process.env.DATABASE_URL,
+    // DATABASE_URL removed - only needed for Prisma migrations (build-time), not runtime
+    // Remove DATABASE_URL from Netlify environment variables to reduce Lambda size
     googleApiKey: process.env.GOOGLE_API,
     stripeSecretKey: process.env.STRIPE_SECRET_KEY,
     public: {
