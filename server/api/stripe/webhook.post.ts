@@ -26,13 +26,38 @@ export default defineEventHandler(async (event) => {
     }
   )
 
-  const body = await readRawBody(event)
-  const signature = getHeader(event, 'stripe-signature')
-
-  if (!signature || !body) {
+  // Read raw body for signature verification
+  // Stripe requires the raw body (not parsed) for signature verification
+  let body: Buffer | string
+  try {
+    body = await readRawBody(event)
+    // Ensure body is a Buffer for Stripe signature verification
+    if (typeof body === 'string') {
+      body = Buffer.from(body, 'utf8')
+    }
+  } catch (error: any) {
+    console.error('Failed to read webhook body:', error)
     throw createError({
       statusCode: 400,
-      statusMessage: 'Missing signature or body'
+      statusMessage: 'Failed to read webhook body: ' + (error.message || 'Unknown error')
+    })
+  }
+
+  const signature = getHeader(event, 'stripe-signature')
+
+  if (!signature) {
+    console.error('Missing stripe-signature header')
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Missing stripe-signature header'
+    })
+  }
+
+  if (!body) {
+    console.error('Empty webhook body')
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Empty webhook body'
     })
   }
 
@@ -42,21 +67,40 @@ export default defineEventHandler(async (event) => {
     // Verify webhook signature
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
     if (!webhookSecret) {
+      console.error('STRIPE_WEBHOOK_SECRET not configured')
       throw new Error('STRIPE_WEBHOOK_SECRET not configured')
     }
 
-    webhookEvent = stripe.webhooks.constructEvent(body, signature, webhookSecret)
+    // Stripe webhook signature verification requires the raw body as a Buffer
+    // Ensure body is a Buffer
+    const bodyBuffer = Buffer.isBuffer(body) ? body : Buffer.from(body, 'utf8')
+    webhookEvent = stripe.webhooks.constructEvent(bodyBuffer, signature, webhookSecret)
+    console.log('Webhook signature verified successfully')
   } catch (err: any) {
-    console.error('Webhook signature verification failed:', err.message)
+    console.error('Webhook signature verification failed:', {
+      error: err.message,
+      type: err.type,
+      signature: signature?.substring(0, 20) + '...'
+    })
     throw createError({
       statusCode: 400,
-      statusMessage: `Webhook Error: ${err.message}`
+      statusMessage: `Webhook signature verification failed: ${err.message}`
     })
   }
 
   // Handle the event
+  console.log('Webhook event received:', webhookEvent.type, webhookEvent.id)
+
   if (webhookEvent.type === 'checkout.session.completed') {
     const session = webhookEvent.data.object as Stripe.Checkout.Session
+    
+    console.log('Checkout session completed:', {
+      sessionId: session.id,
+      mode: session.mode,
+      paymentStatus: session.payment_status,
+      metadata: session.metadata,
+      subscription: session.subscription
+    })
     
     if (session.mode === 'subscription' && session.metadata) {
       const userId = session.metadata.userId
@@ -64,8 +108,26 @@ export default defineEventHandler(async (event) => {
       const additionalCredits = parseInt(session.metadata.additionalCredits || '0', 10)
       const isAdditionalCredits = session.metadata.isAdditionalCredits === 'true'
 
+      if (!userId) {
+        console.error('No userId in session metadata')
+        throw createError({
+          statusCode: 400,
+          statusMessage: 'Missing userId in session metadata'
+        })
+      }
+
       // Get the subscription details
       const subscriptionId = session.subscription as string
+      
+      if (!subscriptionId) {
+        console.error('No subscription ID in checkout session')
+        throw createError({
+          statusCode: 400,
+          statusMessage: 'No subscription ID found in checkout session'
+        })
+      }
+
+      console.log('Retrieving subscription:', subscriptionId)
       const subscription = await stripe.subscriptions.retrieve(subscriptionId)
 
       // Calculate subscription end date (1 year from now)
@@ -135,7 +197,19 @@ export default defineEventHandler(async (event) => {
             statusMessage: 'Failed to update subscription'
           })
         }
+
+        console.log('Profile updated successfully:', {
+          userId,
+          subscriptionType,
+          subscriptionId,
+          additionalCredits: finalAdditionalCredits
+        })
       }
+    } else {
+      console.warn('Checkout session completed but not a subscription or missing metadata:', {
+        mode: session.mode,
+        hasMetadata: !!session.metadata
+      })
     }
   } else if (webhookEvent.type === 'customer.subscription.updated') {
     const subscription = webhookEvent.data.object as Stripe.Subscription
@@ -159,6 +233,8 @@ export default defineEventHandler(async (event) => {
   } else if (webhookEvent.type === 'customer.subscription.deleted') {
     const subscription = webhookEvent.data.object as Stripe.Subscription
     
+    console.log('Subscription deleted:', subscription.id)
+    
     // Mark subscription as cancelled
     const { error: updateError } = await supabase
       .from('safehouse_profiles')
@@ -170,9 +246,16 @@ export default defineEventHandler(async (event) => {
 
     if (updateError) {
       console.error('Failed to update cancelled subscription:', updateError)
+    } else {
+      console.log('Subscription marked as cancelled')
     }
+  } else {
+    // Handle other events gracefully (return 200 but don't process)
+    // Events like payment_method.attached don't need processing
+    console.log(`Webhook event received but not processed: ${webhookEvent.type}`)
   }
 
-  return { received: true }
+  // Always return 200 to acknowledge receipt
+  return { received: true, eventType: webhookEvent.type }
 })
 

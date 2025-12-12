@@ -13,6 +13,17 @@ export default defineNuxtConfig({
     preset: 'netlify',
     experimental: {
       wasm: true
+    },
+    // Ensure webhook endpoint can receive raw body
+    routeRules: {
+      '/api/stripe/webhook': {
+        cors: true,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST',
+          'Access-Control-Allow-Headers': 'stripe-signature, content-type'
+        }
+      }
     }
   },
   vite: {
