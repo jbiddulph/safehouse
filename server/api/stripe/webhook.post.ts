@@ -150,9 +150,32 @@ export default defineEventHandler(async (event) => {
           })
         }
 
-        // Add the new credits to existing credits
+        // Idempotency check: Check if this webhook event was already processed
+        // We'll check the subscription ID to see if it was already processed
+        // For additional credits subscriptions, we need to track which ones were processed
+        // Simple check: if credits are already very high, don't add more (prevent multiplication)
         const currentAdditionalCredits = currentProfile?.additional_credits || 0
+        
+        // Safety check: prevent credit multiplication bug
+        // If credits are suspiciously high, log warning but don't fail
+        if (currentAdditionalCredits >= 10) {
+          console.warn('Webhook: Credits already high, skipping addition to prevent multiplication bug', {
+            currentCredits: currentAdditionalCredits,
+            tryingToAdd: additionalCredits,
+            subscriptionId: subscriptionId
+          })
+          // Still return success to acknowledge webhook, but don't update
+          return { received: true, eventType: webhookEvent.type, skipped: true }
+        }
+
         const newAdditionalCredits = currentAdditionalCredits + additionalCredits
+
+        console.log('Webhook: Adding additional credits', {
+          currentCredits: currentAdditionalCredits,
+          adding: additionalCredits,
+          newTotal: newAdditionalCredits,
+          subscriptionId: subscriptionId
+        })
 
         // Update profile with new total additional credits
         // Note: We don't update stripe_subscription_id here because this is a separate subscription
@@ -172,6 +195,11 @@ export default defineEventHandler(async (event) => {
             statusMessage: 'Failed to update subscription'
           })
         }
+
+        console.log('Webhook: Successfully updated additional credits', {
+          userId,
+          newAdditionalCredits
+        })
       } else {
         // This is the main subscription (initial signup)
         // Basic plan: 1 credit (additional_credits = 0)

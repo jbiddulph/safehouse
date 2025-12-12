@@ -58,10 +58,11 @@ export default defineEventHandler(async (event) => {
     }
 
     // Calculate available credits
-    // Basic plan gets 1 credit, premium plan gets 1 + additional_credits
-    const totalCredits = profile.subscription_type === 'basic' 
-      ? 1 
-      : 1 + (profile.additional_credits || 0)
+    // Everyone gets 1 base credit + additional_credits
+    // Basic plan: 1 base credit + 0 additional = 1 total
+    // Premium plan: 1 base credit + additional_credits
+    // If user has additional_credits > 0, they effectively have premium
+    const totalCredits = 1 + (profile.additional_credits || 0)
     
     const usedCredits = propertyCount || 0
     const maxProperties = 5

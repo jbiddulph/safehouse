@@ -67,45 +67,57 @@ const route = useRoute()
 const sessionId = route.query.session_id as string
 const verifying = ref(false)
 const verificationError = ref<string | null>(null)
+const verified = ref(false)
 
-// Verify payment with backend
+// Verify payment with backend (only once)
 onMounted(async () => {
-  if (sessionId) {
-    verifying.value = true
-    try {
-      const client = useSupabaseClient()
-      const { data: { session } } = await client.auth.getSession()
-      
-      if (!session) {
-        verificationError.value = 'Please log in to verify your payment'
-        verifying.value = false
-        return
-      }
+  // Check if already verified (prevent loop)
+  if (verified.value || !sessionId) return
+  
+  // Check localStorage to prevent re-verification
+  const verificationKey = `payment_verified_${sessionId}`
+  if (localStorage.getItem(verificationKey)) {
+    verified.value = true
+    return
+  }
 
-      const result = await $fetch('/api/stripe/verify-payment', {
-        method: 'POST',
-        headers: {
-          authorization: `Bearer ${session.access_token}`
-        },
-        body: { sessionId }
-      })
-
-      if (result.success) {
-        // Payment verified and subscription activated
-        console.log('Payment verified successfully:', result)
-        // Reload page after a short delay to show updated status
-        setTimeout(() => {
-          window.location.reload()
-        }, 2000)
-      } else {
-        verificationError.value = result.message || 'Payment verification failed'
-      }
-    } catch (error: any) {
-      console.error('Payment verification error:', error)
-      verificationError.value = error.data?.message || error.message || 'Failed to verify payment'
-    } finally {
+  verifying.value = true
+  try {
+    const client = useSupabaseClient()
+    const { data: { session } } = await client.auth.getSession()
+    
+    if (!session) {
+      verificationError.value = 'Please log in to verify your payment'
       verifying.value = false
+      return
     }
+
+    const result = await $fetch('/api/stripe/verify-payment', {
+      method: 'POST',
+      headers: {
+        authorization: `Bearer ${session.access_token}`
+      },
+      body: { sessionId }
+    })
+
+    if (result.success) {
+      // Payment verified and subscription activated
+      console.log('Payment verified successfully:', result)
+      verified.value = true
+      // Mark as verified in localStorage to prevent re-verification
+      localStorage.setItem(verificationKey, 'true')
+      // Navigate to dashboard after a short delay
+      setTimeout(() => {
+        navigateTo('/dashboard')
+      }, 2000)
+    } else {
+      verificationError.value = result.message || 'Payment verification failed'
+    }
+  } catch (error: any) {
+    console.error('Payment verification error:', error)
+    verificationError.value = error.data?.message || error.message || 'Failed to verify payment'
+  } finally {
+    verifying.value = false
   }
 })
 </script>

@@ -77,9 +77,8 @@ export default defineEventHandler(async (event) => {
     }
 
     // Calculate available credits
-    const totalCredits = profile.subscription_type === 'basic' 
-      ? 1 
-      : 1 + (profile.additional_credits || 0)
+    // Everyone gets 1 base credit + additional_credits
+    const totalCredits = 1 + (profile.additional_credits || 0)
     
     const usedCredits = propertyCount || 0
     const availableCredits = totalCredits - usedCredits
