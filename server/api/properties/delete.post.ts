@@ -24,6 +24,20 @@ export default defineEventHandler(async (event) => {
   )
 
   try {
+    // Get property to find user_id
+    const { data: property, error: propertyError } = await supabase
+      .from('safehouse_properties')
+      .select('user_id')
+      .eq('id', propertyId)
+      .single()
+
+    if (propertyError || !property) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: 'Property not found'
+      })
+    }
+
     // Delete the property (this will cascade to property_contacts and access_logs due to foreign key constraints)
     const { error } = await supabase
       .from('safehouse_properties')
@@ -36,6 +50,20 @@ export default defineEventHandler(async (event) => {
         statusCode: 500,
         statusMessage: 'Failed to delete property'
       })
+    }
+
+    // Update subscription - property deletion adds a credit back
+    // Count remaining properties
+    const { count: remainingProperties, error: countError } = await supabase
+      .from('safehouse_properties')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', property.user_id)
+
+    if (!countError) {
+      // Update subscription based on remaining properties
+      // This will be handled by Stripe webhook, but we can update the local count
+      // The actual subscription update should be done via Stripe API
+      console.log(`Property deleted. Remaining properties: ${remainingProperties}`)
     }
 
     return { success: true, message: 'Property deleted successfully' }

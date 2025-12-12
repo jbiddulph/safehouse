@@ -141,7 +141,7 @@
             </p>
           </div>
           <div class="mt-4 flex space-x-3 md:mt-0 md:ml-4">
-            <button @click="showAddProperty = true" class="inline-flex items-center px-6 py-3 border border-transparent rounded-lg shadow-lg text-sm font-semibold text-white bg-[#03045e] hover:bg-[#03045e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee] transition-all duration-200 transform hover:scale-105">
+            <button @click="showAddProperty = true" :disabled="!canAddProperty" class="inline-flex items-center px-6 py-3 border border-transparent rounded-lg shadow-lg text-sm font-semibold text-white bg-[#03045e] hover:bg-[#03045e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee] transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
               <Icon name="mdi:plus" class="-ml-1 mr-2 h-5 w-5" />
               Add Property
             </button>
@@ -149,6 +149,38 @@
               <Icon name="mdi:account-plus" class="-ml-1 mr-2 h-5 w-5" />
               Add Contact
             </button>
+          </div>
+        </div>
+
+        <!-- Credits Display -->
+        <div v-if="creditsInfo" class="mt-6 bg-gradient-to-r from-[#03045e] to-[#023e8a] rounded-lg shadow-lg p-4 text-white">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+              <div class="bg-white/20 rounded-full p-3">
+                <Icon name="mdi:key-variant" class="h-6 w-6" />
+              </div>
+              <div>
+                <p class="text-sm text-[#8ee0ee]">Available Credits</p>
+                <p class="text-2xl font-bold">{{ creditsInfo.availableCredits }}</p>
+                <p class="text-xs text-white/70 mt-1">
+                  {{ creditsInfo.usedCredits }} of {{ creditsInfo.maxProperties || 5 }} properties used
+                </p>
+                <p v-if="creditsInfo.usedCredits >= 5" class="text-xs text-yellow-200 mt-1">
+                  Maximum limit reached (5 properties)
+                </p>
+              </div>
+            </div>
+            <div v-if="creditsInfo.availableCredits === 0 && creditsInfo.canAddMore" class="flex items-center space-x-2">
+              <NuxtLink to="/payments?action=buy-credits" class="inline-flex items-center px-4 py-2 bg-[#8ee0ee] text-[#03045e] rounded-lg font-semibold hover:bg-[#7dd3e0] transition-colors">
+                <Icon name="mdi:plus-circle" class="mr-2 h-5 w-5" />
+                Buy More Credits
+              </NuxtLink>
+            </div>
+          </div>
+          <div v-if="creditsInfo.subscriptionStatus !== 'active'" class="mt-3 pt-3 border-t border-white/20">
+            <p class="text-sm text-yellow-200">
+              ⚠️ Your subscription is not active. Please complete payment to add properties.
+            </p>
           </div>
         </div>
       </div>
@@ -921,6 +953,11 @@ definePageMeta({ middleware: ['auth'] })
 
 const auth = useAuthStore()
 const profile = ref(null)
+const creditsInfo = ref(null)
+const canAddProperty = computed(() => {
+  if (!creditsInfo.value) return false
+  return creditsInfo.value.availableCredits > 0 && creditsInfo.value.subscriptionStatus === 'active'
+})
 const properties = ref([])
 const contacts = ref([])
 const showProfileMenu = ref(false)
@@ -1201,7 +1238,30 @@ onMounted(async () => {
   // Load properties and contacts
   await loadProperties()
   await loadContacts()
+  await loadCredits()
 })
+
+async function loadCredits() {
+  try {
+    const client = useSupabaseClient()
+    const { data: { session } } = await client.auth.getSession()
+    
+    if (!session) return
+
+    const response = await $fetch('/api/subscription/get-credits', {
+      headers: {
+        authorization: `Bearer ${session.access_token}`
+      }
+    })
+
+    if (response.success) {
+      creditsInfo.value = response
+    }
+  } catch (error) {
+    console.error('Failed to load credits:', error)
+    creditsInfo.value = null
+  }
+}
 
 async function loadProfile() {
   try {
@@ -1615,6 +1675,21 @@ async function createProperty() {
   const { data: { session } } = await client.auth.getSession()
   if (!session?.user?.id) return
   
+  // Check credits before creating
+  if (!canAddProperty.value) {
+    if (creditsInfo.value?.subscriptionStatus !== 'active') {
+      alert('Active subscription required. Please complete your payment to add properties.')
+      return
+    }
+    if (creditsInfo.value?.availableCredits === 0) {
+      const buyMore = confirm('You have no available credits. Would you like to purchase more credits?')
+      if (buyMore) {
+        await navigateTo('/payments?action=buy-credits')
+      }
+      return
+    }
+  }
+  
   // Ensure address is set from addressQuery if not already set
   if (!newProperty.value.address && addressQuery.value) {
     newProperty.value.address = addressQuery.value
@@ -1651,6 +1726,8 @@ async function createProperty() {
         latitude: null,
         longitude: null
       }
+      // Reload credits
+      await loadCredits()
       // Reset address autocomplete
       addressQuery.value = ''
       addressSuggestions.value = []
@@ -1659,9 +1736,16 @@ async function createProperty() {
       selectedAddressIndex.value = -1
       alert('Property created successfully! A default access code has been generated for this property.')
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to create property:', error)
-    alert('Failed to create property')
+    const errorMessage = error.data?.message || error.message || 'Failed to create property'
+    if (errorMessage.includes('credits') || errorMessage.includes('subscription')) {
+      alert(errorMessage)
+      // Reload credits to update display
+      await loadCredits()
+    } else {
+      alert('Failed to create property: ' + errorMessage)
+    }
   } finally {
     creatingProperty.value = false
   }
@@ -1848,7 +1932,7 @@ async function deleteContact(contactId) {
 }
 
 async function deleteProperty(propertyId) {
-  if (!confirm('Are you sure you want to delete this property? This will also remove all associated contacts and access logs.')) return
+  if (!confirm('Are you sure you want to delete this property? This will also remove all associated contacts and access logs. You will get a credit back.')) return
   
   try {
     const { success } = await $fetch('/api/properties/delete', {
@@ -1862,7 +1946,9 @@ async function deleteProperty(propertyId) {
       if (index > -1) {
         properties.value.splice(index, 1)
       }
-      alert('Property deleted successfully!')
+      // Reload credits to update display
+      await loadCredits()
+      alert('Property deleted successfully! Credit has been returned to your account.')
     }
   } catch (error) {
     console.error('Failed to delete property:', error)

@@ -44,6 +44,62 @@ export default defineEventHandler(async (event) => {
   )
 
   try {
+    // Check if user has available credits
+    const { data: profile, error: profileError } = await supabase
+      .from('safehouse_profiles')
+      .select('subscription_type, subscription_status, additional_credits')
+      .eq('id', user_id)
+      .single()
+
+    if (profileError) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'Failed to check subscription'
+      })
+    }
+
+    // Check subscription status
+    if (profile.subscription_status !== 'active') {
+      throw createError({
+        statusCode: 403,
+        statusMessage: 'Active subscription required to add properties. Please complete your payment.'
+      })
+    }
+
+    // Count existing properties
+    const { count: propertyCount, error: countError } = await supabase
+      .from('safehouse_properties')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user_id)
+
+    if (countError) {
+      console.error('Error counting properties:', countError)
+    }
+
+    // Calculate available credits
+    const totalCredits = profile.subscription_type === 'basic' 
+      ? 1 
+      : 1 + (profile.additional_credits || 0)
+    
+    const usedCredits = propertyCount || 0
+    const availableCredits = totalCredits - usedCredits
+
+    // Enforce 5 property maximum cap
+    const maxProperties = 5
+    if (usedCredits >= maxProperties) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: `Maximum limit of ${maxProperties} properties reached. Please delete a property before adding more.`
+      })
+    }
+
+    if (availableCredits <= 0) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: 'No available credits. Please purchase additional credits to add more properties.'
+      })
+    }
+
     // Generate unique QR code and NFC ID
     const qrCode = `SH-${randomBytes(8).toString('hex').toUpperCase()}`
     const nfcId = `NFC-${randomBytes(8).toString('hex').toUpperCase()}`

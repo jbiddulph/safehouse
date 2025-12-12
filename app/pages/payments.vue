@@ -139,8 +139,44 @@
           </div>
         </div>
 
-        <!-- Continue Button -->
-        <div class="text-center pt-6">
+        <!-- Buy Credits Section (for existing users) -->
+        <div v-if="isBuyingCredits" class="bg-white rounded-lg shadow-xl p-8 border-2 border-[#03045e]">
+          <h3 class="text-2xl font-bold text-[#03045e] mb-4">Purchase Additional Credits</h3>
+          <p class="text-gray-600 mb-6">Each credit allows you to add one additional property. Credits are £12 per year.</p>
+          
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Number of Credits</label>
+              <input
+                v-model.number="additionalCreditsToBuy"
+                type="number"
+                min="1"
+                max="5"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+              />
+              <p class="text-xs text-gray-500 mt-1">Maximum 5 properties per account. Each credit = 1 property.</p>
+            </div>
+            
+            <div class="bg-[#f0f9fb] p-4 rounded-lg">
+              <div class="flex justify-between items-center">
+                <span class="text-sm font-medium text-gray-700">Total Cost:</span>
+                <span class="text-xl font-bold text-[#03045e]">£{{ additionalCreditsToBuy * 12 }}/year</span>
+              </div>
+            </div>
+            
+            <UButton 
+              @click="purchaseAdditionalCredits"
+              size="lg"
+              block
+              class="bg-[#03045e] hover:bg-[#03045e] text-white font-semibold py-3 px-8 rounded-lg"
+            >
+              Purchase Credits
+            </UButton>
+          </div>
+        </div>
+
+        <!-- Continue Button (for new users) -->
+        <div v-else class="text-center pt-6">
           <UButton 
             :disabled="!selectedOption"
             @click="continueToRegistration"
@@ -167,15 +203,33 @@
 </template>
 
 <script setup lang="ts">
+const route = useRoute()
 const selectedOption = ref<'basic' | 'premium' | null>(null)
+const isBuyingCredits = ref(false)
+const additionalCreditsToBuy = ref(1)
 
-definePageMeta({ middleware: ['guest-only'] })
+// Allow both guests (for registration) and authenticated users (for buying credits)
+definePageMeta({})
+
+onMounted(() => {
+  // Check if user is buying additional credits
+  if (route.query.action === 'buy-credits') {
+    isBuyingCredits.value = true
+    // Redirect to login if not authenticated
+    const client = useSupabaseClient()
+    client.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        navigateTo('/auth/login?redirect=/payments?action=buy-credits')
+      }
+    })
+  }
+})
 
 function selectOption(option: 'basic' | 'premium') {
   selectedOption.value = option
 }
 
-function continueToRegistration() {
+async function continueToRegistration() {
   if (selectedOption.value) {
     navigateTo({
       path: '/auth/register',
@@ -183,6 +237,43 @@ function continueToRegistration() {
         plan: selectedOption.value
       }
     })
+  }
+}
+
+async function purchaseAdditionalCredits() {
+  if (additionalCreditsToBuy.value < 1) {
+    alert('Please select at least 1 credit')
+    return
+  }
+
+  try {
+    const client = useSupabaseClient()
+    const { data: { session } } = await client.auth.getSession()
+    
+    if (!session) {
+      navigateTo('/auth/login')
+      return
+    }
+
+    const response = await $fetch('/api/stripe/purchase-credits', {
+      method: 'POST',
+      headers: {
+        authorization: `Bearer ${session.access_token}`
+      },
+      body: {
+        additionalCredits: additionalCreditsToBuy.value
+      }
+    })
+
+    if (response.checkoutUrl) {
+      window.location.href = response.checkoutUrl
+    } else if (response.success) {
+      alert('Credits added successfully!')
+      navigateTo('/dashboard')
+    }
+  } catch (error: any) {
+    console.error('Failed to purchase credits:', error)
+    alert('Failed to purchase credits: ' + (error.data?.message || error.message))
   }
 }
 </script>

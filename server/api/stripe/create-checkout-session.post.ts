@@ -83,6 +83,8 @@ export default defineEventHandler(async (event) => {
         userId,
         subscriptionType,
         additionalCredits: additionalCredits.toString(),
+        // Basic plan gets 1 credit automatically, premium gets 1 + additional
+        totalCredits: subscriptionType === 'basic' ? '1' : (1 + additionalCredits).toString()
       },
       success_url: `${config.public.baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${config.public.baseUrl}/payments?canceled=true`,
