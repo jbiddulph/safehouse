@@ -1345,6 +1345,10 @@ function handleCancelAddProperty() {
   }
 }
 
+const showAddContact = ref(false)
+const showEditContact = ref(false)
+const showEditProperty = ref(false)
+
 // Auto-set property when opening add contact modal
 watch(showAddContact, (isOpen) => {
   if (isOpen && currentProperty.value) {
@@ -1382,10 +1386,6 @@ watch(showAddProperty, (isOpen) => {
     }
   }
 })
-
-const showAddContact = ref(false)
-const showEditContact = ref(false)
-const showEditProperty = ref(false)
 const showPropertyDetails = ref(false)
 const showQRModal = ref(false)
 const qrCodeLoading = ref(false)
