@@ -14,32 +14,20 @@ This guide shows you how to park a domain at a holding/coming soon page on your 
 
 ## Step 2: Configure Redirects
 
-### Option A: Redirect All Traffic to Holding Page (Recommended)
+**Important:** Netlify redirects in `netlify.toml` don't support domain matching. We use server middleware instead.
 
-Edit `netlify.toml` and uncomment/update the redirect rules:
+The domain parking is handled by `server/middleware/domain-parking.ts`, which automatically redirects parked domains to `/coming-soon` while keeping your main Netlify domain working normally.
 
-```toml
-[[redirects]]
-  from = "https://your-parked-domain.com/*"
-  to = "/coming-soon"
-  status = 200
-  force = true
+To add or modify parked domains, edit `server/middleware/domain-parking.ts`:
 
-[[redirects]]
-  from = "https://www.your-parked-domain.com/*"
-  to = "/coming-soon"
-  status = 200
-  force = true
+```typescript
+const parkedDomains = [
+  'mysafehouse.co.uk',
+  'www.mysafehouse.co.uk'
+]
 ```
 
-Replace `your-parked-domain.com` with your actual domain.
-
-### Option B: Use Domain-Specific Routing (Advanced)
-
-If you want to show the holding page only for the parked domain while keeping the main app on the Netlify subdomain:
-
-1. Create a middleware that checks the domain
-2. Or use Netlify's branch-based routing
+Add your domain(s) to this array. The middleware will automatically redirect all traffic from these domains to `/coming-soon`.
 
 ## Step 3: Deploy
 
@@ -49,10 +37,26 @@ After updating `netlify.toml`:
 2. Netlify will automatically redeploy
 3. Your parked domain will show the coming soon page
 
-## Step 4: Verify
+## Step 4: SSL Certificate (Important!)
 
-1. Visit your parked domain (e.g., `https://yourdomain.com`)
-2. You should see the "Coming Soon" page
+After adding your domain to Netlify:
+
+1. **DNS verification** will complete first (usually within minutes)
+2. **SSL/TLS certificate provisioning** can take up to 24 hours
+3. During this time, you may see "Your connection to this site is not secure" - this is normal
+4. Once the certificate is issued, you'll see a green padlock and HTTPS will work
+
+**To check SSL status:**
+- Go to Netlify Dashboard → Your Site → **Domain settings**
+- Look for "SSL/TLS certificate" section
+- Status will show "Provisioning" until complete
+
+**Note:** You can still test the redirects during certificate provisioning, but you'll need to accept the security warning in your browser.
+
+## Step 5: Verify
+
+1. Visit your parked domain (e.g., `https://mysafehouse.co.uk` or `http://mysafehouse.co.uk` during SSL provisioning)
+2. You should be automatically redirected to the "Coming Soon" page
 3. The main app should still work on `https://safehouse2025.netlify.app`
 
 ## Customizing the Holding Page
@@ -68,7 +72,7 @@ Edit `app/pages/coming-soon.vue` to customize:
 
 When you're ready to use the domain for the full app:
 
-1. Remove or comment out the redirect rules in `netlify.toml`
+1. Remove your domain from the `parkedDomains` array in `server/middleware/domain-parking.ts`
 2. Redeploy
 3. Your domain will now show the full SafeHouse application
 

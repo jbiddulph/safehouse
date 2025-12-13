@@ -8,17 +8,6 @@
 [functions]
   node_bundler = "esbuild"
 
-# Redirects for parked domain
-# Replace "your-parked-domain.com" with your actual domain
-# Uncomment and configure when ready to use
-[[redirects]]
-  from = "https://mysafehouse.co.uk/*"
-  to = "/coming-soon"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "https://www.mysafehouse.co.uk/*"
-  to = "/coming-soon"
-  status = 200
-  force = true
+# Domain parking is handled by server/middleware/domain-parking.ts
+# This middleware checks the hostname and redirects parked domains to /coming-soon
+# No redirects needed here - the middleware handles it server-side
