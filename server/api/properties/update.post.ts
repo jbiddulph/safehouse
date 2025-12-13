@@ -12,7 +12,13 @@ export default defineEventHandler(async (event) => {
     country = 'GB', 
     property_type = 'residential',
     latitude,
-    longitude
+    longitude,
+    keysafe_location,
+    keysafe_code,
+    keysafe_notes,
+    keysafe_what3words,
+    keysafe_latitude,
+    keysafe_longitude
   } = body
 
   if (!id || !property_name || !address || !city) {
@@ -43,20 +49,53 @@ export default defineEventHandler(async (event) => {
   )
 
   try {
+    // Prepare update data
+    const updateData: any = {
+      property_name,
+      address,
+      city,
+      state,
+      postal_code,
+      country,
+      property_type,
+      latitude: parseFloat(latitude),
+      longitude: parseFloat(longitude),
+      updated_at: new Date().toISOString()
+    }
+
+    // Add keysafe fields if provided
+    if (keysafe_location !== undefined) {
+      updateData.keysafe_location = keysafe_location || null
+    }
+    if (keysafe_code !== undefined) {
+      updateData.keysafe_code = keysafe_code || null
+      // Update the timestamp when code is changed
+      if (keysafe_code) {
+        updateData.keysafe_code_updated_at = new Date().toISOString()
+      } else {
+        updateData.keysafe_code_updated_at = null
+      }
+    }
+    if (keysafe_notes !== undefined) {
+      updateData.keysafe_notes = keysafe_notes || null
+    }
+    if (keysafe_what3words !== undefined) {
+      updateData.keysafe_what3words = keysafe_what3words || null
+    }
+    if (keysafe_latitude !== null && keysafe_latitude !== undefined) {
+      updateData.keysafe_latitude = parseFloat(keysafe_latitude)
+    } else if (keysafe_latitude === null) {
+      updateData.keysafe_latitude = null
+    }
+    if (keysafe_longitude !== null && keysafe_longitude !== undefined) {
+      updateData.keysafe_longitude = parseFloat(keysafe_longitude)
+    } else if (keysafe_longitude === null) {
+      updateData.keysafe_longitude = null
+    }
+
     const { data, error } = await supabase
       .from('safehouse_properties')
-      .update({
-        property_name,
-        address,
-        city,
-        state,
-        postal_code,
-        country,
-        property_type,
-        latitude: parseFloat(latitude),
-        longitude: parseFloat(longitude),
-        updated_at: new Date().toISOString()
-      })
+      .update(updateData)
       .eq('id', id)
       .select()
       .single()

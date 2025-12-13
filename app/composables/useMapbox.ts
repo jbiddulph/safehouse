@@ -25,6 +25,7 @@ export const useMapbox = () => {
       boxZoom?: boolean
       keyboard?: boolean
       attributionControl?: boolean
+      style?: string // Mapbox style URL (e.g., 'mapbox://styles/mapbox/satellite-v9')
     } = {}
   ): mapboxgl.Map | null => {
     if (!mapboxToken) {
@@ -102,7 +103,7 @@ export const useMapbox = () => {
     
     const map = new mapboxgl.Map({
       container: mapElement,
-      style: 'mapbox://styles/mapbox/streets-v12',
+      style: options.style || 'mapbox://styles/mapbox/streets-v12',
       center: options.center || [-2.2374, 53.4808], // Default to Manchester, UK
       zoom: options.zoom || 13,
       // Interaction options (defaults to enabled unless explicitly disabled)

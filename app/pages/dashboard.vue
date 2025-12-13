@@ -229,8 +229,8 @@
         </div>
       </div>
 
-      <!-- Properties and Contacts Grid -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Property Section (Single Column) -->
+      <div class="max-w-4xl">
         <!-- Properties Section -->
         <div class="bg-white shadow rounded-lg">
           <div class="px-4 py-5 sm:p-6">
@@ -317,19 +317,51 @@
                 </div>
               </div>
               
-              <!-- Property Contacts -->
+              <!-- Emergency Contacts Section -->
               <div class="bg-gray-50 rounded-lg p-4">
-                <div class="flex items-center justify-between mb-3">
-                  <h4 class="text-sm font-semibold text-gray-900">Contacts</h4>
-                  <button @click="viewPropertyDetails(currentProperty)" class="text-xs text-[#03045e] hover:text-[#8ee0ee] font-medium">
-                    View All →
+                <div class="flex items-center justify-between mb-4">
+                  <h4 class="text-sm font-semibold text-gray-900">Emergency Contacts</h4>
+                  <button @click="showAddContact = true" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs leading-4 font-medium rounded-md text-white bg-[#03045e] hover:bg-[#03045e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee]">
+                    <Icon name="mdi:plus" class="-ml-0.5 mr-1.5 h-4 w-4" />
+                    Add Contact
                   </button>
                 </div>
-                <div v-if="currentProperty.safehouse_property_contacts && currentProperty.safehouse_property_contacts[0] && currentProperty.safehouse_property_contacts[0].count > 0" class="text-sm text-gray-700">
-                  {{ currentProperty.safehouse_property_contacts[0].count }} contact{{ currentProperty.safehouse_property_contacts[0].count !== 1 ? 's' : '' }} assigned
+                
+                <!-- Contacts List -->
+                <div v-if="propertyContacts.length > 0" class="space-y-3 mt-3">
+                  <div v-for="pc in propertyContacts" :key="pc.id" class="border rounded-lg p-3 bg-white">
+                    <div class="flex items-center justify-between">
+                      <div class="flex-1">
+                        <h5 class="text-sm font-medium text-gray-900">{{ pc.contact.contact_name }}</h5>
+                        <p class="text-sm text-gray-500">{{ pc.contact.email }}</p>
+                        <p v-if="pc.contact.phone" class="text-xs text-gray-400">{{ pc.contact.phone }}</p>
+                        <div class="flex space-x-2 mt-1">
+                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[#f0f9fb] text-[#03045e]">
+                            {{ pc.relationship_type.replace('_', ' ').toUpperCase() }}
+                          </span>
+                          <span v-if="pc.can_grant_access" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[#f0f9fb] text-[#03045e]">
+                            Can Grant Access
+                          </span>
+                        </div>
+                      </div>
+                      <div class="flex items-center space-x-2">
+                        <button @click="editContact(pc.contact)" class="text-[#8ee0ee] hover:text-[#03045e] text-sm font-medium">
+                          Edit
+                        </button>
+                        <button @click="removeContactFromProperty(pc.id)" class="text-red-600 hover:text-red-800 text-sm font-medium">
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div v-else class="text-sm text-gray-500">
-                  No contacts assigned yet
+                <div v-else class="text-center py-4 text-sm text-gray-500">
+                  <Icon name="mdi:account-group" class="mx-auto h-8 w-8 text-gray-400 mb-2" />
+                  <p>No emergency contacts assigned to this property yet.</p>
+                  <button @click="showAddContact = true" class="mt-3 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#03045e] hover:bg-[#03045e]">
+                    <Icon name="mdi:plus" class="-ml-1 mr-2 h-4 w-4" />
+                    Add Your First Contact
+                  </button>
                 </div>
               </div>
             </div>
@@ -385,64 +417,6 @@
                         </button>
                       </div>
                     </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Contacts Section -->
-        <div class="bg-white shadow rounded-lg">
-          <div class="px-4 py-5 sm:p-6">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg leading-6 font-medium text-gray-900">Emergency Contacts</h3>
-              <button @click="showAddContact = true" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-[#03045e] hover:bg-[#03045e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee]">
-                <Icon name="mdi:plus" class="-ml-0.5 mr-2 h-4 w-4" />
-                Add Contact
-              </button>
-            </div>
-            <div v-if="contacts.length === 0" class="text-center py-6">
-              <Icon name="mdi:account-group" class="mx-auto h-12 w-12 text-gray-400" />
-              <h3 class="mt-2 text-sm font-medium text-gray-900">No contacts yet</h3>
-              <p class="mt-1 text-sm text-gray-500">Add emergency contacts for property access.</p>
-              <div class="mt-6">
-                <button @click="showAddContact = true" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#03045e] hover:bg-[#03045e]">
-                  <Icon name="mdi:plus" class="-ml-1 mr-2 h-5 w-5" />
-                  Add Your First Contact
-                </button>
-              </div>
-            </div>
-            <div v-else class="space-y-4">
-              <div v-for="contact in contacts" :key="contact.id" class="border rounded-lg p-4 hover:bg-gray-50">
-                <div class="flex items-center justify-between">
-                  <div class="flex-1">
-                    <div class="flex items-center space-x-3">
-                      <div>
-                        <h4 class="text-sm font-medium text-gray-900">{{ contact.contact_name }}</h4>
-                        <p class="text-sm text-gray-500">{{ contact.email }}</p>
-                        <p class="text-xs text-gray-400">{{ contact.relationship }}</p>
-                      </div>
-                    </div>
-                    <div class="flex items-center space-x-2 mt-2">
-                      <span v-if="contact.is_primary" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#f0f9fb] text-[#03045e]">
-                        Primary
-                      </span>
-                      <span v-if="contact.is_tenant" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#f0f9fb] text-[#03045e]">
-                        Tenant
-                      </span>
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                        {{ contact.emergency_access_level }}
-                      </span>
-                    </div>
-                  </div>
-                  <div class="flex items-center space-x-2">
-                    <button @click="editContact(contact)" class="text-[#8ee0ee] hover:text-[#03045e] text-sm font-medium">
-                      Edit
-                    </button>
-                    <button @click="deleteContact(contact.id)" class="text-red-600 hover:text-red-800 text-sm font-medium">
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -659,6 +633,87 @@
               </div>
             </div>
             
+            <!-- Add Contact Section (Optional) -->
+            <div class="border-t pt-4 mt-4">
+              <div class="flex items-center justify-between mb-3">
+                <h4 class="text-sm font-semibold text-gray-900">Add Emergency Contact (Optional)</h4>
+                <button 
+                  type="button"
+                  @click="showAddContactInPropertyForm = !showAddContactInPropertyForm"
+                  class="text-xs text-[#03045e] hover:text-[#8ee0ee] font-medium"
+                >
+                  {{ showAddContactInPropertyForm ? 'Hide' : 'Add Contact' }}
+                </button>
+              </div>
+              
+              <div v-if="showAddContactInPropertyForm" class="space-y-4 bg-gray-50 p-4 rounded-lg">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Contact Name</label>
+                  <input 
+                    v-model="propertyFormContact.contact_name" 
+                    type="text" 
+                    placeholder="Enter contact name"
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                  >
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Email</label>
+                  <input 
+                    v-model="propertyFormContact.email" 
+                    type="email" 
+                    placeholder="Enter email address"
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                  >
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Phone (Optional)</label>
+                  <input 
+                    v-model="propertyFormContact.phone" 
+                    type="tel" 
+                    placeholder="Enter phone number"
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                  >
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Relationship</label>
+                  <select 
+                    v-model="propertyFormContact.relationship" 
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                  >
+                    <option value="">Select relationship</option>
+                    <option value="next_of_kin">Next of Kin</option>
+                    <option value="family">Family Member</option>
+                    <option value="friend">Friend</option>
+                    <option value="colleague">Colleague</option>
+                    <option value="neighbor">Neighbor</option>
+                    <option value="tenant">Tenant</option>
+                    <option value="property_manager">Property Manager</option>
+                    <option value="maintenance">Maintenance</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Emergency Access Level</label>
+                  <select 
+                    v-model="propertyFormContact.emergency_access_level" 
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                  >
+                    <option value="standard">Standard</option>
+                    <option value="limited">Limited</option>
+                    <option value="full">Full</option>
+                  </select>
+                </div>
+                <div class="flex items-center">
+                  <input 
+                    v-model="propertyFormContact.is_primary" 
+                    type="checkbox" 
+                    class="h-4 w-4 text-[#8ee0ee] border-gray-300 rounded"
+                  >
+                  <label class="ml-2 block text-sm text-gray-700">Primary emergency contact</label>
+                </div>
+              </div>
+            </div>
+            
             <div class="flex justify-end space-x-3 pt-4">
               <button @click="showAddProperty = false" type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
                 Cancel
@@ -820,6 +875,7 @@
                     {{ property.property_name }}
                   </option>
                 </select>
+                <p v-if="currentProperty" class="mt-1 text-xs text-gray-500">This contact will be linked to: {{ currentProperty.property_name }}</p>
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700">Emergency Access Level</label>
@@ -1027,9 +1083,30 @@
               <Icon name="mdi:close" class="h-6 w-6" />
             </button>
           </div>
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Form Section -->
-            <form @submit.prevent="updateProperty" class="space-y-4">
+          
+          <!-- Full Width Satellite Map at Top -->
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Property Location (Satellite View)</label>
+            <p class="text-xs text-gray-500 mb-2">Click or drag the marker to set the property location</p>
+            <div 
+              ref="editPropertyMapContainer" 
+              class="w-full h-96 rounded-lg border border-gray-300 overflow-hidden relative"
+              style="min-height: 384px; width: 100%; position: relative;"
+            >
+              <div v-if="editReverseGeocoding" class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
+                <div class="text-center">
+                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#03045e] mx-auto mb-2"></div>
+                  <p class="text-sm text-gray-600">Getting address...</p>
+                </div>
+              </div>
+            </div>
+            <p v-if="editMapMarker" class="mt-2 text-xs text-gray-600">
+              Location set: {{ editMapMarker.lat.toFixed(6) }}, {{ editMapMarker.lng.toFixed(6) }}
+            </p>
+          </div>
+          
+          <!-- Form Section -->
+          <form @submit.prevent="updateProperty" class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-700">Property Name</label>
               <input v-model="editingProperty.property_name" type="text" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900">
@@ -1102,6 +1179,74 @@
                 <option value="vacation">Vacation</option>
               </select>
             </div>
+            
+            <!-- Keysafe Information Section -->
+            <div class="border-t pt-4 mt-4">
+              <h4 class="text-sm font-semibold text-gray-900 mb-3">Keysafe Information (Optional)</h4>
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Keysafe Location</label>
+                  <input 
+                    v-model="editingProperty.keysafe_location" 
+                    type="text" 
+                    placeholder="e.g., Front door, Garage, Side entrance"
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                  >
+                  <p class="mt-1 text-xs text-gray-500">Where is the keysafe located?</p>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Keysafe Code</label>
+                  <input 
+                    v-model="editingProperty.keysafe_code" 
+                    type="text" 
+                    placeholder="Enter the keysafe access code"
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                  >
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">What 3 Words</label>
+                  <input 
+                    v-model="editingProperty.keysafe_what3words" 
+                    type="text" 
+                    placeholder="e.g., ///filled.count.soap"
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                  >
+                  <p class="mt-1 text-xs text-gray-500">Enter the What 3 Words location (format: ///word1.word2.word3)</p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700">Keysafe Latitude</label>
+                    <input 
+                      v-model="editingProperty.keysafe_latitude" 
+                      type="number" 
+                      step="any"
+                      placeholder="e.g., 51.5074"
+                      class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                    >
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700">Keysafe Longitude</label>
+                    <input 
+                      v-model="editingProperty.keysafe_longitude" 
+                      type="number" 
+                      step="any"
+                      placeholder="e.g., -0.1278"
+                      class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                    >
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Notes</label>
+                  <textarea 
+                    v-model="editingProperty.keysafe_notes" 
+                    rows="3"
+                    placeholder="Any additional notes about the keysafe..."
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+            
             <div class="flex justify-end space-x-3 pt-4">
               <button @click="showEditProperty = false" type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
                 Cancel
@@ -1111,27 +1256,6 @@
               </button>
             </div>
           </form>
-          
-          <!-- Map Section -->
-          <div class="lg:sticky lg:top-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Select Location on Map</label>
-            <p class="text-xs text-gray-500 mb-2">Click on the map to set the property location</p>
-            <div 
-              ref="editPropertyMapContainer" 
-              class="w-full h-96 rounded-lg border border-gray-300 overflow-hidden relative"
-              style="min-height: 384px; width: 100%; position: relative;"
-            >
-              <div v-if="editReverseGeocoding" class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
-                <div class="text-center">
-                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#03045e] mx-auto mb-2"></div>
-                  <p class="text-sm text-gray-600">Getting address...</p>
-                </div>
-              </div>
-            </div>
-            <p v-if="editMapMarker" class="mt-2 text-xs text-gray-600">
-              Location set: {{ editMapMarker.lat.toFixed(6) }}, {{ editMapMarker.lng.toFixed(6) }}
-            </p>
-          </div>
           </div>
         </div>
       </div>
@@ -1165,6 +1289,7 @@ const contacts = ref([])
 const showProfileMenu = ref(false)
 const showMobileMenu = ref(false)
 const showAddProperty = ref(false)
+const showAddContactInPropertyForm = ref(false)
 const selectedPropertyId = ref<string | null>(null)
 const currentViewProperty = ref<any>(null)
 
@@ -1203,6 +1328,15 @@ watch(() => properties.value.length, (newLength) => {
   }
 }, { immediate: true })
 
+// Load property contacts when current property changes
+watch(currentProperty, async (newProperty) => {
+  if (newProperty && newProperty.id) {
+    await loadPropertyContacts(newProperty.id)
+  } else {
+    propertyContacts.value = []
+  }
+}, { immediate: true })
+
 // Handle canceling property form - show prompt if it's the first property
 function handleCancelAddProperty() {
   showAddProperty.value = false
@@ -1211,6 +1345,14 @@ function handleCancelAddProperty() {
     showFirstPropertyPrompt.value = true
   }
 }
+
+// Auto-set property when opening add contact modal
+watch(showAddContact, (isOpen) => {
+  if (isOpen && currentProperty.value) {
+    // Pre-select the current property when adding a contact
+    newContact.value.tenant_property_id = currentProperty.value.id
+  }
+})
 
 // Watch for modal opening to initialize map
 watch(showAddProperty, (isOpen) => {
@@ -1369,7 +1511,13 @@ const editingProperty = ref({
   country: 'GB',
   property_type: 'residential',
   latitude: null as number | null,
-  longitude: null as number | null
+  longitude: null as number | null,
+  keysafe_location: '',
+  keysafe_code: '',
+  keysafe_notes: '',
+  keysafe_what3words: '',
+  keysafe_latitude: null as number | null,
+  keysafe_longitude: null as number | null
 })
 
 // Address autocomplete for edit property form
@@ -1416,6 +1564,16 @@ const newPropertyContact = ref({
   relationship_type: 'emergency_contact',
   can_grant_access: false,
   notification_priority: 1
+})
+
+// Contact form data for adding contact during property creation
+const propertyFormContact = ref({
+  contact_name: '',
+  email: '',
+  phone: '',
+  relationship: '',
+  is_primary: false,
+  emergency_access_level: 'standard'
 })
 
 // Computed property to get the default relationship type for a selected contact
@@ -1810,6 +1968,16 @@ watch(showAddProperty, (isOpen) => {
     })
   } else {
     cleanupPropertyMap()
+    // Reset contact form when modal closes
+    propertyFormContact.value = {
+      contact_name: '',
+      email: '',
+      phone: '',
+      relationship: '',
+      is_primary: false,
+      emergency_access_level: 'standard'
+    }
+    showAddContactInPropertyForm.value = false
   }
 })
 
@@ -1978,6 +2146,53 @@ async function createProperty() {
       // Auto-select the newly created property
       selectedPropertyId.value = property.id
       currentViewProperty.value = property
+      
+      // If contact form was filled, create the contact and link it to the property
+      if (showAddContactInPropertyForm.value && 
+          propertyFormContact.value.contact_name && 
+          propertyFormContact.value.email) {
+        try {
+          // Create the contact
+          const { success: contactSuccess, contact } = await $fetch('/api/contacts', {
+            method: 'POST',
+            body: {
+              contact_name: propertyFormContact.value.contact_name,
+              email: propertyFormContact.value.email,
+              phone: propertyFormContact.value.phone || '',
+              relationship: propertyFormContact.value.relationship || 'other',
+              is_primary: propertyFormContact.value.is_primary,
+              is_tenant: false,
+              emergency_access_level: propertyFormContact.value.emergency_access_level,
+              user_id: session.user.id
+            }
+          })
+          
+          if (contactSuccess && contact) {
+            // Link the contact to the property
+            const { success: linkSuccess } = await $fetch('/api/property-contacts/add', {
+              method: 'POST',
+              body: {
+                propertyId: property.id,
+                contactId: contact.id,
+                relationshipType: 'emergency_contact',
+                canGrantAccess: false,
+                notificationPriority: propertyFormContact.value.is_primary ? 1 : 2
+              }
+            })
+            
+            if (linkSuccess) {
+              // Reload property contacts to show the new contact
+              await loadPropertyContacts()
+              console.log('Contact created and linked to property successfully')
+            }
+          }
+        } catch (contactError: any) {
+          console.error('Failed to create contact during property creation:', contactError)
+          // Don't fail the property creation if contact creation fails
+          // Just log the error and continue
+        }
+      }
+      
       showAddProperty.value = false
       showFirstPropertyPrompt.value = false
       // Reset form
@@ -1998,6 +2213,16 @@ async function createProperty() {
         keysafe_latitude: null,
         keysafe_longitude: null
       }
+      // Reset contact form
+      propertyFormContact.value = {
+        contact_name: '',
+        email: '',
+        phone: '',
+        relationship: '',
+        is_primary: false,
+        emergency_access_level: 'standard'
+      }
+      showAddContactInPropertyForm.value = false
       // Reload credits
       await loadCredits()
       // Reset address autocomplete
@@ -2057,14 +2282,26 @@ async function createContact() {
           
           if (success) {
             console.log('Contact automatically linked to property')
+            // Reload property contacts to show the new contact
+            if (currentProperty.value) {
+              await loadPropertyContacts(currentProperty.value.id)
+            }
           }
         } catch (error) {
           console.error('Failed to link contact to property:', error)
           // Don't fail the contact creation if property linking fails
         }
+      } else if (currentProperty.value) {
+        // If no property was selected but we have a current property, reload contacts anyway
+        await loadPropertyContacts(currentProperty.value.id)
       }
       
       showAddContact.value = false
+      // Reload contacts and property contacts if a property is selected
+      await loadContacts()
+      if (currentProperty.value) {
+        await loadPropertyContacts(currentProperty.value.id)
+      }
       // Reset form
       newContact.value = {
         contact_name: '',
@@ -2243,6 +2480,10 @@ async function removeContactFromProperty(propertyContactId) {
       if (index > -1) {
         propertyContacts.value.splice(index, 1)
       }
+      // Reload property contacts to ensure UI is in sync
+      if (currentProperty.value) {
+        await loadPropertyContacts(currentProperty.value.id)
+      }
       alert('Contact removed from property successfully!')
     }
   } catch (error) {
@@ -2314,8 +2555,14 @@ async function editProperty(property) {
     postal_code: property.postal_code || '',
     country: property.country || 'GB',
     property_type: property.property_type || 'residential',
-    latitude: property.latitude ? parseFloat(property.latitude) : null,
-    longitude: property.longitude ? parseFloat(property.longitude) : null
+    latitude: property.latitude ? parseFloat(String(property.latitude)) : null,
+    longitude: property.longitude ? parseFloat(String(property.longitude)) : null,
+    keysafe_location: property.keysafe_location || '',
+    keysafe_code: property.keysafe_code || '',
+    keysafe_notes: property.keysafe_notes || '',
+    keysafe_what3words: property.keysafe_what3words || '',
+    keysafe_latitude: property.keysafe_latitude ? parseFloat(String(property.keysafe_latitude)) : null,
+    keysafe_longitude: property.keysafe_longitude ? parseFloat(String(property.keysafe_longitude)) : null
   }
   
   // Set address query for autocomplete
@@ -2354,7 +2601,13 @@ async function updateProperty() {
         country: editingProperty.value.country,
         property_type: editingProperty.value.property_type,
         latitude: editingProperty.value.latitude,
-        longitude: editingProperty.value.longitude
+        longitude: editingProperty.value.longitude,
+        keysafe_location: editingProperty.value.keysafe_location || null,
+        keysafe_code: editingProperty.value.keysafe_code || null,
+        keysafe_notes: editingProperty.value.keysafe_notes || null,
+        keysafe_what3words: editingProperty.value.keysafe_what3words || null,
+        keysafe_latitude: editingProperty.value.keysafe_latitude || null,
+        keysafe_longitude: editingProperty.value.keysafe_longitude || null
       }
     })
 
@@ -2363,6 +2616,19 @@ async function updateProperty() {
       const index = properties.value.findIndex(p => p.id === editingProperty.value.id)
       if (index > -1) {
         properties.value[index] = updatedProperty
+      }
+      
+      // If this is the currently selected property, update it
+      if (selectedPropertyId.value === updatedProperty.id) {
+        // Trigger reactivity by updating the selected property
+        const updatedIndex = properties.value.findIndex(p => p.id === updatedProperty.id)
+        if (updatedIndex > -1) {
+          // Force reactivity update
+          selectedPropertyId.value = null
+          nextTick(() => {
+            selectedPropertyId.value = updatedProperty.id
+          })
+        }
       }
       
       showEditProperty.value = false
@@ -2423,6 +2689,7 @@ function initEditPropertyMap() {
         editPropertyMap.value = initMap(editPropertyMapContainer.value, {
           center,
           zoom: editingProperty.value.latitude && editingProperty.value.longitude ? 15 : 6,
+          style: 'mapbox://styles/mapbox/satellite-v9', // Use satellite view
           onMapClick: async (lng: number, lat: number) => {
             await handleEditMapClick(lng, lat)
           }
