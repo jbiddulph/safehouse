@@ -51,7 +51,7 @@ export default defineNuxtConfig({
     googleApiKey: process.env.GOOGLE_API,
     stripeSecretKey: process.env.STRIPE_SECRET_KEY,
     public: {
-      baseUrl: process.env.BASE_URL || process.env.NETLIFY_URL || 'https://safehouse2025.netlify.app',
+      baseUrl: process.env.BASE_URL || process.env.NETLIFY_URL || 'https://mysafehouse.netlify.app',
       supabaseUrl: process.env.SUPABASE_URL,
       supabaseKey: process.env.SUPABASE_ANON_KEY,
       googleApiKey: process.env.GOOGLE_API,

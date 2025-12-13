@@ -1907,6 +1907,13 @@ model safehouse_properties {
   qr_code                 String?  @unique
   nfc_id                  String?  @unique
   emergency_access_enabled Boolean @default(true)
+  keysafe_location        String?  // Location description of the keysafe (e.g., "Front door", "Garage")
+  keysafe_code            String?  // The code to access the keysafe
+  keysafe_notes           String?  // Additional notes about the keysafe
+  keysafe_code_updated_at DateTime? @db.Timestamptz(6) // When the keysafe code was last updated
+  keysafe_what3words      String?  // What 3 Words location for the keysafe
+  keysafe_latitude        Decimal? @db.Decimal(10, 8) // Latitude of the keysafe location
+  keysafe_longitude       Decimal? @db.Decimal(11, 8) // Longitude of the keysafe location
   created_at              DateTime? @default(now()) @db.Timestamptz(6)
   updated_at              DateTime? @default(now()) @db.Timestamptz(6)
   access_codes            safehouse_access_codes[]

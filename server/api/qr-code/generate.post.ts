@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Generate QR code URL with property ID - links to property page
-    const baseUrl = process.env.BASE_URL || 'https://safehouse2025.netlify.app'
+    const baseUrl = process.env.BASE_URL || 'https://mysafehouse.netlify.app'
     const qrCodeUrl = `${baseUrl}/property/${property.id}`
     
     // Generate QR code data URL

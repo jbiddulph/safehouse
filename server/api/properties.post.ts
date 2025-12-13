@@ -13,6 +13,12 @@ export default defineEventHandler(async (event) => {
     property_type = 'residential',
     latitude,
     longitude,
+    keysafe_location,
+    keysafe_code,
+    keysafe_notes,
+    keysafe_what3words,
+    keysafe_latitude,
+    keysafe_longitude,
     user_id 
   } = body
 
@@ -103,23 +109,48 @@ export default defineEventHandler(async (event) => {
     const qrCode = `SH-${randomBytes(8).toString('hex').toUpperCase()}`
     const nfcId = `NFC-${randomBytes(8).toString('hex').toUpperCase()}`
 
+    // Prepare insert data
+    const insertData: any = {
+      user_id,
+      property_name,
+      address,
+      city,
+      state,
+      postal_code,
+      country,
+      property_type,
+      latitude: parseFloat(latitude),
+      longitude: parseFloat(longitude),
+      qr_code: qrCode,
+      nfc_id: nfcId,
+      emergency_access_enabled: true
+    }
+
+    // Add keysafe fields if provided
+    if (keysafe_location) {
+      insertData.keysafe_location = keysafe_location
+    }
+    if (keysafe_code) {
+      insertData.keysafe_code = keysafe_code
+      // Set the updated_at timestamp when code is provided
+      insertData.keysafe_code_updated_at = new Date().toISOString()
+    }
+    if (keysafe_notes) {
+      insertData.keysafe_notes = keysafe_notes
+    }
+    if (keysafe_what3words) {
+      insertData.keysafe_what3words = keysafe_what3words
+    }
+    if (keysafe_latitude !== null && keysafe_latitude !== undefined) {
+      insertData.keysafe_latitude = parseFloat(keysafe_latitude)
+    }
+    if (keysafe_longitude !== null && keysafe_longitude !== undefined) {
+      insertData.keysafe_longitude = parseFloat(keysafe_longitude)
+    }
+
     const { data, error } = await supabase
       .from('safehouse_properties')
-      .insert({
-        user_id,
-        property_name,
-        address,
-        city,
-        state,
-        postal_code,
-        country,
-        property_type,
-        latitude: parseFloat(latitude),
-        longitude: parseFloat(longitude),
-        qr_code: qrCode,
-        nfc_id: nfcId,
-        emergency_access_enabled: true
-      })
+      .insert(insertData)
       .select()
       .single()
 

@@ -57,7 +57,7 @@ After adding your domain to Netlify:
 
 1. Visit your parked domain (e.g., `https://mysafehouse.co.uk` or `http://mysafehouse.co.uk` during SSL provisioning)
 2. You should be automatically redirected to the "Coming Soon" page
-3. The main app should still work on `https://safehouse2025.netlify.app`
+3. The main app should still work on `https://mysafehouse.netlify.app`
 
 ## Customizing the Holding Page
 

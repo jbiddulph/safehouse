@@ -9,7 +9,7 @@ If your subscription status is stuck at "pending" after payment, the Stripe webh
 
 1. Go to [Stripe Dashboard](https://dashboard.stripe.com) → Developers → Webhooks
 2. Click "Add endpoint"
-3. Set the endpoint URL to: `https://safehouse2025.netlify.app/api/stripe/webhook`
+3. Set the endpoint URL to: `https://mysafehouse.netlify.app/api/stripe/webhook`
    - **IMPORTANT:** Only add `/api/stripe/webhook` - NOT the webhook-debug endpoint
    - The webhook-debug endpoint is just for debugging, not a webhook
 4. Select events to listen for:

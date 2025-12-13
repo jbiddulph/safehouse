@@ -106,10 +106,26 @@ onMounted(async () => {
       verified.value = true
       // Mark as verified in localStorage to prevent re-verification
       localStorage.setItem(verificationKey, 'true')
-      // Navigate to dashboard after a short delay
-      setTimeout(() => {
-        navigateTo('/dashboard')
-      }, 2000)
+      
+      // Check if user has any properties
+      try {
+        const { properties } = await $fetch('/api/properties', {
+          headers: {
+            authorization: `Bearer ${session.access_token}`
+          }
+        })
+        
+        // Navigate to dashboard with flag to show property form if no properties
+        const hasProperties = properties && properties.length > 0
+        setTimeout(() => {
+          navigateTo(hasProperties ? '/dashboard' : '/dashboard?addFirstProperty=true')
+        }, 2000)
+      } catch (error) {
+        // If check fails, just navigate to dashboard
+        setTimeout(() => {
+          navigateTo('/dashboard?addFirstProperty=true')
+        }, 2000)
+      }
     } else {
       verificationError.value = result.message || 'Payment verification failed'
     }

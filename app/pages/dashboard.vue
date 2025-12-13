@@ -18,6 +18,20 @@
             
             <!-- Navigation Menu -->
             <nav class="hidden md:flex items-center space-x-6">
+              <!-- Property Switcher (if user has multiple properties) -->
+              <div v-if="properties.length > 1" class="relative">
+                <select 
+                  v-model="selectedPropertyId" 
+                  @change="switchProperty"
+                  class="bg-[#03045e] border border-[#8ee0ee] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#8ee0ee] cursor-pointer"
+                >
+                  <option value="" disabled>Select Property</option>
+                  <option v-for="property in properties" :key="property.id" :value="property.id">
+                    {{ property.property_name }}
+                  </option>
+                </select>
+              </div>
+              
               <NuxtLink to="/about" class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors">
                 About Us
               </NuxtLink>
@@ -220,8 +234,27 @@
         <!-- Properties Section -->
         <div class="bg-white shadow rounded-lg">
           <div class="px-4 py-5 sm:p-6">
-            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Your Properties</h3>
-            <div v-if="properties.length === 0" class="text-center py-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg leading-6 font-medium text-gray-900">
+                <span v-if="currentProperty">{{ currentProperty.property_name }}</span>
+                <span v-else>Your Properties</span>
+              </h3>
+              <button v-if="currentProperty" @click="editProperty(currentProperty)" class="text-sm text-[#03045e] hover:text-[#8ee0ee] font-medium">
+                Edit Property
+              </button>
+            </div>
+            <!-- First Property Prompt -->
+            <div v-if="showFirstPropertyPrompt && properties.length === 0" class="text-center py-8 bg-gradient-to-r from-[#03045e] to-[#023e8a] rounded-lg shadow-lg p-6 text-white">
+              <Icon name="mdi:home-plus" class="mx-auto h-16 w-16 text-[#8ee0ee] mb-4" />
+              <h3 class="text-xl font-bold mb-2">Add Your First Property Now</h3>
+              <p class="text-[#8ee0ee] mb-6">Get started by adding your first property to begin managing access and emergency contacts.</p>
+              <button @click="showAddProperty = true; showFirstPropertyPrompt = false" class="inline-flex items-center px-6 py-3 border border-transparent shadow-lg text-base font-semibold text-[#03045e] bg-white hover:bg-gray-100 rounded-lg transition-colors duration-200">
+                <Icon name="mdi:plus" class="-ml-1 mr-2 h-5 w-5" />
+                Add Your First Property
+              </button>
+            </div>
+            
+            <div v-else-if="properties.length === 0" class="text-center py-6">
               <Icon name="mdi:home" class="mx-auto h-12 w-12 text-gray-400" />
               <h3 class="mt-2 text-sm font-medium text-gray-900">No properties</h3>
               <p class="mt-1 text-sm text-gray-500">Get started by adding your first property.</p>
@@ -232,6 +265,76 @@
                 </button>
               </div>
             </div>
+            <!-- Property Details View (when property is selected) -->
+            <div v-else-if="currentProperty" class="space-y-4">
+              <!-- Property Address -->
+              <div class="bg-gray-50 rounded-lg p-4">
+                <h4 class="text-sm font-semibold text-gray-900 mb-2">Address</h4>
+                <p class="text-sm text-gray-700">{{ currentProperty.address }}, {{ currentProperty.city }}{{ currentProperty.postal_code ? `, ${currentProperty.postal_code}` : '' }}</p>
+              </div>
+              
+              <!-- Property Map -->
+              <div v-if="hasValidCoordinates(currentProperty)" class="bg-gray-50 rounded-lg p-4">
+                <h4 class="text-sm font-semibold text-gray-900 mb-2">Location</h4>
+                <img 
+                  :src="getPropertyMapUrl(currentProperty.longitude, currentProperty.latitude)"
+                  :alt="`Map of ${currentProperty.property_name}`"
+                  class="w-full h-48 rounded border border-gray-200 object-cover bg-gray-100 cursor-pointer"
+                  @click="viewPropertyDetails(currentProperty)"
+                  @error="handleMapImageError"
+                  loading="lazy"
+                />
+              </div>
+              
+              <!-- Keysafe Information -->
+              <div v-if="currentProperty.keysafe_location || currentProperty.keysafe_code || currentProperty.keysafe_what3words" class="bg-gray-50 rounded-lg p-4">
+                <h4 class="text-sm font-semibold text-gray-900 mb-3">Keysafe Information</h4>
+                <div class="space-y-2">
+                  <div v-if="currentProperty.keysafe_location">
+                    <p class="text-xs font-medium text-gray-500">Location</p>
+                    <p class="text-sm text-gray-900">{{ currentProperty.keysafe_location }}</p>
+                  </div>
+                  <div v-if="currentProperty.keysafe_code">
+                    <p class="text-xs font-medium text-gray-500">Code</p>
+                    <p class="text-sm text-gray-900 font-mono">{{ currentProperty.keysafe_code }}</p>
+                  </div>
+                  <div v-if="currentProperty.keysafe_what3words">
+                    <p class="text-xs font-medium text-gray-500">What 3 Words</p>
+                    <p class="text-sm text-gray-900 font-mono">{{ currentProperty.keysafe_what3words }}</p>
+                  </div>
+                  <div v-if="currentProperty.keysafe_latitude && currentProperty.keysafe_longitude">
+                    <p class="text-xs font-medium text-gray-500">Coordinates</p>
+                    <p class="text-sm text-gray-900">{{ parseFloat(String(currentProperty.keysafe_latitude)).toFixed(6) }}, {{ parseFloat(String(currentProperty.keysafe_longitude)).toFixed(6) }}</p>
+                  </div>
+                  <div v-if="currentProperty.keysafe_code_updated_at">
+                    <p class="text-xs font-medium text-gray-500">Code Last Updated</p>
+                    <p class="text-sm text-gray-900">{{ new Date(currentProperty.keysafe_code_updated_at).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' }) }}</p>
+                  </div>
+                  <div v-if="currentProperty.keysafe_notes">
+                    <p class="text-xs font-medium text-gray-500">Notes</p>
+                    <p class="text-sm text-gray-900 whitespace-pre-wrap">{{ currentProperty.keysafe_notes }}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Property Contacts -->
+              <div class="bg-gray-50 rounded-lg p-4">
+                <div class="flex items-center justify-between mb-3">
+                  <h4 class="text-sm font-semibold text-gray-900">Contacts</h4>
+                  <button @click="viewPropertyDetails(currentProperty)" class="text-xs text-[#03045e] hover:text-[#8ee0ee] font-medium">
+                    View All →
+                  </button>
+                </div>
+                <div v-if="currentProperty.safehouse_property_contacts && currentProperty.safehouse_property_contacts[0] && currentProperty.safehouse_property_contacts[0].count > 0" class="text-sm text-gray-700">
+                  {{ currentProperty.safehouse_property_contacts[0].count }} contact{{ currentProperty.safehouse_property_contacts[0].count !== 1 ? 's' : '' }} assigned
+                </div>
+                <div v-else class="text-sm text-gray-500">
+                  No contacts assigned yet
+                </div>
+              </div>
+            </div>
+            
+            <!-- Properties List View (when multiple properties and none selected) -->
             <div v-else class="space-y-4">
                     <div v-for="property in properties" :key="property.id" class="border rounded-lg p-4 hover:bg-gray-50">
                       <div class="flex items-start gap-4 mb-3">
@@ -409,7 +512,7 @@
         <div class="mt-3">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-medium text-gray-900">Add New Property</h3>
-            <button @click="showAddProperty = false" class="text-gray-400 hover:text-gray-600">
+            <button @click="handleCancelAddProperty" class="text-gray-400 hover:text-gray-600">
               <Icon name="mdi:close" class="h-6 w-6" />
             </button>
           </div>
@@ -488,6 +591,74 @@
                 <option value="vacation">Vacation</option>
               </select>
             </div>
+            
+            <!-- Keysafe Information Section -->
+            <div class="border-t pt-4 mt-4">
+              <h4 class="text-sm font-semibold text-gray-900 mb-3">Keysafe Information (Optional)</h4>
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Keysafe Location</label>
+                  <input 
+                    v-model="newProperty.keysafe_location" 
+                    type="text" 
+                    placeholder="e.g., Front door, Garage, Side entrance"
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                  >
+                  <p class="mt-1 text-xs text-gray-500">Where is the keysafe located?</p>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Keysafe Code</label>
+                  <input 
+                    v-model="newProperty.keysafe_code" 
+                    type="text" 
+                    placeholder="Enter the keysafe access code"
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                  >
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">What 3 Words</label>
+                  <input 
+                    v-model="newProperty.keysafe_what3words" 
+                    type="text" 
+                    placeholder="e.g., ///filled.count.soap"
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                  >
+                  <p class="mt-1 text-xs text-gray-500">Enter the What 3 Words location (format: ///word1.word2.word3)</p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700">Keysafe Latitude</label>
+                    <input 
+                      v-model="newProperty.keysafe_latitude" 
+                      type="number" 
+                      step="any"
+                      placeholder="e.g., 51.5074"
+                      class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                    >
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700">Keysafe Longitude</label>
+                    <input 
+                      v-model="newProperty.keysafe_longitude" 
+                      type="number" 
+                      step="any"
+                      placeholder="e.g., -0.1278"
+                      class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                    >
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Notes</label>
+                  <textarea 
+                    v-model="newProperty.keysafe_notes" 
+                    rows="3"
+                    placeholder="Any additional notes about the keysafe..."
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+            
             <div class="flex justify-end space-x-3 pt-4">
               <button @click="showAddProperty = false" type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
                 Cancel
@@ -711,6 +882,37 @@
                 <span v-if="selectedProperty?.emergency_access_enabled" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#f0f9fb] text-[#03045e]">
                   Emergency Access Enabled
                 </span>
+              </div>
+            </div>
+            
+            <!-- Keysafe Information -->
+            <div v-if="selectedProperty?.keysafe_location || selectedProperty?.keysafe_code || selectedProperty?.keysafe_what3words" class="mt-4 pt-4 border-t border-gray-300">
+              <h4 class="text-sm font-semibold text-gray-900 mb-3">Keysafe Information</h4>
+              <div class="grid grid-cols-2 gap-4">
+                <div v-if="selectedProperty?.keysafe_location">
+                  <p class="text-sm font-medium text-gray-500">Location</p>
+                  <p class="text-sm text-gray-900">{{ selectedProperty.keysafe_location }}</p>
+                </div>
+                <div v-if="selectedProperty?.keysafe_code">
+                  <p class="text-sm font-medium text-gray-500">Code</p>
+                  <p class="text-sm text-gray-900 font-mono">{{ selectedProperty.keysafe_code }}</p>
+                </div>
+                <div v-if="selectedProperty?.keysafe_what3words">
+                  <p class="text-sm font-medium text-gray-500">What 3 Words</p>
+                  <p class="text-sm text-gray-900 font-mono">{{ selectedProperty.keysafe_what3words }}</p>
+                </div>
+                <div v-if="selectedProperty?.keysafe_latitude && selectedProperty?.keysafe_longitude">
+                  <p class="text-sm font-medium text-gray-500">Coordinates</p>
+                  <p class="text-sm text-gray-900">{{ parseFloat(String(selectedProperty.keysafe_latitude)).toFixed(6) }}, {{ parseFloat(String(selectedProperty.keysafe_longitude)).toFixed(6) }}</p>
+                </div>
+                <div v-if="selectedProperty?.keysafe_code_updated_at" class="col-span-2">
+                  <p class="text-sm font-medium text-gray-500">Code Last Updated</p>
+                  <p class="text-sm text-gray-900">{{ new Date(selectedProperty.keysafe_code_updated_at).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' }) }}</p>
+                </div>
+                <div v-if="selectedProperty?.keysafe_notes" class="col-span-2">
+                  <p class="text-sm font-medium text-gray-500">Notes</p>
+                  <p class="text-sm text-gray-900 whitespace-pre-wrap">{{ selectedProperty.keysafe_notes }}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -963,6 +1165,52 @@ const contacts = ref([])
 const showProfileMenu = ref(false)
 const showMobileMenu = ref(false)
 const showAddProperty = ref(false)
+const selectedPropertyId = ref<string | null>(null)
+const currentViewProperty = ref<any>(null)
+
+// Computed property for the currently selected property
+const currentProperty = computed(() => {
+  if (selectedPropertyId.value) {
+    return properties.value.find(p => p.id === selectedPropertyId.value) || null
+  }
+  // If only one property, auto-select it
+  if (properties.value.length === 1) {
+    return properties.value[0]
+  }
+  return null
+})
+
+// Switch property view
+function switchProperty() {
+  if (selectedPropertyId.value) {
+    const property = properties.value.find(p => p.id === selectedPropertyId.value)
+    if (property) {
+      currentViewProperty.value = property
+      viewPropertyDetails(property)
+    }
+  }
+}
+
+// Auto-select first property when properties load
+watch(() => properties.value.length, (newLength) => {
+  if (newLength === 1 && !selectedPropertyId.value) {
+    selectedPropertyId.value = properties.value[0].id
+    currentViewProperty.value = properties.value[0]
+  } else if (newLength > 1 && !selectedPropertyId.value) {
+    // If multiple properties, select first one by default
+    selectedPropertyId.value = properties.value[0].id
+    currentViewProperty.value = properties.value[0]
+  }
+}, { immediate: true })
+
+// Handle canceling property form - show prompt if it's the first property
+function handleCancelAddProperty() {
+  showAddProperty.value = false
+  // If user has no properties, show prompt
+  if (properties.value.length === 0) {
+    showFirstPropertyPrompt.value = true
+  }
+}
 
 // Watch for modal opening to initialize map
 watch(showAddProperty, (isOpen) => {
@@ -1081,7 +1329,13 @@ const newProperty = ref({
   country: 'GB', // Default to UK
   property_type: 'residential',
   latitude: null as number | null,
-  longitude: null as number | null
+  longitude: null as number | null,
+  keysafe_location: '',
+  keysafe_code: '',
+  keysafe_notes: '',
+  keysafe_what3words: '',
+  keysafe_latitude: null as number | null,
+  keysafe_longitude: null as number | null
 })
 
 // Address autocomplete for property form
@@ -1231,6 +1485,9 @@ watch(selectedContactId, (newContactId) => {
   }
 })
 
+const route = useRoute()
+const showFirstPropertyPrompt = ref(false)
+
 onMounted(async () => {
   // Load profile first
   await loadProfile()
@@ -1239,6 +1496,11 @@ onMounted(async () => {
   await loadProperties()
   await loadContacts()
   await loadCredits()
+  
+  // Check if we should auto-show property form (from payment success)
+  if (route.query.addFirstProperty === 'true' && properties.value.length === 0) {
+    showAddProperty.value = true
+  }
 })
 
 async function loadCredits() {
@@ -1713,7 +1975,11 @@ async function createProperty() {
 
     if (success) {
       properties.value.unshift(property)
+      // Auto-select the newly created property
+      selectedPropertyId.value = property.id
+      currentViewProperty.value = property
       showAddProperty.value = false
+      showFirstPropertyPrompt.value = false
       // Reset form
       newProperty.value = {
         property_name: '',
@@ -1724,7 +1990,13 @@ async function createProperty() {
         country: 'GB', // Default to UK
         property_type: 'residential',
         latitude: null,
-        longitude: null
+        longitude: null,
+        keysafe_location: '',
+        keysafe_code: '',
+        keysafe_notes: '',
+        keysafe_what3words: '',
+        keysafe_latitude: null,
+        keysafe_longitude: null
       }
       // Reload credits
       await loadCredits()

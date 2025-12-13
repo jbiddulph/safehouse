@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
   const host = getHeader(event, 'host') || getHeader(event, 'x-forwarded-host')
   const protocol = getHeader(event, 'x-forwarded-proto') || 'https'
   const dynamicBaseUrl = host ? `${protocol}://${host}` : null
-  const baseUrl = dynamicBaseUrl || config.public.baseUrl || 'https://safehouse2025.netlify.app'
+  const baseUrl = dynamicBaseUrl || config.public.baseUrl || 'https://mysafehouse.netlify.app'
 
   if (!toEmail) {
     throw createError({
