@@ -7,3 +7,18 @@
 
 [functions]
   node_bundler = "esbuild"
+
+Redirects for parked domain
+Replace "your-parked-domain.com" with your actual domain
+Uncomment and configure when ready to use
+[[redirects]]
+  from = "https://mysafehouse.co.uk/*"
+  to = "/coming-soon"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "https://www.mysafehouse.co.uk/*"
+  to = "/coming-soon"
+  status = 200
+  force = true
