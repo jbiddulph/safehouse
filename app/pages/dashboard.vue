@@ -1327,6 +1327,8 @@ watch(() => properties.value.length, (newLength) => {
   }
 }, { immediate: true })
 
+const propertyContacts = ref([])
+
 // Load property contacts when current property changes
 watch(currentProperty, async (newProperty) => {
   if (newProperty && newProperty.id) {
@@ -1392,7 +1394,6 @@ const qrCodeLoading = ref(false)
 const qrCodeData = ref(null)
 const selectedQRProperty = ref(null)
 const selectedProperty = ref(null)
-const propertyContacts = ref([])
 
 // Watch for edit property modal opening to initialize map
 watch(showEditProperty, (isOpen) => {
