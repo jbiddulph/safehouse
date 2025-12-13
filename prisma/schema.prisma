@@ -2131,3 +2131,15 @@ model safehouse_settings {
   @@index([setting_key])
   @@schema("public")
 }
+
+// Newsletter signups from coming-soon page
+model safehouse_newsletter {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email      String   @unique // Email address (unique to prevent duplicates)
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([email])
+  @@index([created_at])
+  @@schema("public")
+}
