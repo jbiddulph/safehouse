@@ -62,9 +62,15 @@ export default defineEventHandler(async (event) => {
 
     if (error) {
       console.error('Newsletter subscription error:', error)
+      console.error('Error details:', {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint
+      })
       throw createError({
         statusCode: 500,
-        statusMessage: 'Failed to subscribe to newsletter. Please try again later.'
+        statusMessage: error.message || 'Failed to subscribe to newsletter. Please try again later.'
       })
     }
 

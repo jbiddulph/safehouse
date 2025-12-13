@@ -13,8 +13,21 @@ export default defineEventHandler(async (event) => {
     host.toLowerCase().includes(domain.toLowerCase())
   )
   
-  // Don't redirect if already on coming-soon page or if not a parked domain
-  if (isParkedDomain && url.pathname !== '/coming-soon') {
+  // Don't redirect:
+  // - If not a parked domain
+  // - If already on coming-soon page
+  // - If it's an API route (starts with /api/)
+  // - If it's a static asset (starts with /_nuxt/ or /images/ etc.)
+  const isApiRoute = url.pathname.startsWith('/api/')
+  const isStaticAsset = url.pathname.startsWith('/_nuxt/') || 
+                        url.pathname.startsWith('/images/') ||
+                        url.pathname.startsWith('/favicon') ||
+                        url.pathname.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/i)
+  
+  if (isParkedDomain && 
+      url.pathname !== '/coming-soon' && 
+      !isApiRoute && 
+      !isStaticAsset) {
     return sendRedirect(event, '/coming-soon', 302)
   }
 })
