@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
+import twilio from 'twilio'
 import { sendAccessRequestNotification } from '../../utils/email'
 
 export default defineEventHandler(async (event) => {
@@ -133,7 +134,7 @@ export default defineEventHandler(async (event) => {
 
     const { data: propertyOwner, error: ownerError } = await supabase
       .from('safehouse_profiles')
-      .select('email')
+      .select('email, phone')
       .eq('id', property.user_id)
       .single()
 
@@ -178,6 +179,57 @@ export default defineEventHandler(async (event) => {
         access_type
       )
       console.log('Access request notification sent successfully to property owner:', propertyOwner.email)
+
+      // 6. Send SMS notification to property owner for emergency access requests (if phone + Twilio configured)
+      if (access_type === 'emergency') {
+        const twilioAccountSid = config.twilioAccountSid
+        const twilioAuthToken = config.twilioAuthToken
+        const twilioFromNumber = config.twilioFromNumber
+
+        if (twilioAccountSid && twilioAuthToken && twilioFromNumber && propertyOwner.phone) {
+          try {
+            const client = twilio(twilioAccountSid, twilioAuthToken)
+
+            const smsBodyLines = [
+              `MySafeHouse: Emergency access requested for "${property.property_name}".`,
+              propertyDisplayAddress || property.address,
+              '',
+              `Requester email: ${email}`,
+              '',
+              'Approve: ' + approvalLink,
+              'Deny: ' + denialLink
+            ]
+
+            const smsBody = smsBodyLines
+              .filter(Boolean)
+              .join('\n')
+              .slice(0, 1000) // safety limit
+
+            const toNumber = propertyOwner.phone
+
+            await client.messages.create({
+              to: toNumber,
+              from: twilioFromNumber,
+              body: smsBody
+            })
+
+            console.log('Emergency access SMS sent to property owner:', toNumber)
+          } catch (smsError) {
+            console.error('Error sending Twilio SMS for emergency access:', smsError)
+            // Do not fail the request if SMS fails; email already sent above
+          }
+        } else {
+          console.warn(
+            'Skipping Twilio SMS: missing Twilio config or owner phone number',
+            {
+              hasAccountSid: !!twilioAccountSid,
+              hasAuthToken: !!twilioAuthToken,
+              hasFromNumber: !!twilioFromNumber,
+              hasOwnerPhone: !!propertyOwner.phone
+            }
+          )
+        }
+      }
     } catch (emailError) {
       console.error('Error sending access request notification:', emailError)
       throw createError({

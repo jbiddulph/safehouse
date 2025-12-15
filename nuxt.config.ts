@@ -46,6 +46,10 @@ export default defineNuxtConfig({
     mailtrapUser: process.env.MAILTRAP_USERNAME,
     mailtrapPass: process.env.MAILTRAP_PASSWORD,
     supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    // Twilio (server-side only)
+    twilioAccountSid: process.env.TWILIO_ACCOUNT_SID || process.env.TWILIO_SID,
+    twilioAuthToken: process.env.TWILIO_AUTH_TOKEN || process.env.TWILIO_SECRET,
+    twilioFromNumber: process.env.TWILIO_FROM_NUMBER,
     // DATABASE_URL removed - only needed for Prisma migrations (build-time), not runtime
     // Remove DATABASE_URL from Netlify environment variables to reduce Lambda size
     googleApiKey: process.env.GOOGLE_API,
