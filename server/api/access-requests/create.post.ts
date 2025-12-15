@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
+import twilio from 'twilio'
 import { sendAccessRequestNotification, sendAccessRequestConfirmation } from '../../utils/email'
 import { logAccessRequest } from '../../utils/access-logger'
 
@@ -38,7 +39,7 @@ export default defineEventHandler(async (event) => {
     // 1. Verify the property exists and emergency access is enabled
     const { data: property, error: propertyError } = await supabase
       .from('safehouse_properties')
-      .select('id, emergency_access_enabled, property_name, address')
+      .select('id, user_id, emergency_access_enabled, property_name, address, city, state, postal_code')
       .eq('id', property_id)
       .single()
 
@@ -188,12 +189,12 @@ export default defineEventHandler(async (event) => {
 
     // 9. Push notifications removed - Firebase not in use
 
-    // 10. Send email notifications to property owner and emergency contacts
+    // 10. Send email + SMS notifications to property owner and emergency contacts
     try {
-      // Get property owner's email
+      // Get property owner's email & phone
       const { data: propertyOwner } = await supabase
         .from('safehouse_profiles')
-        .select('email')
+        .select('email, phone')
         .eq('id', property.user_id)
         .single()
 
@@ -204,6 +205,23 @@ export default defineEventHandler(async (event) => {
         .eq('user_id', property.user_id)
         .eq('is_primary', true)
         .not('email', 'is', null)
+
+      // Build a display address for notifications
+      const propertyDisplayAddress = [
+        property.address,
+        property.city,
+        property.state,
+        property.postal_code
+      ].filter(Boolean).join(', ')
+
+      // Compute base URL (needed for approve / deny links in email + SMS)
+      const host = getHeader(event, 'host') || getHeader(event, 'x-forwarded-host')
+      const protocol = getHeader(event, 'x-forwarded-proto') || 'https'
+      const dynamicBaseUrl = host ? `${protocol}://${host}` : null
+      const baseUrl = dynamicBaseUrl || config.public.baseUrl || 'https://mysafehouse.netlify.app'
+
+      const approvalLink = `${baseUrl}/api/access-requests/owner-action?request=${request.id}&token=${verificationToken}&action=approve`
+      const denialLink = `${baseUrl}/api/access-requests/owner-action?request=${request.id}&token=${verificationToken}&action=deny`
 
       // Send email to property owner
       if (propertyOwner?.email) {
@@ -250,6 +268,57 @@ export default defineEventHandler(async (event) => {
       }
 
       console.log('Email notifications sent successfully')
+
+      // Twilio SMS to property owner for emergency access requests (if phone + Twilio configured)
+      // This create endpoint is primarily used for emergency access (QR / phone flow), so we treat all as emergency.
+      const twilioAccountSid = config.twilioAccountSid
+      const twilioAuthToken = config.twilioAuthToken
+      const twilioFromNumber = config.twilioFromNumber
+
+      if (twilioAccountSid && twilioAuthToken && twilioFromNumber && propertyOwner?.phone) {
+        try {
+          const client = twilio(twilioAccountSid, twilioAuthToken)
+
+          const smsBodyLines = [
+            `MySafeHouse: Emergency access requested for "${property.property_name}".`,
+            propertyDisplayAddress || property.address,
+            '',
+            `Requester: ${request.requester_name || 'Unknown'}`,
+            `Contact: ${request.requester_phone || request.requester_email || 'Not provided'}`,
+            '',
+            'Approve: ' + approvalLink,
+            'Deny: ' + denialLink
+          ]
+
+          const smsBody = smsBodyLines
+            .filter(Boolean)
+            .join('\n')
+            .slice(0, 1000) // safety limit
+
+          const toNumber = propertyOwner.phone
+
+          await client.messages.create({
+            to: toNumber,
+            from: twilioFromNumber,
+            body: smsBody
+          })
+
+          console.log('Emergency access SMS (create endpoint) sent to property owner:', toNumber)
+        } catch (smsError) {
+          console.error('Error sending Twilio SMS for emergency access (create endpoint):', smsError)
+          // Do not fail the request if SMS fails; email already sent above
+        }
+      } else {
+        console.warn(
+          'Skipping Twilio SMS (create endpoint): missing Twilio config or owner phone number',
+          {
+            hasAccountSid: !!twilioAccountSid,
+            hasAuthToken: !!twilioAuthToken,
+            hasFromNumber: !!twilioFromNumber,
+            hasOwnerPhone: !!propertyOwner?.phone
+          }
+        )
+      }
     } catch (emailError) {
       console.error('Failed to send email notifications:', emailError)
       // Don't fail the request if email fails

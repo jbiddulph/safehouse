@@ -22,13 +22,15 @@ export default defineEventHandler(async (event) => {
   try {
     console.log('Searching Google Places for:', searchTerm)
 
-    // Use Google Places API Text Search with correct fields
-    // Restrict to UK only using components parameter
+    // Use Google Places "Find Place From Text" API
+    // Note: this API doesn't support the `components` filter, so we:
+    // - Bias results to the UK with `region=gb`
+    // - Then *explicitly filter* to UK-only based on address_components.country
     const searchParams = new URLSearchParams({
       input: searchTerm,
       inputtype: 'textquery',
       fields: 'place_id,formatted_address,geometry,types',
-      components: 'country:gb', // Restrict to United Kingdom
+      region: 'gb', // Bias to United Kingdom
       key: googleApiKey
     })
 
@@ -59,7 +61,7 @@ export default defineEventHandler(async (event) => {
     console.log('Google Places results count:', data.candidates?.length || 0)
     
     // Get detailed information for each place
-    const suggestions = await Promise.all(
+    const rawSuggestions = await Promise.all(
       (data.candidates || []).map(async (place: any) => {
         try {
           // Get detailed place information including address components
@@ -138,7 +140,14 @@ export default defineEventHandler(async (event) => {
       })
     )
 
-    console.log('Final suggestions count:', suggestions.length)
+    // Filter to UK-only results based on parsed country (ISO code or name)
+    const suggestions = rawSuggestions.filter((s: any) => {
+      if (!s) return false
+      const country = (s.country || '').toString().toUpperCase()
+      return country === 'GB' || country === 'UK' || country === 'UNITED KINGDOM'
+    })
+
+    console.log('Final UK-only suggestions count:', suggestions.length)
     
     return {
       success: true,
