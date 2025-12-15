@@ -221,7 +221,7 @@
       </div>
 
       <!-- Edit Allowed Domain Modal -->
-      <div v-if="editingAllowed" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div v-if="editingAllowed" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 relative">
           <button @click="cancelEditAllowed" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -287,7 +287,7 @@
       </div>
 
       <!-- Edit Blocked Domain Modal -->
-      <div v-if="editingBlocked" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div v-if="editingBlocked" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 relative">
           <button @click="cancelEditBlocked" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

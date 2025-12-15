@@ -513,7 +513,7 @@
     </div>
 
     <!-- Add Property Modal -->
-    <div v-if="showAddProperty" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div v-if="showAddProperty" class="fixed inset-0 bg-black/50 overflow-y-auto h-full w-full z-50">
       <div class="relative top-10 mx-auto p-5 border w-full max-w-6xl shadow-lg rounded-md bg-white">
         <div class="mt-3">
           <div class="flex items-center justify-between mb-4">
@@ -782,7 +782,7 @@
     </div>
 
     <!-- Edit Contact Modal -->
-    <div v-if="showEditContact" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div v-if="showEditContact" class="fixed inset-0 bg-black/50 overflow-y-auto h-full w-full z-50">
       <div class="relative top-10 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
         <div class="mt-3">
           <div class="flex items-center justify-between mb-4">
@@ -859,7 +859,7 @@
     </div>
 
     <!-- Add Contact Modal -->
-    <div v-if="showAddContact" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div v-if="showAddContact" class="fixed inset-0 bg-black/50 overflow-y-auto h-full w-full z-50">
       <div class="relative top-10 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
         <div class="mt-3">
           <div class="flex items-center justify-between mb-4">
@@ -937,7 +937,7 @@
     </div>
 
     <!-- Property Details Modal -->
-    <div v-if="showPropertyDetails" class="fixed inset-0 bg-black overflow-y-auto h-full w-full z-50">
+    <div v-if="showPropertyDetails" class="fixed inset-0 bg-black/50 overflow-y-auto h-full w-full z-50">
       <div class="relative top-10 mx-auto p-5 border w-4/5 max-w-4xl shadow-lg rounded-md bg-white">
         <div class="mt-3">
           <div class="flex justify-between items-center mb-4">
@@ -1051,7 +1051,7 @@
     </div>
 
     <!-- QR Code Modal -->
-    <div v-if="showQRModal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div v-if="showQRModal" class="fixed inset-0 bg-black/50 overflow-y-auto h-full w-full z-50">
       <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
         <div class="mt-3">
           <div class="flex items-center justify-between mb-4">
@@ -1106,7 +1106,7 @@
     </div>
 
     <!-- Edit Property Modal -->
-    <div v-if="showEditProperty" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div v-if="showEditProperty" class="fixed inset-0 bg-black/50 overflow-y-auto h-full w-full z-50">
       <div class="relative top-10 mx-auto p-5 border w-full max-w-6xl shadow-lg rounded-md bg-white">
         <div class="mt-3">
           <div class="flex items-center justify-between mb-4">
