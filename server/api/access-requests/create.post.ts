@@ -279,21 +279,17 @@ export default defineEventHandler(async (event) => {
         try {
           const client = twilio(twilioAccountSid, twilioAuthToken)
 
-          const smsBodyLines = [
-            `MySafeHouse: Emergency access requested for "${property.property_name}".`,
+          // Keep SMS very short to stay under Twilio trial limits (160 chars including Twilio prefix)
+          const smsBody = [
+            `MySafeHouse emergency access: "${property.property_name}".`,
             propertyDisplayAddress || property.address,
-            '',
             `Requester: ${request.requester_name || 'Unknown'}`,
             `Contact: ${request.requester_phone || request.requester_email || 'Not provided'}`,
-            '',
-            'Approve: ' + approvalLink,
-            'Deny: ' + denialLink
+            `Check email / dashboard to approve or deny.`
           ]
-
-          const smsBody = smsBodyLines
             .filter(Boolean)
-            .join('\n')
-            .slice(0, 1000) // safety limit
+            .join(' ')
+            .slice(0, 140) // extra safety margin under trial limit
 
           const toNumber = propertyOwner.phone
 

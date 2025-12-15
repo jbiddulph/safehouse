@@ -143,6 +143,38 @@
 
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto py-8 sm:px-6 lg:px-8">
+      <!-- Pending Access Requests Banner -->
+      <div 
+        v-if="pendingAccessRequests.length > 0" 
+        class="mb-6 rounded-lg border border-yellow-300 bg-yellow-50 px-4 py-3 shadow-sm"
+      >
+        <div class="flex items-start">
+          <div class="flex-shrink-0 pt-0.5">
+            <Icon name="mdi:alert-circle" class="h-5 w-5 text-yellow-500" />
+          </div>
+          <div class="ml-3 flex-1">
+            <p class="text-sm font-semibold text-yellow-900">
+              Pending access requests
+            </p>
+            <p class="mt-1 text-sm text-yellow-800">
+              You have {{ pendingAccessRequests.length }} access request<span v-if="pendingAccessRequests.length > 1">s</span> awaiting your review.
+              Please go to the <NuxtLink to="/access-requests" class="underline font-medium">Access Requests</NuxtLink> page to approve or deny them.
+            </p>
+            <ul class="mt-2 text-xs text-yellow-800 space-y-1">
+              <li 
+                v-for="request in pendingAccessRequests.slice(0, 3)" 
+                :key="request.id"
+              >
+                • <span class="font-semibold">{{ request.property?.property_name || 'Property' }}</span>
+                — {{ request.requester_name || request.requester_email || request.requester_phone || 'Unknown requester' }}
+              </li>
+              <li v-if="pendingAccessRequests.length > 3" class="italic">
+                And {{ pendingAccessRequests.length - 3 }} more…
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
       <!-- Page Header -->
       <div class="px-4 py-6 sm:px-0">
         <div class="md:flex md:items-center md:justify-between">
@@ -1284,6 +1316,7 @@ const canAddProperty = computed(() => {
   return creditsInfo.value.availableCredits > 0 && creditsInfo.value.subscriptionStatus === 'active'
 })
 const properties = ref([])
+const pendingAccessRequests = ref<any[]>([])
 const contacts = ref([])
 const showProfileMenu = ref(false)
 const showMobileMenu = ref(false)
@@ -1654,12 +1687,27 @@ onMounted(async () => {
   await loadProperties()
   await loadContacts()
   await loadCredits()
+  await loadPendingAccessRequests()
   
   // Check if we should auto-show property form (from payment success)
   if (route.query.addFirstProperty === 'true' && properties.value.length === 0) {
     showAddProperty.value = true
   }
 })
+
+async function loadPendingAccessRequests() {
+  try {
+    const result = await $fetch('/api/access-requests/pending')
+    if (result.success) {
+      pendingAccessRequests.value = result.pending || []
+    } else {
+      pendingAccessRequests.value = []
+    }
+  } catch (err) {
+    console.error('Failed to load pending access requests:', err)
+    pendingAccessRequests.value = []
+  }
+}
 
 async function loadCredits() {
   try {

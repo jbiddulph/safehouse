@@ -190,20 +190,16 @@ export default defineEventHandler(async (event) => {
           try {
             const client = twilio(twilioAccountSid, twilioAuthToken)
 
-            const smsBodyLines = [
-              `MySafeHouse: Emergency access requested for "${property.property_name}".`,
+            // Keep SMS very short to stay under Twilio trial limits (160 chars including Twilio prefix)
+            const smsBody = [
+              `MySafeHouse emergency access: "${property.property_name}".`,
               propertyDisplayAddress || property.address,
-              '',
-              `Requester email: ${email}`,
-              '',
-              'Approve: ' + approvalLink,
-              'Deny: ' + denialLink
+              `Requester: ${email}`,
+              `Check your email / dashboard to approve or deny.`
             ]
-
-            const smsBody = smsBodyLines
               .filter(Boolean)
-              .join('\n')
-              .slice(0, 1000) // safety limit
+              .join(' ')
+              .slice(0, 140) // extra safety margin under trial limit
 
             const toNumber = propertyOwner.phone
 
@@ -243,19 +239,19 @@ export default defineEventHandler(async (event) => {
       message: 'Access request sent to property owner',
       domainAllowed
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in send access request email:', error)
     console.error('Error details:', {
-      message: error.message,
-      stack: error.stack,
-      statusCode: error.statusCode
+      message: error?.message,
+      stack: error?.stack,
+      statusCode: error?.statusCode
     })
-    if (error.statusCode) {
+    if (error?.statusCode) {
       throw error
     }
     throw createError({
       statusCode: 500,
-      statusMessage: 'Failed to send access request email: ' + (error.message || 'Unknown error')
+      statusMessage: 'Failed to send access request email: ' + (error?.message || 'Unknown error')
     })
   }
 })
