@@ -323,13 +323,16 @@ export const useMapbox = () => {
     lat: number,
     width: number = 200,
     height: number = 150,
-    zoom: number = 15
+    zoom: number = 15,
+    style: 'streets' | 'satellite' = 'streets'
   ): string => {
     if (!mapboxToken) {
       return ''
     }
 
-    return `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/pin-s+ff0000(${lng},${lat})/${lng},${lat},${zoom}/${width}x${height}@2x?access_token=${mapboxToken}`
+    const styleId = style === 'satellite' ? 'satellite-streets-v12' : 'streets-v12'
+
+    return `https://api.mapbox.com/styles/v1/mapbox/${styleId}/static/pin-s+ff0000(${lng},${lat})/${lng},${lat},${zoom}/${width}x${height}@2x?access_token=${mapboxToken}`
   }
 
   return {

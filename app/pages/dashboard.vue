@@ -200,7 +200,7 @@
 
         <!-- Credits Display -->
         <div v-if="creditsInfo" class="mt-6 bg-gradient-to-r from-[#03045e] to-[#023e8a] rounded-lg shadow-lg p-4 text-white">
-          <div class="flex items-center justify-between">
+          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div class="flex items-center space-x-4">
               <div class="bg-white/20 rounded-full p-3">
                 <Icon name="mdi:key-variant" class="h-6 w-6" />
@@ -216,11 +216,41 @@
                 </p>
               </div>
             </div>
-            <div v-if="creditsInfo.availableCredits === 0 && creditsInfo.canAddMore" class="flex items-center space-x-2">
-              <NuxtLink to="/payments?action=buy-credits" class="inline-flex items-center px-4 py-2 bg-[#8ee0ee] text-[#03045e] rounded-lg font-semibold hover:bg-[#7dd3e0] transition-colors">
-                <Icon name="mdi:plus-circle" class="mr-2 h-5 w-5" />
-                Buy More Credits
-              </NuxtLink>
+            <div class="flex flex-wrap items-center gap-3">
+              <div v-if="properties.length > 1" class="flex items-center space-x-2">
+                <label for="property-select" class="text-sm font-medium text-white">Viewing:</label>
+                <select 
+                  id="property-select" 
+                  v-model="selectedPropertyId" 
+                  @change="switchProperty"
+                  class="block w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-[#8ee0ee] focus:border-[#8ee0ee] sm:text-sm rounded-md bg-white text-gray-900"
+                >
+                  <option v-for="property in properties" :key="property.id" :value="property.id">
+                    {{ property.property_name }}
+                  </option>
+                </select>
+              </div>
+              <button 
+                @click="showAddProperty = true" 
+                :disabled="!canAddProperty"
+                class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-semibold text-[#03045e] bg-[#8ee0ee] hover:bg-[#7dd3e0] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Icon name="mdi:home-plus" class="-ml-1 mr-2 h-4 w-4" />
+                Add Property
+              </button>
+              <button 
+                @click="showAddContact = true" 
+                class="inline-flex items-center px-4 py-2 border border-white/40 rounded-lg text-sm font-semibold text-white bg-transparent hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee]"
+              >
+                <Icon name="mdi:account-plus" class="-ml-1 mr-2 h-4 w-4" />
+                Add Contact
+              </button>
+              <div v-if="creditsInfo.availableCredits === 0 && creditsInfo.canAddMore" class="flex items-center">
+                <NuxtLink to="/payments?action=buy-credits" class="inline-flex items-center px-4 py-2 bg-white text-[#03045e] rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                  <Icon name="mdi:plus-circle" class="mr-2 h-5 w-5" />
+                  Buy More Credits
+                </NuxtLink>
+              </div>
             </div>
           </div>
           <div v-if="creditsInfo.subscriptionStatus !== 'active'" class="mt-3 pt-3 border-t border-white/20">
@@ -261,19 +291,27 @@
         </div>
       </div>
 
-      <!-- Property Section (Single Column) -->
-      <div class="max-w-4xl">
+      <!-- Property Section (Single Column, Full Width) -->
+      <div class="max-w-7xl mx-auto">
         <!-- Properties Section -->
         <div class="bg-white shadow rounded-lg">
           <div class="px-4 py-5 sm:p-6">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg leading-6 font-medium text-gray-900">
-                <span v-if="currentProperty">{{ currentProperty.property_name }}</span>
-                <span v-else>Your Properties</span>
-              </h3>
-              <button v-if="currentProperty" @click="editProperty(currentProperty)" class="text-sm text-[#03045e] hover:text-[#8ee0ee] font-medium">
-                Edit Property
-              </button>
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
+              <div>
+                <h3 class="text-2xl sm:text-3xl leading-8 font-bold text-gray-900">
+                  <span v-if="currentProperty">{{ currentProperty.property_name }}</span>
+                  <span v-else>Your Properties</span>
+                </h3>
+                <p v-if="currentProperty" class="mt-2 text-base text-gray-600">
+                  {{ currentProperty.address }}, {{ currentProperty.city }}{{ currentProperty.postal_code ? `, ${currentProperty.postal_code}` : '' }}
+                </p>
+              </div>
+              <div v-if="currentProperty" class="flex items-center gap-3">
+                <button @click="editProperty(currentProperty)" class="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-[#03045e] rounded-lg hover:bg-[#023e8a]">
+                  <Icon name="mdi:pencil" class="mr-2 h-4 w-4" />
+                  Edit Property
+                </button>
+              </div>
             </div>
             <!-- First Property Prompt -->
             <div v-if="showFirstPropertyPrompt && properties.length === 0" class="text-center py-8 bg-gradient-to-r from-[#03045e] to-[#023e8a] rounded-lg shadow-lg p-6 text-white">
@@ -298,20 +336,14 @@
               </div>
             </div>
             <!-- Property Details View (when property is selected) -->
-            <div v-else-if="currentProperty" class="space-y-4">
-              <!-- Property Address -->
-              <div class="bg-gray-50 rounded-lg p-4">
-                <h4 class="text-sm font-semibold text-gray-900 mb-2">Address</h4>
-                <p class="text-sm text-gray-700">{{ currentProperty.address }}, {{ currentProperty.city }}{{ currentProperty.postal_code ? `, ${currentProperty.postal_code}` : '' }}</p>
-              </div>
-              
-              <!-- Property Map -->
+            <div v-else-if="currentProperty" class="space-y-6">
+              <!-- Property Map (Satellite View) -->
               <div v-if="hasValidCoordinates(currentProperty)" class="bg-gray-50 rounded-lg p-4">
-                <h4 class="text-sm font-semibold text-gray-900 mb-2">Location</h4>
+                <h4 class="text-lg font-semibold text-gray-900 mb-3">Location</h4>
                 <img 
-                  :src="getPropertyMapUrl(currentProperty.longitude, currentProperty.latitude)"
+                  :src="getPropertyMapUrl(currentProperty.longitude, currentProperty.latitude, 'satellite')"
                   :alt="`Map of ${currentProperty.property_name}`"
-                  class="w-full h-48 rounded border border-gray-200 object-cover bg-gray-100 cursor-pointer"
+                  class="w-full h-64 rounded border border-gray-200 object-cover bg-gray-100 cursor-pointer"
                   @click="viewPropertyDetails(currentProperty)"
                   @error="handleMapImageError"
                   loading="lazy"
@@ -320,31 +352,31 @@
               
               <!-- Keysafe Information -->
               <div v-if="currentProperty.keysafe_location || currentProperty.keysafe_code || currentProperty.keysafe_what3words" class="bg-gray-50 rounded-lg p-4">
-                <h4 class="text-sm font-semibold text-gray-900 mb-3">Keysafe Information</h4>
+                <h4 class="text-lg font-semibold text-gray-900 mb-4">Keysafe Information</h4>
                 <div class="space-y-2">
                   <div v-if="currentProperty.keysafe_location">
-                    <p class="text-xs font-medium text-gray-500">Location</p>
-                    <p class="text-sm text-gray-900">{{ currentProperty.keysafe_location }}</p>
+                    <p class="text-sm font-medium text-gray-500">Location</p>
+                    <p class="text-base text-gray-900">{{ currentProperty.keysafe_location }}</p>
                   </div>
                   <div v-if="currentProperty.keysafe_code">
-                    <p class="text-xs font-medium text-gray-500">Code</p>
-                    <p class="text-sm text-gray-900 font-mono">{{ currentProperty.keysafe_code }}</p>
+                    <p class="text-sm font-medium text-gray-500">Code</p>
+                    <p class="text-base text-gray-900 font-mono">{{ currentProperty.keysafe_code }}</p>
                   </div>
                   <div v-if="currentProperty.keysafe_what3words">
-                    <p class="text-xs font-medium text-gray-500">What 3 Words</p>
-                    <p class="text-sm text-gray-900 font-mono">{{ currentProperty.keysafe_what3words }}</p>
+                    <p class="text-sm font-medium text-gray-500">What 3 Words</p>
+                    <p class="text-base text-gray-900 font-mono">{{ currentProperty.keysafe_what3words }}</p>
                   </div>
                   <div v-if="currentProperty.keysafe_latitude && currentProperty.keysafe_longitude">
-                    <p class="text-xs font-medium text-gray-500">Coordinates</p>
-                    <p class="text-sm text-gray-900">{{ parseFloat(String(currentProperty.keysafe_latitude)).toFixed(6) }}, {{ parseFloat(String(currentProperty.keysafe_longitude)).toFixed(6) }}</p>
+                    <p class="text-sm font-medium text-gray-500">Coordinates</p>
+                    <p class="text-base text-gray-900">{{ parseFloat(String(currentProperty.keysafe_latitude)).toFixed(6) }}, {{ parseFloat(String(currentProperty.keysafe_longitude)).toFixed(6) }}</p>
                   </div>
                   <div v-if="currentProperty.keysafe_code_updated_at">
-                    <p class="text-xs font-medium text-gray-500">Code Last Updated</p>
-                    <p class="text-sm text-gray-900">{{ new Date(currentProperty.keysafe_code_updated_at).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' }) }}</p>
+                    <p class="text-sm font-medium text-gray-500">Code Last Updated</p>
+                    <p class="text-base text-gray-900">{{ new Date(currentProperty.keysafe_code_updated_at).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' }) }}</p>
                   </div>
                   <div v-if="currentProperty.keysafe_notes">
-                    <p class="text-xs font-medium text-gray-500">Notes</p>
-                    <p class="text-sm text-gray-900 whitespace-pre-wrap">{{ currentProperty.keysafe_notes }}</p>
+                    <p class="text-sm font-medium text-gray-500">Notes</p>
+                    <p class="text-base text-gray-900 whitespace-pre-wrap">{{ currentProperty.keysafe_notes }}</p>
                   </div>
                 </div>
               </div>
@@ -352,7 +384,7 @@
               <!-- Emergency Contacts Section -->
               <div class="bg-gray-50 rounded-lg p-4">
                 <div class="flex items-center justify-between mb-4">
-                  <h4 class="text-sm font-semibold text-gray-900">Emergency Contacts</h4>
+                  <h4 class="text-lg font-semibold text-gray-900">Emergency Contacts</h4>
                   <button @click="showAddContact = true" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs leading-4 font-medium rounded-md text-white bg-[#03045e] hover:bg-[#03045e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee]">
                     <Icon name="mdi:plus" class="-ml-0.5 mr-1.5 h-4 w-4" />
                     Add Contact
