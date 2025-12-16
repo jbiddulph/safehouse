@@ -77,7 +77,12 @@
 
             <!-- Mobile Menu Button -->
             <div class="md:hidden">
-              <button @click="showMobileMenu = !showMobileMenu" class="text-[#8ee0ee] hover:text-white focus:outline-none">
+              <button
+                @click="showMobileMenu = !showMobileMenu"
+                class="text-[#8ee0ee] hover:text-white focus:outline-none"
+                type="button"
+                aria-label="Toggle navigation menu"
+              >
                 <Icon :name="showMobileMenu ? 'mdi:close' : 'mdi:menu'" class="h-6 w-6" />
               </button>
             </div>
@@ -514,7 +519,12 @@
         <div class="mt-3">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-medium text-gray-900">Add New Property</h3>
-            <button @click="handleCancelAddProperty" class="text-gray-400 hover:text-gray-600">
+            <button
+              @click="handleCancelAddProperty"
+              type="button"
+              class="text-gray-400 hover:text-gray-600"
+              aria-label="Close add property modal"
+            >
               <Icon name="mdi:close" class="h-6 w-6" />
             </button>
           </div>
@@ -783,7 +793,12 @@
         <div class="mt-3">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-medium text-gray-900">Edit Contact</h3>
-            <button @click="showEditContact = false" class="text-gray-400 hover:text-gray-600">
+            <button
+              @click="showEditContact = false"
+              type="button"
+              class="text-gray-400 hover:text-gray-600"
+              aria-label="Close edit contact modal"
+            >
               <Icon name="mdi:close" class="h-6 w-6" />
             </button>
           </div>
@@ -860,7 +875,12 @@
         <div class="mt-3">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-medium text-gray-900">Add Contact</h3>
-            <button @click="showAddContact = false" class="text-gray-400 hover:text-gray-600">
+            <button
+              @click="showAddContact = false"
+              type="button"
+              class="text-gray-400 hover:text-gray-600"
+              aria-label="Close add contact modal"
+            >
               <Icon name="mdi:close" class="h-6 w-6" />
             </button>
           </div>
@@ -938,7 +958,12 @@
         <div class="mt-3">
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-medium text-gray-900">{{ selectedProperty?.property_name }} - Contacts</h3>
-            <button @click="showPropertyDetails = false" class="text-gray-400 hover:text-gray-600">
+            <button
+              @click="showPropertyDetails = false"
+              type="button"
+              class="text-gray-400 hover:text-gray-600"
+              aria-label="Close property details modal"
+            >
               <Icon name="mdi:close" class="h-6 w-6" />
             </button>
           </div>
@@ -1052,7 +1077,12 @@
         <div class="mt-3">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-medium text-gray-900">QR Code for {{ selectedQRProperty?.property_name }}</h3>
-            <button @click="showQRModal = false" class="text-gray-400 hover:text-gray-600">
+            <button
+              @click="showQRModal = false"
+              type="button"
+              class="text-gray-400 hover:text-gray-600"
+              aria-label="Close QR code modal"
+            >
               <Icon name="mdi:close" class="h-6 w-6" />
             </button>
           </div>
@@ -1107,7 +1137,12 @@
         <div class="mt-3">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-medium text-gray-900">Edit Property</h3>
-            <button @click="showEditProperty = false" class="text-gray-400 hover:text-gray-600">
+            <button
+              @click="showEditProperty = false"
+              type="button"
+              class="text-gray-400 hover:text-gray-600"
+              aria-label="Close edit property modal"
+            >
               <Icon name="mdi:close" class="h-6 w-6" />
             </button>
           </div>

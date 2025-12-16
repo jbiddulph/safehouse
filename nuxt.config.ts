@@ -4,9 +4,23 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   app: {
     head: {
+      htmlAttrs: {
+        lang: 'en-GB'
+      },
       meta: [
-        { name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes' }
+        { name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes' },
+        {
+          name: 'description',
+          content: 'MySafehouse helps emergency services gain secure, time-critical access to your home when emergency or standard access is requested.'
+        },
+        {
+          httpEquiv: 'Content-Language',
+          content: 'en-GB'
+        }
       ],
+      titleTemplate: (title?: string) => {
+        return title ? `${title} | MySafehouse` : 'MySafehouse – secure emergency access to your home'
+      },
       script: [
         {
           src: 'https://www.googletagmanager.com/gtag/js?id=G-LVMM6QM8KE',

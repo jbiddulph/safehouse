@@ -121,7 +121,12 @@
     <!-- Email Collection Modal -->
     <div v-if="showEmailModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 relative">
-        <button @click="closeEmailModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+        <button
+          @click="closeEmailModal"
+          type="button"
+          class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+          aria-label="Close email request modal"
+        >
           <Icon name="mdi:close" class="h-6 w-6" />
         </button>
         <div class="text-center">

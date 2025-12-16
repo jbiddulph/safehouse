@@ -8,19 +8,55 @@
           <div class="flex items-center space-x-8">
             <div class="flex-shrink-0 flex items-center space-x-3">
               <div class="h-8 w-8 bg-[#ffffff] rounded-lg flex items-center justify-center">
-                <img src="/images/logo.png" alt="SafeHouse" class="h-full w-full object-cover" />
+                <img src="/images/logo.png" alt="MySafehouse" class="h-full w-full object-cover" />
               </div>
-              <NuxtLink to="/" class="text-2xl font-bold text-white">SafeHouse</NuxtLink>
+              <NuxtLink
+                :to="isLoggedIn ? '/dashboard' : '/'"
+                class="text-2xl font-bold text-white no-underline hover:no-underline"
+              >
+                MySafehouse
+              </NuxtLink>
             </div>
+            
+            <!-- Navigation Menu -->
+            <nav class="hidden md:flex items-center space-x-6">
+              <NuxtLink to="/about" class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors">
+                About Us
+              </NuxtLink>
+              <NuxtLink to="/how-it-works" class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors">
+                How It Works
+              </NuxtLink>
+              <NuxtLink to="/privacy-policy" class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors">
+                Privacy Policy
+              </NuxtLink>
+              <NuxtLink to="/terms" class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors">
+                Terms & Conditions
+              </NuxtLink>
+            </nav>
           </div>
 
           <!-- Auth Buttons -->
           <div class="flex items-center space-x-4">
             <NuxtLink 
+              v-if="!isLoggedIn"
               to="/auth/login" 
-              class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors"
+              class="text-sm font-medium text-[#8ee0ee] hover:text-white active:text-white no-underline hover:no-underline active:no-underline transition-colors"
             >
               Sign In
+            </NuxtLink>
+            <NuxtLink 
+              v-if="!isLoggedIn"
+              to="/auth/register" 
+              class="px-4 py-2 text-sm font-medium text-white bg-[#8ee0ee] rounded-lg hover:bg-[#8ee0ee]/80 transition-colors"
+            >
+              Sign Up
+            </NuxtLink>
+            <NuxtLink 
+              v-if="isLoggedIn"
+              to="/dashboard" 
+              class="px-4 py-2 text-sm font-medium text-white bg-[#8ee0ee] rounded-lg hover:bg-[#8ee0ee]/80 transition-colors"
+            >
+              Dashboard
             </NuxtLink>
           </div>
         </div>
@@ -207,11 +243,29 @@ const route = useRoute()
 const selectedOption = ref<'basic' | 'premium' | null>(null)
 const isBuyingCredits = ref(false)
 const additionalCreditsToBuy = ref(1)
+const isLoggedIn = ref(false)
 
 // Allow both guests (for registration) and authenticated users (for buying credits)
-definePageMeta({})
+definePageMeta({
+  title: 'Payments',
+  meta: [
+    {
+      name: 'description',
+      content: 'Choose or manage your MySafehouse subscription so emergency services can securely access your property when needed.'
+    }
+  ]
+})
 
-onMounted(() => {
+onMounted(async () => {
+  try {
+    const supabase = useSupabaseClient()
+    const { data: { session } } = await supabase.auth.getSession()
+    isLoggedIn.value = !!session?.user
+  } catch (error) {
+    console.error('Error checking auth status on payments page:', error)
+    isLoggedIn.value = false
+  }
+
   // Check if user is buying additional credits
   if (route.query.action === 'buy-credits') {
     isBuyingCredits.value = true

@@ -8,9 +8,14 @@
           <div class="flex items-center space-x-8">
             <div class="flex-shrink-0 flex items-center space-x-3">
               <div class="h-8 w-8 bg-[#ffffff] rounded-lg flex items-center justify-center">
-                <img src="/images/logo.png" alt="SafeHouse" class="h-full w-full object-cover" />
+                <img src="/images/logo.png" alt="MySafehouse" class="h-full w-full object-cover" />
               </div>
-              <h1 class="text-2xl font-bold text-white">SafeHouse</h1>
+              <NuxtLink
+                :to="isLoggedIn ? '/dashboard' : '/'"
+                class="text-2xl font-bold text-white no-underline hover:no-underline"
+              >
+                MySafehouse
+              </NuxtLink>
             </div>
             
             <!-- Navigation Menu -->
@@ -35,7 +40,7 @@
             <NuxtLink 
               v-if="!isLoggedIn"
               to="/auth/login" 
-              class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors"
+              class="text-sm font-medium text-[#8ee0ee] hover:text-white active:text-white no-underline hover:no-underline active:no-underline transition-colors"
             >
               Sign In
             </NuxtLink>
@@ -226,7 +231,14 @@
 
 <script setup lang="ts">
 definePageMeta({
-  layout: false
+  layout: false,
+  title: 'Home',
+  meta: [
+    {
+      name: 'description',
+      content: 'MySafehouse helps emergency services gain secure, time-critical access to your property when emergency or standard access is requested.'
+    }
+  ]
 })
 
 // Reactive data
