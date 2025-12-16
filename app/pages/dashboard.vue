@@ -44,13 +44,6 @@
               <NuxtLink to="/terms" class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors">
                 Terms & Conditions
               </NuxtLink>
-              
-              <!-- Notification Bell (Admin Only) -->
-              <button v-if="profile?.role === 'admin'" class="relative p-2 text-[#8ee0ee] hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee] rounded-full hover:bg-[#03045e]/50">
-                <Icon name="mdi:bell" class="h-6 w-6" />
-                <!-- Notification Badge -->
-                <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400 ring-2 ring-white"></span>
-              </button>
 
               <!-- Profile Dropdown -->
               <div class="relative">
@@ -118,14 +111,6 @@
           <NuxtLink to="/terms" class="block text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors" @click="showMobileMenu = false">
             Terms & Conditions
           </NuxtLink>
-          
-          <!-- Notification Bell (Admin Only) -->
-          <button v-if="profile?.role === 'admin'" class="block w-full text-left px-4 py-2 text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors">
-            <div class="flex items-center">
-              <Icon name="mdi:bell" class="h-5 w-5 mr-2" />
-              Notifications
-            </div>
-          </button>
           
           <!-- Profile Links in Mobile Menu -->
           <NuxtLink to="/profile" class="block text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors" @click="showMobileMenu = false">
