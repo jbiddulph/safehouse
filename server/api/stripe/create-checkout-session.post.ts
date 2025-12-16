@@ -65,8 +65,8 @@ export default defineEventHandler(async (event) => {
             currency: 'gbp',
             product_data: {
               name: subscriptionType === 'basic' 
-                ? 'SafeHouse Basic Plan - 1 Property'
-                : 'SafeHouse Premium Plan - 1 Property + Additional Credits',
+                ? 'MySafehouse Basic Plan - 1 Property'
+                : 'MySafehouse Premium Plan - 1 Property + Additional Credits',
               description: subscriptionType === 'basic'
                 ? 'Yearly subscription for 1 property'
                 : `Yearly subscription for 1 property with ${additionalCredits} additional credit${additionalCredits !== 1 ? 's' : ''}`,

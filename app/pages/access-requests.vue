@@ -6,7 +6,7 @@
         <div class="flex justify-between h-16">
           <div class="flex items-center">
             <NuxtLink to="/dashboard" class="text-xl font-bold text-gray-900">
-              SafeHouse Admin
+              MySafehouse Admin
             </NuxtLink>
           </div>
           <div class="flex items-center space-x-4">

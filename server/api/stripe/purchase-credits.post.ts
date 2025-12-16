@@ -122,7 +122,7 @@ export default defineEventHandler(async (event) => {
           price_data: {
             currency: 'gbp',
             product_data: {
-              name: `SafeHouse - ${additionalCredits} Additional Credit${additionalCredits !== 1 ? 's' : ''}`,
+              name: `MySafehouse - ${additionalCredits} Additional Credit${additionalCredits !== 1 ? 's' : ''}`,
               description: `Yearly subscription for ${additionalCredits} additional property credit${additionalCredits !== 1 ? 's' : ''} (separate subscription)`
             },
             recurring: {

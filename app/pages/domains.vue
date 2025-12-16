@@ -16,7 +16,7 @@
         <div class="flex items-center justify-between">
           <div>
             <h1 class="text-3xl font-bold text-gray-900 mb-2">Domain Management</h1>
-            <p class="text-gray-600">Manage allowed and blocked domains for your SafeHouse system</p>
+            <p class="text-gray-600">Manage allowed and blocked domains for your MySafehouse system</p>
           </div>
           <div v-if="isAdmin" class="flex items-center gap-2">
             <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">

@@ -11,9 +11,9 @@
                 <!-- <svg class="h-5 w-5 text-[#03045e]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg> -->
-                <img src="/images/logo.png" alt="SafeHouse" class="h-full w-full object-cover" />
+                <img src="/images/logo.png" alt="MySafehouse" class="h-full w-full object-cover" />
               </div>
-              <h1 class="text-2xl font-bold text-white">SafeHouse</h1>
+              <h1 class="text-2xl font-bold text-white">MySafehouse</h1>
             </div>
             
             <!-- Navigation Menu -->
@@ -1328,7 +1328,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex items-center justify-center">
           <p class="text-sm text-[#8ee0ee]">
-            Copyright © 2025 SafeHouse. All rights reserved.
+            Copyright © 2025 MySafehouse. All rights reserved.
           </p>
         </div>
       </div>

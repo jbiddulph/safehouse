@@ -81,7 +81,7 @@ export async function sendAccessRequestNotification(
     const titleText = isEmergency ? 'Emergency Access Request' : 'Standard Access Request'
 
     const mailOptions = {
-      from: 'SafeHouse <noreply@safehouse.app>',
+      from: 'MySafehouse <noreply@safehouse.app>',
       to: toEmail,
       subject: `${subjectEmoji} ${subjectText} Access Request - ${propertyName}`,
       html: `
@@ -116,13 +116,13 @@ export async function sendAccessRequestNotification(
             </div>
           ` : `
             <p style="color: #6b7280; font-size: 14px; margin-bottom: 24px;">
-              Sign in to SafeHouse to review and approve or deny this request.
+              Sign in to MySafehouse to review and approve or deny this request.
             </p>
           `}
 
           <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
             <p style="color: #6b7280; font-size: 14px;">
-              This is an automated notification from SafeHouse Emergency Access System.
+              This is an automated notification from MySafehouse Emergency Access System.
             </p>
           </div>
         </div>
@@ -152,7 +152,7 @@ export async function sendAccessRequestEmail(
 
   try {
     const mailOptions = {
-      from: 'SafeHouse <noreply@safehouse.app>',
+      from: 'MySafehouse <noreply@safehouse.app>',
       to: toEmail,
       subject: `🔓 Emergency Access Request - ${propertyName}`,
       html: `
@@ -190,7 +190,7 @@ export async function sendAccessRequestEmail(
           
           <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
             <p style="color: #6b7280; font-size: 14px;">
-              This is an automated message from SafeHouse Emergency Access System.
+              This is an automated message from MySafehouse Emergency Access System.
             </p>
           </div>
         </div>
@@ -222,7 +222,7 @@ export async function sendAccessRequestConfirmation(
 
   try {
     const mailOptions = {
-      from: 'SafeHouse <noreply@safehouse.app>',
+      from: 'MySafehouse <noreply@safehouse.app>',
       to: toEmail,
       subject: `Access Code for ${propertyName}`,
       html: `
@@ -259,7 +259,7 @@ export async function sendAccessRequestConfirmation(
           
           <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
             <p style="color: #6b7280; font-size: 14px;">
-              This is an automated message from SafeHouse Emergency Access System.
+              This is an automated message from MySafehouse Emergency Access System.
             </p>
           </div>
         </div>
@@ -290,7 +290,7 @@ export async function sendAccessRequestApprovedEmail(
   try {
     const greetingName = requesterName?.trim() || 'there'
     const mailOptions = {
-      from: 'SafeHouse <noreply@safehouse.app>',
+      from: 'MySafehouse <noreply@safehouse.app>',
       to: toEmail,
       subject: `✅ Access Approved for ${propertyName}`,
       html: `
@@ -312,9 +312,9 @@ export async function sendAccessRequestApprovedEmail(
             Please follow any additional instructions provided by the owner to access the property safely.
           </p>
 
-          <p style="color: #6b7280; font-size: 14px; margin-top: 24px;">
+            <p style="color: #6b7280; font-size: 14px; margin-top: 24px;">
             Thank you,<br />
-            The SafeHouse Team
+            The MySafehouse Team
           </p>
         </div>
       `
@@ -344,7 +344,7 @@ export async function sendAccessRequestDeniedEmail(
   try {
     const greetingName = requesterName?.trim() || 'there'
     const mailOptions = {
-      from: 'SafeHouse <noreply@safehouse.app>',
+      from: 'MySafehouse <noreply@safehouse.app>',
       to: toEmail,
       subject: `⚠️ Access Request Update for ${propertyName}`,
       html: `
@@ -366,9 +366,9 @@ export async function sendAccessRequestDeniedEmail(
             If you believe this decision was made in error, please reach out to the property owner directly or submit a new request if circumstances change.
           </p>
 
-          <p style="color: #6b7280; font-size: 14px; margin-top: 24px;">
+            <p style="color: #6b7280; font-size: 14px; margin-top: 24px;">
             Thank you,<br />
-            The SafeHouse Team
+            The MySafehouse Team
           </p>
         </div>
       `

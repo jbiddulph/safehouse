@@ -4,7 +4,7 @@
       <!-- Logo -->
       <div class="mb-8 flex justify-center">
         <div class="h-20 w-20 bg-white rounded-lg flex items-center justify-center shadow-lg">
-          <img src="/images/logo.png" alt="MySafeHouse" class="h-full w-full object-cover" />
+          <img src="/images/logo.png" alt="MySafehouse" class="h-full w-full object-cover" />
         </div>
       </div>
 
@@ -13,7 +13,7 @@
         Coming Soon
       </h1>
       <p class="text-xl md:text-2xl text-[#8ee0ee] mb-8">
-        MySafeHouse is launching soon
+        MySafehouse is launching soon
       </p>
       <p class="text-lg text-white/80 mb-12 max-w-md mx-auto">
         We're working hard to bring you the best property access management solution. 
@@ -61,7 +61,7 @@
 
       <!-- Footer -->
       <div class="mt-12 text-white/60 text-sm">
-        <p>&copy; {{ new Date().getFullYear() }} MySafeHouse. All rights reserved.</p>
+        <p>&copy; {{ new Date().getFullYear() }} MySafehouse. All rights reserved.</p>
       </div>
     </div>
   </div>

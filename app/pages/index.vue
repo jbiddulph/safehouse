@@ -94,7 +94,7 @@
       <div class="absolute inset-0 z-50 flex items-center justify-center h-full py-12 px-4 sm:px-6 lg:px-8 pointer-events-auto">
         <div class="w-full max-w-2xl">
           <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-[#03045e] mb-4">SafeHouse</h1>
+            <h1 class="text-4xl font-bold text-[#03045e] mb-4">MySafehouse</h1>
             <p class="text-lg text-gray-600 mb-4">
               Enter an address to find properties or request emergency access
             </p>
@@ -221,7 +221,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex items-center justify-center">
           <p class="text-sm text-[#8ee0ee]">
-            Copyright © 2025 SafeHouse. All rights reserved.
+            Copyright © 2025 MySafehouse. All rights reserved.
           </p>
         </div>
       </div>
@@ -560,7 +560,7 @@ function showNoPropertiesFound() {
       </div>
       <h2 class="text-xl font-bold text-gray-900 mb-2">No Properties Found</h2>
       <p class="text-gray-600 mb-6">
-        No SafeHouse properties were found at this address. 
+        No MySafehouse properties were found at this address. 
         The property may not be registered in our system yet.
       </p>
       <div class="space-y-3">
