@@ -18,20 +18,6 @@
             
             <!-- Navigation Menu -->
             <nav class="hidden md:flex items-center space-x-6">
-              <!-- Property Switcher (if user has multiple properties) -->
-              <div v-if="properties.length > 1" class="relative">
-                <select 
-                  v-model="selectedPropertyId" 
-                  @change="switchProperty"
-                  class="bg-[#03045e] border border-[#8ee0ee] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#8ee0ee] cursor-pointer"
-                >
-                  <option value="" disabled>Select Property</option>
-                  <option v-for="property in properties" :key="property.id" :value="property.id">
-                    {{ property.property_name }}
-                  </option>
-                </select>
-              </div>
-              
               <NuxtLink to="/about" class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors">
                 About Us
               </NuxtLink>
@@ -44,54 +30,57 @@
               <NuxtLink to="/terms" class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors">
                 Terms & Conditions
               </NuxtLink>
-
-              <!-- Profile Dropdown -->
-              <div class="relative">
-                <button @click="showProfileMenu = !showProfileMenu" class="flex items-center space-x-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee] hover:bg-[#03045e]/50 px-3 py-2 transition-colors duration-200">
-                  <div v-if="profile?.avatar_url" class="h-8 w-8 rounded-full overflow-hidden border-2 border-[#8ee0ee] shadow-sm">
-                    <img :src="avatarUrl" alt="Profile" class="h-full w-full object-cover" />
-                  </div>
-                  <div v-else class="h-8 w-8 rounded-full bg-[#f0f9fb] flex items-center justify-center border-2 border-[#8ee0ee] shadow-sm">
-                    <Icon name="mdi:account" class="h-5 w-5 text-[#03045e]" />
-                  </div>
-                  <span class="text-sm font-medium text-white">{{ profile?.full_name || auth.user?.value?.email || 'User' }}</span>
-                  <Icon name="mdi:chevron-down" class="h-4 w-4 text-[#8ee0ee]" />
-                </button>
-
-                <!-- Dropdown Menu -->
-                <div v-if="showProfileMenu" @click.away="showProfileMenu = false" class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
-                  <div class="px-4 py-2 border-b border-gray-100">
-                    <div class="text-sm font-medium text-gray-900">{{ profile?.full_name || 'User' }}</div>
-                    <div class="text-xs text-gray-500">{{ auth.user?.value?.email }}</div>
-                  </div>
-                  <NuxtLink to="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    <div class="flex items-center">
-                      <Icon name="mdi:account" class="h-4 w-4 mr-2" />
-                      Profile Settings
-                    </div>
-                  </NuxtLink>
-                  <NuxtLink to="/access-requests" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    <div class="flex items-center">
-                      <Icon name="mdi:file-document" class="h-4 w-4 mr-2" />
-                      Access Requests
-                    </div>
-                  </NuxtLink>
-                  <button @click="onLogout" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    <div class="flex items-center">
-                      <Icon name="mdi:logout" class="h-4 w-4 mr-2" />
-                      Sign out
-                    </div>
-                  </button>
-                </div>
-              </div>
             </nav>
           </div>
 
-          <!-- Mobile Menu Button -->
-          <div class="md:hidden">
-            <button @click="showMobileMenu = !showMobileMenu" class="text-[#8ee0ee] hover:text-white focus:outline-none">
-              <Icon :name="showMobileMenu ? 'mdi:close' : 'mdi:menu'" class="h-6 w-6" />
-            </button>
+          <!-- Right side: Profile dropdown (desktop) + Mobile menu button -->
+          <div class="flex items-center space-x-4">
+            <!-- Profile Dropdown (desktop) -->
+            <div class="hidden md:block relative">
+              <button @click="showProfileMenu = !showProfileMenu" class="flex items-center space-x-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee] hover:bg-[#03045e]/50 px-3 py-2 transition-colors duration-200">
+                <div v-if="profile?.avatar_url" class="h-8 w-8 rounded-full overflow-hidden border-2 border-[#8ee0ee] shadow-sm">
+                  <img :src="avatarUrl" alt="Profile" class="h-full w-full object-cover" />
+                </div>
+                <div v-else class="h-8 w-8 rounded-full bg-[#f0f9fb] flex items-center justify-center border-2 border-[#8ee0ee] shadow-sm">
+                  <Icon name="mdi:account" class="h-5 w-5 text-[#03045e]" />
+                </div>
+                <span class="text-sm font-medium text-white">{{ profile?.full_name || auth.user?.value?.email || 'User' }}</span>
+                <Icon name="mdi:chevron-down" class="h-4 w-4 text-[#8ee0ee]" />
+              </button>
+
+              <!-- Dropdown Menu -->
+              <div v-if="showProfileMenu" @click.away="showProfileMenu = false" class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                <div class="px-4 py-2 border-b border-gray-100">
+                  <div class="text-sm font-medium text-gray-900">{{ profile?.full_name || 'User' }}</div>
+                  <div class="text-xs text-gray-500">{{ auth.user?.value?.email }}</div>
+                </div>
+                <NuxtLink to="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  <div class="flex items-center">
+                    <Icon name="mdi:account" class="h-4 w-4 mr-2" />
+                    Profile Settings
+                  </div>
+                </NuxtLink>
+                <NuxtLink to="/access-requests" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  <div class="flex items-center">
+                    <Icon name="mdi:file-document" class="h-4 w-4 mr-2" />
+                    Access Requests
+                  </div>
+                </NuxtLink>
+                <button @click="onLogout" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  <div class="flex items-center">
+                    <Icon name="mdi:logout" class="h-4 w-4 mr-2" />
+                    Sign out
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <div class="md:hidden">
+              <button @click="showMobileMenu = !showMobileMenu" class="text-[#8ee0ee] hover:text-white focus:outline-none">
+                <Icon :name="showMobileMenu ? 'mdi:close' : 'mdi:menu'" class="h-6 w-6" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -202,19 +191,6 @@
               </div>
             </div>
             <div class="flex flex-wrap items-center gap-3">
-              <div v-if="properties.length > 1" class="flex items-center space-x-2">
-                <label for="property-select" class="text-sm font-medium text-white">Viewing:</label>
-                <select 
-                  id="property-select" 
-                  v-model="selectedPropertyId" 
-                  @change="switchProperty"
-                  class="block w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-[#8ee0ee] focus:border-[#8ee0ee] sm:text-sm rounded-md bg-white text-gray-900"
-                >
-                  <option v-for="property in properties" :key="property.id" :value="property.id">
-                    {{ property.property_name }}
-                  </option>
-                </select>
-              </div>
               <button 
                 @click="showAddProperty = true" 
                 :disabled="!canAddProperty"
