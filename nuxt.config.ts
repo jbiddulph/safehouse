@@ -11,7 +11,7 @@ export default defineNuxtConfig({
         { name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes' },
         {
           name: 'description',
-          content: 'MySafehouse helps emergency services gain secure, time-critical access to your home when emergency or standard access is requested.'
+          content: 'MySafeHouse helps emergency services gain secure, time-critical access to your home when emergency or standard access is requested.'
         },
         {
           httpEquiv: 'Content-Language',
@@ -19,7 +19,7 @@ export default defineNuxtConfig({
         }
       ],
       titleTemplate: (title?: string) => {
-        return title ? `${title} | MySafehouse` : 'MySafehouse – secure emergency access to your home'
+        return title ? `${title} | MySafeHouse` : 'MySafeHouse – secure emergency access to your home'
       },
       script: [
         {
@@ -43,6 +43,17 @@ export default defineNuxtConfig({
           'Access-Control-Allow-Methods': 'POST',
           'Access-Control-Allow-Headers': 'stripe-signature, content-type'
         }
+      }
+    },
+    hooks: {
+      'nitro:build:before': (nitro) => {
+        // Ensure imports field is available for #internal paths
+        const pkg = nitro.options.packageJson || {}
+        if (!pkg.imports) {
+          pkg.imports = {}
+        }
+        pkg.imports['#internal/*'] = './.nuxt/*'
+        nitro.options.packageJson = pkg
       }
     }
   },

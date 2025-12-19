@@ -3092,7 +3092,7 @@ function hasValidCoordinates(property: any): boolean {
 }
 
 // Get static map URL for property
-function getPropertyMapUrl(lng: number | string, lat: number | string): string {
+function getPropertyMapUrl(lng: number | string, lat: number | string, style: 'streets' | 'satellite' = 'satellite'): string {
   try {
     const numLng = typeof lng === 'string' ? parseFloat(lng) : lng
     const numLat = typeof lat === 'string' ? parseFloat(lat) : lat
@@ -3102,7 +3102,7 @@ function getPropertyMapUrl(lng: number | string, lat: number | string): string {
     }
     
     const { getStaticMapUrl } = useMapbox()
-    const url = getStaticMapUrl(numLng, numLat, 128, 96, 15)
+    const url = getStaticMapUrl(numLng, numLat, 128, 96, 15, style)
     return url || ''
   } catch (error) {
     console.error('Error generating map URL:', error)

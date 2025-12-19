@@ -2,6 +2,9 @@
   "name": "nuxt-app",
   "type": "module",
   "private": true,
+  "imports": {
+    "#internal/*": "./.nuxt/*"
+  },
   "engines": {
     "node": ">=20.0.0"
   },

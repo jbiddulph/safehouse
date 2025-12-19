@@ -74,7 +74,7 @@ When you're ready to use the domain for the full app:
 
 1. Remove your domain from the `parkedDomains` array in `server/middleware/domain-parking.ts`
 2. Redeploy
-3. Your domain will now show the full MySafehouse application
+3. Your domain will now show the full MySafeHouse application
 
 ## Alternative: Subdomain Parking
 

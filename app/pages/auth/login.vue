@@ -56,6 +56,7 @@
           <h2 class="text-3xl font-bold text-[#03045e] mb-2">Welcome back</h2>
           <p class="text-lg text-gray-600">
             Sign in to your MySafehouse account
+          </p>
         </div>
 
         <!-- Login Form -->
