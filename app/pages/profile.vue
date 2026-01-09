@@ -130,15 +130,31 @@
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Mobile Phone</label>
-              <UInput 
-                v-model="profileForm.phone" 
-                type="tel" 
-                placeholder="+447987654321" 
-                class="w-full"
-                @input="formatPhoneNumber"
-              />
+              <div class="flex gap-2">
+                <div class="w-32">
+                  <select
+                    id="countryCode"
+                    v-model="selectedCountryCode"
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]"
+                    @change="onCountryCodeChange"
+                  >
+                    <option v-for="country in countryCodes" :key="country.code" :value="country.code">
+                      {{ country.flag }} {{ country.code }}
+                    </option>
+                  </select>
+                </div>
+                <div class="flex-1">
+                  <UInput 
+                    v-model="phoneNumber" 
+                    type="tel" 
+                    :placeholder="phonePlaceholder" 
+                    class="w-full"
+                    @input="formatPhoneNumber"
+                  />
+                </div>
+              </div>
               <p class="mt-1 text-xs text-gray-500">
-                Format: +44 followed by your number without the leading 0 (e.g., +447987654321)
+                {{ phoneFormatHint }}
               </p>
               <p v-if="phoneError" class="mt-1 text-xs text-red-600">{{ phoneError }}</p>
             </div>
@@ -195,6 +211,22 @@ const profileForm = ref({
   phone: ''
 })
 
+// Use country codes store
+const countryCodesStore = useCountryCodesStore()
+const countryCodes = countryCodesStore.countryCodes
+
+const selectedCountryCode = ref('+44')
+const phoneNumber = ref('')
+const currentCountry = computed(() => countryCodesStore.getCountryByCode(selectedCountryCode.value) || countryCodes[0])
+const phonePlaceholder = computed(() => {
+  const country = currentCountry.value
+  return country ? `${selectedCountryCode.value}${country.example}` : '+447987654321'
+})
+const phoneFormatHint = computed(() => {
+  const country = currentCountry.value
+  return country ? `Format: ${country.code} followed by your number (e.g., ${country.code}${country.example})` : 'Format: +44 followed by your number (e.g., +447987654321)'
+})
+
 // Phone validation
 const phoneError = ref('')
 
@@ -227,6 +259,8 @@ watch(user, async (newUser) => {
         email: profile.value.email || '',
         phone: profile.value.phone || ''
       }
+      // Parse existing phone number to extract country code
+      parseExistingPhone(profile.value.phone || '')
     }
     loading.value = false
   } else {
@@ -268,6 +302,8 @@ onMounted(async () => {
           email: data.email || '',
           phone: data.phone || ''
         }
+        // Parse existing phone number to extract country code
+        parseExistingPhone(data.phone || '')
       } else {
         // No profile found, create one
         console.log('No profile found, creating one...')
@@ -293,6 +329,8 @@ onMounted(async () => {
               email: newProfile.email || '',
               phone: newProfile.phone || ''
             }
+            // Parse existing phone number to extract country code
+            parseExistingPhone(newProfile.phone || '')
           }
         } catch (createErr) {
           console.error('Profile creation error:', createErr)
@@ -426,57 +464,80 @@ async function removeAvatar() {
   }
 }
 
+// Parse existing phone number if it has a country code
+function parseExistingPhone(phoneValue: string) {
+  if (!phoneValue) {
+    selectedCountryCode.value = '+44'
+    phoneNumber.value = ''
+    return
+  }
+  
+  const parsed = countryCodesStore.parsePhoneNumber(phoneValue)
+  if (parsed) {
+    selectedCountryCode.value = parsed.countryCode
+    phoneNumber.value = parsed.number
+    profileForm.value.phone = phoneValue
+  } else {
+    // If no match found, default to UK and use the whole value
+    selectedCountryCode.value = '+44'
+    phoneNumber.value = phoneValue
+    profileForm.value.phone = phoneValue
+  }
+}
+
+// Handle country code change
+function onCountryCodeChange() {
+  phoneError.value = ''
+  // Rebuild the full phone number
+  const fullPhone = selectedCountryCode.value + phoneNumber.value
+  profileForm.value.phone = fullPhone
+}
+
 // Format phone number as user types
 function formatPhoneNumber(event: Event) {
   phoneError.value = ''
   const input = event.target as HTMLInputElement
   let value = input.value.trim()
   
-  // Remove all non-digit characters except +
-  value = value.replace(/[^\d+]/g, '')
+  // Remove all non-digit characters
+  value = value.replace(/\D/g, '')
   
-  // If it starts with 0, remove it
+  // Remove leading 0 if present (common in UK numbers)
   if (value.startsWith('0')) {
     value = value.substring(1)
   }
   
-  // If it doesn't start with +, add it if it looks like a UK number
-  if (!value.startsWith('+')) {
-    // If it starts with 44, add +
-    if (value.startsWith('44')) {
-      value = '+' + value
-    } else if (value.length > 0) {
-      // Assume UK number, add +44
-      value = '+44' + value
-    }
-  }
+  phoneNumber.value = value
   
-  // If it starts with +44 and has a leading 0 after +44, remove it
-  if (value.startsWith('+44') && value.length > 3 && value[3] === '0') {
-    value = '+44' + value.substring(4)
-  }
+  // Combine country code + number for validation
+  const fullPhone = selectedCountryCode.value + value
+  const country = currentCountry.value
   
-  // Validate format: should be +44 followed by 10 digits
-  if (value && value !== '+44') {
-    const phoneRegex = /^\+44\d{10}$/
-    if (!phoneRegex.test(value)) {
-      phoneError.value = 'Phone number must be in format +44 followed by 10 digits (without leading 0)'
+  // Validate format based on country pattern
+  if (value && value.length > 0 && country) {
+    if (!country.pattern.test(fullPhone)) {
+      phoneError.value = `Phone number must be in format ${country.code} followed by your number (e.g., ${country.code}${country.example})`
     } else {
       phoneError.value = ''
     }
   }
   
-  profileForm.value.phone = value
+  // Update the full phone value
+  profileForm.value.phone = fullPhone
 }
 
 async function saveProfile() {
   if (!profile.value) return
   
+  // Combine country code + phone number
+  const fullPhone = selectedCountryCode.value + phoneNumber.value.trim()
+  profileForm.value.phone = fullPhone
+  
   // Validate phone number format
-  if (profileForm.value.phone && profileForm.value.phone.trim()) {
-    const phoneRegex = /^\+44\d{10}$/
-    if (!phoneRegex.test(profileForm.value.phone.trim())) {
-      phoneError.value = 'Phone number must be in format +44 followed by 10 digits (without leading 0). Example: +447987654321'
+  if (phoneNumber.value && phoneNumber.value.trim()) {
+    const country = currentCountry.value
+    if (!country || !country.pattern.test(fullPhone)) {
+      phoneError.value = country ? `Phone number must be in format ${country.code} followed by your number (e.g., ${country.code}${country.example})` : 'Invalid phone number format'
       return
     }
   }

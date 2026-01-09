@@ -596,15 +596,30 @@
             </p>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Mobile Phone</label>
-              <input
-                v-model="tempPhoneNumber"
-                type="tel"
-                placeholder="+447987654321"
-                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
-                @input="formatPhoneNumberForModal"
-              />
+              <div class="flex gap-2">
+                <div class="w-32">
+                  <select
+                    v-model="tempCountryCode"
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]"
+                    @change="onTempCountryCodeChange"
+                  >
+                    <option v-for="country in countryCodes" :key="country.code" :value="country.code">
+                      {{ country.flag }} {{ country.code }}
+                    </option>
+                  </select>
+                </div>
+                <div class="flex-1">
+                  <input
+                    v-model="tempPhoneNumber"
+                    type="tel"
+                    :placeholder="tempPhonePlaceholder"
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                    @input="formatPhoneNumberForModal"
+                  />
+                </div>
+              </div>
               <p class="mt-1 text-xs text-gray-500">
-                Format: +44 followed by your number without the leading 0 (e.g., +447987654321)
+                {{ tempPhoneFormatHint }}
               </p>
               <p v-if="phoneModalError" class="mt-1 text-xs text-red-600">{{ phoneModalError }}</p>
             </div>
@@ -1481,8 +1496,23 @@ const selectedPropertyId = ref<string | null>(null)
 const currentViewProperty = ref<any>(null)
 const showPhoneRequiredModal = ref(false)
 const tempPhoneNumber = ref('')
+const tempCountryCode = ref('+44')
 const phoneModalError = ref('')
 const savingPhone = ref(false)
+
+// Use country codes store
+const countryCodesStore = useCountryCodesStore()
+const countryCodes = countryCodesStore.countryCodes
+
+const tempCurrentCountry = computed(() => countryCodesStore.getCountryByCode(tempCountryCode.value) || countryCodes[0])
+const tempPhonePlaceholder = computed(() => {
+  const country = tempCurrentCountry.value
+  return country ? `${tempCountryCode.value}${country.example}` : '+447987654321'
+})
+const tempPhoneFormatHint = computed(() => {
+  const country = tempCurrentCountry.value
+  return country ? `Format: ${country.code} followed by your number (e.g., ${country.code}${country.example})` : 'Format: +44 followed by your number (e.g., +447987654321)'
+})
 
 // Computed property for the currently selected property
 const currentProperty = computed(() => {
@@ -1542,6 +1572,7 @@ function handleAddPropertyClick() {
   if (!profile.value?.phone || profile.value.phone.trim() === '') {
     showPhoneRequiredModal.value = true
     tempPhoneNumber.value = ''
+    tempCountryCode.value = '+44'
     phoneModalError.value = ''
     return
   }
@@ -1550,47 +1581,39 @@ function handleAddPropertyClick() {
   showFirstPropertyPrompt.value = false
 }
 
+// Handle country code change in modal
+function onTempCountryCodeChange() {
+  phoneModalError.value = ''
+}
+
 // Format phone number in modal
 function formatPhoneNumberForModal(event: Event) {
   phoneModalError.value = ''
   const input = event.target as HTMLInputElement
   let value = input.value.trim()
   
-  // Remove all non-digit characters except +
-  value = value.replace(/[^\d+]/g, '')
+  // Remove all non-digit characters
+  value = value.replace(/\D/g, '')
   
-  // If it starts with 0, remove it
+  // Remove leading 0 if present (common in UK numbers)
   if (value.startsWith('0')) {
     value = value.substring(1)
   }
   
-  // If it doesn't start with +, add it if it looks like a UK number
-  if (!value.startsWith('+')) {
-    // If it starts with 44, add +
-    if (value.startsWith('44')) {
-      value = '+' + value
-    } else if (value.length > 0) {
-      // Assume UK number, add +44
-      value = '+44' + value
-    }
-  }
+  tempPhoneNumber.value = value
   
-  // If it starts with +44 and has a leading 0 after +44, remove it
-  if (value.startsWith('+44') && value.length > 3 && value[3] === '0') {
-    value = '+44' + value.substring(4)
-  }
+  // Combine country code + number for validation
+  const fullPhone = tempCountryCode.value + value
+  const country = tempCurrentCountry.value
   
-  // Validate format: should be +44 followed by 10 digits
-  if (value && value !== '+44') {
-    const phoneRegex = /^\+44\d{10}$/
-    if (!phoneRegex.test(value)) {
-      phoneModalError.value = 'Phone number must be in format +44 followed by 10 digits (without leading 0)'
+  // Validate format based on country pattern
+  if (value && value.length > 0 && country) {
+    if (!country.pattern.test(fullPhone)) {
+      phoneModalError.value = `Phone number must be in format ${country.code} followed by your number (e.g., ${country.code}${country.example})`
     } else {
       phoneModalError.value = ''
     }
   }
-  
-  tempPhoneNumber.value = value
 }
 
 // Save phone number and continue to add property
@@ -1600,9 +1623,11 @@ async function savePhoneAndContinue() {
     return
   }
   
-  const phoneRegex = /^\+44\d{10}$/
-  if (!phoneRegex.test(tempPhoneNumber.value.trim())) {
-    phoneModalError.value = 'Phone number must be in format +44 followed by 10 digits (without leading 0). Example: +447987654321'
+  const fullPhone = tempCountryCode.value + tempPhoneNumber.value.trim()
+  const country = tempCurrentCountry.value
+  
+  if (!country || !country.pattern.test(fullPhone)) {
+    phoneModalError.value = country ? `Phone number must be in format ${country.code} followed by your number (e.g., ${country.code}${country.example})` : 'Invalid phone number format'
     return
   }
   
@@ -1619,7 +1644,7 @@ async function savePhoneAndContinue() {
     const { error } = await client
       .from('safehouse_profiles')
       .update({
-        phone: tempPhoneNumber.value.trim()
+        phone: fullPhone
       })
       .eq('id', session.user.id)
 
