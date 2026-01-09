@@ -230,6 +230,68 @@
         </div>
       </div>
 
+      <!-- Property Quick Switch Previews (when 2+ properties) -->
+      <div v-if="properties.length > 1" class="px-4 sm:px-0 mb-8">
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-sm font-semibold text-gray-900">Quick switch</p>
+            <p class="text-xs text-gray-500">Click a property to switch</p>
+          </div>
+
+          <!-- Max 4 per row; center 1–3 naturally; 5 wraps (4 + 1 centered) -->
+          <div class="flex justify-center">
+            <div class="flex flex-wrap justify-center gap-3 max-w-[35rem] w-full">
+              <button
+                v-for="property in properties"
+                :key="property.id"
+                type="button"
+                @click="selectPropertyFromPreview(property)"
+                class="group focus:outline-none"
+                :aria-current="property.id === (currentProperty?.id || selectedPropertyId) ? 'true' : undefined"
+              >
+                <div
+                  class="w-32"
+                  :class="property.id === (currentProperty?.id || selectedPropertyId)
+                    ? 'ring-2 ring-[#03045e] ring-offset-2 rounded-lg'
+                    : 'ring-0'"
+                >
+                  <div
+                    class="w-32 h-32 rounded-lg overflow-hidden border bg-gray-100"
+                    :class="property.id === (currentProperty?.id || selectedPropertyId)
+                      ? 'border-[#03045e]'
+                      : 'border-gray-200 group-hover:border-gray-300'"
+                  >
+                    <img
+                      v-if="hasValidCoordinates(property) && getPropertyMapUrl(property.longitude, property.latitude, 'satellite', 160, 160, 15)"
+                      :src="getPropertyMapUrl(property.longitude, property.latitude, 'satellite', 160, 160, 15)"
+                      :alt="`Map preview of ${property.property_name}`"
+                      class="w-full h-full object-cover"
+                      loading="lazy"
+                      @error="handleMapImageError"
+                    />
+                    <div v-else class="w-full h-full flex items-center justify-center text-[11px] text-gray-500">
+                      No location
+                    </div>
+                  </div>
+
+                  <div class="mt-2 text-left">
+                    <p class="text-xs font-semibold text-gray-900 truncate">
+                      {{ property.property_name }}
+                    </p>
+                    <p class="text-[10px] text-gray-600 leading-snug">
+                      <span class="block truncate">{{ property.address }}</span>
+                      <span class="block truncate">
+                        {{ property.city }}{{ property.postal_code ? `, ${property.postal_code}` : '' }}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Quick Navigation -->
       <div class="px-4 py-4 sm:px-0 mb-8">
         <div class="flex flex-wrap gap-4">
@@ -1443,6 +1505,12 @@ function switchProperty() {
       viewPropertyDetails(property)
     }
   }
+}
+
+function selectPropertyFromPreview(property: any) {
+  if (!property?.id) return
+  selectedPropertyId.value = property.id
+  currentViewProperty.value = property
 }
 
 // Auto-select first property when properties load
@@ -3289,7 +3357,14 @@ function hasValidCoordinates(property: any): boolean {
 }
 
 // Get static map URL for property
-function getPropertyMapUrl(lng: number | string, lat: number | string, style: 'streets' | 'satellite' = 'satellite'): string {
+function getPropertyMapUrl(
+  lng: number | string,
+  lat: number | string,
+  style: 'streets' | 'satellite' = 'satellite',
+  width: number = 128,
+  height: number = 96,
+  zoom: number = 15
+): string {
   try {
     const numLng = typeof lng === 'string' ? parseFloat(lng) : lng
     const numLat = typeof lat === 'string' ? parseFloat(lat) : lat
@@ -3299,7 +3374,7 @@ function getPropertyMapUrl(lng: number | string, lat: number | string, style: 's
     }
     
     const { getStaticMapUrl } = useMapbox()
-    const url = getStaticMapUrl(numLng, numLat, 128, 96, 15, style)
+    const url = getStaticMapUrl(numLng, numLat, width, height, zoom, style)
     return url || ''
   } catch (error) {
     console.error('Error generating map URL:', error)
