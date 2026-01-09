@@ -155,20 +155,17 @@
         </div>
       </div>
       <!-- Page Header -->
-      <div class="px-4 py-6 sm:px-0">
+      <div class="px-4 py-3 sm:px-0">
         <div class="md:flex md:items-center md:justify-between">
           <div class="flex-1 min-w-0">
             <h2 class="text-3xl font-bold leading-7 text-gray-900 sm:text-4xl sm:truncate">
-              Welcome back, {{ profile?.full_name || 'User' }}!
+              Dashboard
             </h2>
-            <p class="mt-2 text-lg text-gray-600">
-              Manage your properties and emergency contacts
-            </p>
           </div>
         </div>
 
         <!-- Credits Display -->
-        <div v-if="creditsInfo" class="mt-6 bg-gradient-to-r from-[#03045e] to-[#023e8a] rounded-lg shadow-lg p-4 text-white">
+        <div v-if="creditsInfo" class="mt-3 bg-gradient-to-r from-[#03045e] to-[#023e8a] rounded-lg shadow-lg p-4 text-white">
           <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div class="flex items-center space-x-4">
               <div class="bg-white/20 rounded-full p-3">
@@ -231,7 +228,7 @@
       </div>
 
       <!-- Property Quick Switch Previews (when 2+ properties) -->
-      <div v-if="properties.length > 1" class="px-4 sm:px-0 mb-8">
+      <div v-if="properties.length > 1" class="px-4 sm:px-0 mb-3">
         <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
           <div class="flex items-center justify-between mb-3">
             <p class="text-sm font-semibold text-gray-900">Quick switch</p>

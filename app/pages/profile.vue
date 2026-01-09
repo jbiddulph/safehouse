@@ -122,11 +122,11 @@
           <div class="grid grid-cols-1 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-              <UInput v-model="profileForm.full_name" type="text" placeholder="Full Name" class="w-full" />
+              <UInput v-model="profileForm.full_name" type="text" placeholder="Full Name" class="w-full h-10" />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-              <UInput v-model="profileForm.email" type="email" placeholder="Email" disabled class="w-full" />
+              <UInput v-model="profileForm.email" type="email" placeholder="Email" disabled class="w-full h-10" />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Mobile Phone</label>
@@ -135,7 +135,7 @@
                   <select
                     id="countryCode"
                     v-model="selectedCountryCode"
-                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]"
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee] h-10"
                     @change="onCountryCodeChange"
                   >
                     <option v-for="country in countryCodes" :key="country.code" :value="country.code">
@@ -148,7 +148,7 @@
                     v-model="phoneNumber" 
                     type="tel" 
                     :placeholder="phonePlaceholder" 
-                    class="w-full"
+                    class="w-full h-10"
                     @input="formatPhoneNumber"
                   />
                 </div>
@@ -158,8 +158,8 @@
               </p>
               <p v-if="phoneError" class="mt-1 text-xs text-red-600">{{ phoneError }}</p>
             </div>
-            <div class="pt-2">
-              <UButton @click="saveProfile" :loading="saving" class="w-full bg-[#03045e] hover:bg-[#03045e] text-white font-semibold py-3 rounded-lg">
+            <div class="pt-2 flex justify-end">
+              <UButton @click="saveProfile" :loading="saving" class="bg-[#03045e] hover:bg-[#03045e] text-white font-semibold py-2 px-4 rounded-lg text-sm">
                 Save Changes
               </UButton>
             </div>
