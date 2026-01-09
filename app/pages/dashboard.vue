@@ -290,7 +290,7 @@
       </div>
 
       <!-- Quick Navigation -->
-      <div class="px-4 py-4 sm:px-0 mb-8">
+      <div class="px-4 sm:px-0 mb-8">
         <div class="flex flex-wrap gap-4">
           <NuxtLink 
             v-if="profile?.role === 'admin'"
@@ -369,7 +369,7 @@
               <div v-if="hasValidCoordinates(currentProperty)" class="bg-gray-50 rounded-lg p-4">
                 <h4 class="text-lg font-semibold text-gray-900 mb-3">Location</h4>
                 <img 
-                  :src="getPropertyMapUrl(currentProperty.longitude, currentProperty.latitude)"
+                  :src="getPropertyMapUrl(currentProperty.longitude, currentProperty.latitude, 'satellite', 800, 256, 13)"
                   :alt="`Map of ${currentProperty.property_name}`"
                   class="w-full h-64 rounded border border-gray-200 object-cover bg-gray-100 cursor-pointer"
                   @click="viewPropertyDetails(currentProperty)"
