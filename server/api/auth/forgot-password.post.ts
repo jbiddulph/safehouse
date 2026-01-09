@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { sendPasswordResetEmail } from '~/server/utils/email'
+import { sendPasswordResetEmail } from '../../utils/email'
 import crypto from 'crypto'
 
 export default defineEventHandler(async (event) => {
