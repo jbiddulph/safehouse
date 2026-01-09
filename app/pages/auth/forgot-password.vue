@@ -122,10 +122,10 @@ definePageMeta({
   middleware: ['guest-only'],
   title: 'Forgotten Password',
   meta: [
-    {
-      name: 'description',
-      content: 'Reset your MySafeHouse password by entering your email address. We'll send you a secure link to create a new password.'
-    }
+      {
+        name: 'description',
+        content: 'Reset your MySafeHouse password by entering your email address. We will send you a secure link to create a new password.'
+      }
   ]
 })
 
