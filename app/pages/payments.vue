@@ -8,13 +8,13 @@
           <div class="flex items-center space-x-8">
             <div class="flex-shrink-0 flex items-center space-x-3">
               <div class="h-8 w-8 bg-[#ffffff] rounded-lg flex items-center justify-center">
-                <img src="/images/logo.png" alt="MySafehouse" class="h-full w-full object-cover" />
+                <img src="/images/logo.png" alt="MySafeHouse" class="h-full w-full object-cover" />
               </div>
               <NuxtLink
                 :to="isLoggedIn ? '/dashboard' : '/'"
                 class="text-2xl font-bold text-white no-underline hover:no-underline"
               >
-                MySafehouse
+                MySafeHouse
               </NuxtLink>
             </div>
             
@@ -69,7 +69,7 @@
         <div class="text-center">
           <h2 class="text-3xl font-bold text-[#03045e] mb-2">Choose Your Plan</h2>
           <p class="text-lg text-gray-600">
-            Select a payment option to get started with MySafehouse
+            Select a payment option to get started with MySafeHouse
           </p>
         </div>
 
@@ -230,7 +230,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex items-center justify-center">
           <p class="text-sm text-[#8ee0ee]">
-            Copyright © 2025 MySafehouse. All rights reserved.
+            Copyright © 2025 MySafeHouse. All rights reserved.
           </p>
         </div>
       </div>
@@ -251,7 +251,7 @@ definePageMeta({
   meta: [
     {
       name: 'description',
-      content: 'Choose or manage your MySafehouse subscription so emergency services can securely access your property when needed.'
+      content: 'Choose or manage your MySafeHouse subscription so emergency services can securely access your property when needed.'
     }
   ]
 })

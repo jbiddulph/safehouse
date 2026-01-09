@@ -37,3 +37,4 @@ drop policy if exists "Allow authenticated users to view newsletter" on public.s
 create policy "Allow authenticated users to view newsletter" on public.safehouse_newsletter
   for select using (auth.uid() is not null);
 
+

@@ -8,13 +8,13 @@
           <div class="flex items-center space-x-8">
             <div class="flex-shrink-0 flex items-center space-x-3">
               <div class="h-8 w-8 bg-[#ffffff] rounded-lg flex items-center justify-center">
-                <img src="/images/logo.png" alt="MySafehouse" class="h-full w-full object-cover" />
+                <img src="/images/logo.png" alt="MySafeHouse" class="h-full w-full object-cover" />
               </div>
               <NuxtLink
                 :to="isLoggedIn ? '/dashboard' : '/'"
                 class="text-2xl font-bold text-white no-underline hover:no-underline"
               >
-                MySafehouse
+                MySafeHouse
               </NuxtLink>
             </div>
             
@@ -94,7 +94,7 @@
       <div class="absolute inset-0 z-50 flex items-center justify-center h-full py-12 px-4 sm:px-6 lg:px-8 pointer-events-auto">
         <div class="w-full max-w-2xl">
           <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-[#03045e] mb-4">MySafehouse</h1>
+            <h1 class="text-4xl font-bold text-[#03045e] mb-4">MySafeHouse</h1>
             <p class="text-lg text-gray-600 mb-4">
               Enter an address to find properties or request emergency access
             </p>
@@ -126,14 +126,26 @@
                 
                 <!-- Search Button / Loading indicator -->
                 <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                  <!-- Icon button before an address is selected -->
                   <button
-                    v-if="!loading && !searching"
+                    v-if="!loading && !searching && !selectedAddress"
                     @click="searchProperties"
                     :disabled="!addressQuery || !addressQuery.trim()"
                     class="p-2 text-[#03045e] hover:text-[#8ee0ee] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     type="button"
+                    aria-label="Search properties"
                   >
                     <Icon name="mdi:magnify" class="h-6 w-6" />
+                  </button>
+                  <!-- Full button after an address has been selected -->
+                  <button
+                    v-else-if="!loading && !searching && selectedAddress"
+                    @click="searchProperties"
+                    :disabled="!addressQuery || !addressQuery.trim()"
+                    class="px-4 py-1.5 text-sm font-medium bg-[#03045e] text-white rounded-md hover:bg-[#03045e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    type="button"
+                  >
+                    Go
                   </button>
                   <div v-else class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#03045e]"></div>
                 </div>
@@ -221,7 +233,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex items-center justify-center">
           <p class="text-sm text-[#8ee0ee]">
-            Copyright © 2025 MySafehouse. All rights reserved.
+            Copyright © 2025 MySafeHouse. All rights reserved.
           </p>
         </div>
       </div>
@@ -236,7 +248,7 @@ definePageMeta({
   meta: [
     {
       name: 'description',
-      content: 'MySafehouse helps emergency services gain secure, time-critical access to your property when emergency or standard access is requested.'
+      content: 'MySafeHouse helps emergency services gain secure, time-critical access to your property when emergency or standard access is requested.'
     }
   ]
 })
@@ -498,8 +510,7 @@ function showSearchResults(properties: any[]) {
          onclick="window.location.href='/property/${property.id}'">
       <div class="flex justify-between items-start">
         <div>
-          <h3 class="font-semibold text-lg text-gray-900">${property.property_name}</h3>
-          <p class="text-gray-600">${property.address}</p>
+          <p class="text-gray-600 font-medium">${property.address}</p>
           <p class="text-sm text-gray-500">
             ${property.city}${property.state ? `, ${property.state}` : ''} ${property.postal_code || ''}
           </p>
@@ -560,7 +571,7 @@ function showNoPropertiesFound() {
       </div>
       <h2 class="text-xl font-bold text-gray-900 mb-2">No Properties Found</h2>
       <p class="text-gray-600 mb-6">
-        No MySafehouse properties were found at this address. 
+        No MySafeHouse properties were found at this address. 
         The property may not be registered in our system yet.
       </p>
       <div class="space-y-3">

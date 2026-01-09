@@ -6,9 +6,9 @@
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center space-x-3">
             <div class="h-8 w-8 bg-[#ffffff] rounded-lg flex items-center justify-center">
-              <img src="/images/logo.png" alt="MySafehouse" class="h-full w-full object-cover" />
+              <img src="/images/logo.png" alt="MySafeHouse" class="h-full w-full object-cover" />
             </div>
-            <NuxtLink to="/" class="text-2xl font-bold text-white">MySafehouse</NuxtLink>
+            <NuxtLink to="/" class="text-2xl font-bold text-white">MySafeHouse</NuxtLink>
           </div>
         </div>
       </div>
@@ -43,7 +43,7 @@
               {{ verificationError }}
             </p>
             <p v-else class="text-gray-600">
-              Your subscription has been activated. You can now start using MySafehouse.
+              Your subscription has been activated. You can now start using MySafeHouse.
             </p>
           </div>
 

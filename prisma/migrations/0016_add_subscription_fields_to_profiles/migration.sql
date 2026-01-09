@@ -7,3 +7,4 @@ ADD COLUMN IF NOT EXISTS subscription_ends_at TIMESTAMPTZ(6),
 ADD COLUMN IF NOT EXISTS subscription_status VARCHAR(50) DEFAULT 'inactive',
 ADD COLUMN IF NOT EXISTS additional_credits INTEGER DEFAULT 0;
 
+

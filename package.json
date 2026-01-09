@@ -10,9 +10,10 @@
   },
   "scripts": {
     "build": "rm -rf .nuxt .output && nuxt build",
-    "build:netlify": "rm -rf .nuxt .output node_modules/.cache && nuxt build && npm run copy:functions && npm run copy:public",
-    "copy:functions": "mkdir -p .netlify/functions && cp -r .netlify/functions-internal/server .netlify/functions/",
+    "build:netlify": "rm -rf .nuxt .output node_modules/.cache && nuxt build && npm run fix:package-imports && npm run copy:functions && npm run copy:public",
+    "copy:functions": "mkdir -p .netlify/functions && cp -r .netlify/functions-internal/server .netlify/functions/ && cp -r .nuxt .netlify/functions/server/.nuxt",
     "copy:public": "mkdir -p .output && cp -r dist .output/public",
+    "fix:package-imports": "node -e \"const fs=require('fs');const p=require('./.netlify/functions-internal/server/package.json');p.imports=p.imports||{};p.imports['#internal/*']='./.nuxt/*';fs.writeFileSync('./.netlify/functions-internal/server/package.json',JSON.stringify(p,null,2))\"",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",

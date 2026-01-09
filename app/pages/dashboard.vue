@@ -11,9 +11,9 @@
                 <!-- <svg class="h-5 w-5 text-[#03045e]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg> -->
-                <img src="/images/logo.png" alt="MySafehouse" class="h-full w-full object-cover" />
+                <img src="/images/logo.png" alt="MySafeHouse" class="h-full w-full object-cover" />
               </div>
-              <h1 class="text-2xl font-bold text-white">MySafehouse</h1>
+              <h1 class="text-2xl font-bold text-white">MySafeHouse</h1>
             </div>
             
             <!-- Navigation Menu -->
@@ -200,7 +200,7 @@
                 </select>
               </div>
               <button 
-                @click="showAddProperty = true" 
+                @click="handleAddPropertyClick" 
                 :disabled="!canAddProperty"
                 class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-semibold text-[#03045e] bg-[#8ee0ee] hover:bg-[#7dd3e0] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee] disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -287,7 +287,7 @@
               <Icon name="mdi:home-plus" class="mx-auto h-16 w-16 text-[#8ee0ee] mb-4" />
               <h3 class="text-xl font-bold mb-2">Add Your First Property Now</h3>
               <p class="text-[#8ee0ee] mb-6">Get started by adding your first property to begin managing access and emergency contacts.</p>
-              <button @click="showAddProperty = true; showFirstPropertyPrompt = false" class="inline-flex items-center px-6 py-3 border border-transparent shadow-lg text-base font-semibold text-[#03045e] bg-white hover:bg-gray-100 rounded-lg transition-colors duration-200">
+              <button @click="handleAddPropertyClick" class="inline-flex items-center px-6 py-3 border border-transparent shadow-lg text-base font-semibold text-[#03045e] bg-white hover:bg-gray-100 rounded-lg transition-colors duration-200">
                 <Icon name="mdi:plus" class="-ml-1 mr-2 h-5 w-5" />
                 Add Your First Property
               </button>
@@ -298,7 +298,7 @@
               <h3 class="mt-2 text-sm font-medium text-gray-900">No properties</h3>
               <p class="mt-1 text-sm text-gray-500">Get started by adding your first property.</p>
               <div class="mt-6">
-                <button @click="showAddProperty = true" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#03045e] hover:bg-[#03045e]">
+                <button @click="handleAddPropertyClick" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#03045e] hover:bg-[#03045e]">
                   <Icon name="mdi:plus" class="-ml-1 mr-2 h-5 w-5" />
                   Add Property
                 </button>
@@ -310,7 +310,7 @@
               <div v-if="hasValidCoordinates(currentProperty)" class="bg-gray-50 rounded-lg p-4">
                 <h4 class="text-lg font-semibold text-gray-900 mb-3">Location</h4>
                 <img 
-                  :src="getPropertyMapUrl(currentProperty.longitude, currentProperty.latitude, 'satellite')"
+                  :src="getPropertyMapUrl(currentProperty.longitude, currentProperty.latitude)"
                   :alt="`Map of ${currentProperty.property_name}`"
                   class="w-full h-64 rounded border border-gray-200 object-cover bg-gray-100 cursor-pointer"
                   @click="viewPropertyDetails(currentProperty)"
@@ -507,6 +507,68 @@
                   <dd class="text-2xl font-bold text-gray-900">{{ propertiesWithContacts }}</dd>
                 </dl>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phone Number Required Modal -->
+    <div v-if="showPhoneRequiredModal" class="fixed inset-0 bg-black/50 overflow-y-auto h-full w-full z-50">
+      <div class="relative top-10 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-gray-900">Phone Number Required</h3>
+            <button
+              @click="showPhoneRequiredModal = false"
+              type="button"
+              class="text-gray-400 hover:text-gray-600"
+              aria-label="Close phone number required modal"
+            >
+              <Icon name="mdi:close" class="h-6 w-6" />
+            </button>
+          </div>
+          <div class="space-y-4">
+            <p class="text-sm text-gray-600">
+              You need to add your mobile phone number before adding properties. This is required for emergency access notifications.
+            </p>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Mobile Phone</label>
+              <input
+                v-model="tempPhoneNumber"
+                type="tel"
+                placeholder="+447987654321"
+                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                @input="formatPhoneNumberForModal"
+              />
+              <p class="mt-1 text-xs text-gray-500">
+                Format: +44 followed by your number without the leading 0 (e.g., +447987654321)
+              </p>
+              <p v-if="phoneModalError" class="mt-1 text-xs text-red-600">{{ phoneModalError }}</p>
+            </div>
+            <div class="flex justify-end space-x-3 pt-4">
+              <button
+                @click="showPhoneRequiredModal = false"
+                type="button"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+              >
+                Cancel
+              </button>
+              <button
+                @click="savePhoneAndContinue"
+                :disabled="savingPhone"
+                class="px-4 py-2 text-sm font-medium text-white bg-[#03045e] rounded-md hover:bg-[#03045e] disabled:opacity-50"
+              >
+                {{ savingPhone ? 'Saving...' : 'Save & Continue' }}
+              </button>
+            </div>
+            <div class="pt-2 border-t border-gray-200">
+              <button
+                @click="goToProfile"
+                class="w-full text-sm text-[#03045e] hover:text-[#023e8a] underline"
+              >
+                Or update your profile settings instead
+              </button>
             </div>
           </div>
         </div>
@@ -1328,7 +1390,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex items-center justify-center">
           <p class="text-sm text-[#8ee0ee]">
-            Copyright © 2025 MySafehouse. All rights reserved.
+            Copyright © 2025 MySafeHouse. All rights reserved.
           </p>
         </div>
       </div>
@@ -1355,6 +1417,10 @@ const showAddProperty = ref(false)
 const showAddContactInPropertyForm = ref(false)
 const selectedPropertyId = ref<string | null>(null)
 const currentViewProperty = ref<any>(null)
+const showPhoneRequiredModal = ref(false)
+const tempPhoneNumber = ref('')
+const phoneModalError = ref('')
+const savingPhone = ref(false)
 
 // Computed property for the currently selected property
 const currentProperty = computed(() => {
@@ -1401,6 +1467,120 @@ watch(currentProperty, async (newProperty) => {
     propertyContacts.value = []
   }
 }, { immediate: true })
+
+// Handle add property click - check for phone number first
+function handleAddPropertyClick() {
+  // Check if user has a phone number
+  if (!profile.value?.phone || profile.value.phone.trim() === '') {
+    showPhoneRequiredModal.value = true
+    tempPhoneNumber.value = ''
+    phoneModalError.value = ''
+    return
+  }
+  // If phone exists, proceed to show add property modal
+  showAddProperty.value = true
+  showFirstPropertyPrompt.value = false
+}
+
+// Format phone number in modal
+function formatPhoneNumberForModal(event: Event) {
+  phoneModalError.value = ''
+  const input = event.target as HTMLInputElement
+  let value = input.value.trim()
+  
+  // Remove all non-digit characters except +
+  value = value.replace(/[^\d+]/g, '')
+  
+  // If it starts with 0, remove it
+  if (value.startsWith('0')) {
+    value = value.substring(1)
+  }
+  
+  // If it doesn't start with +, add it if it looks like a UK number
+  if (!value.startsWith('+')) {
+    // If it starts with 44, add +
+    if (value.startsWith('44')) {
+      value = '+' + value
+    } else if (value.length > 0) {
+      // Assume UK number, add +44
+      value = '+44' + value
+    }
+  }
+  
+  // If it starts with +44 and has a leading 0 after +44, remove it
+  if (value.startsWith('+44') && value.length > 3 && value[3] === '0') {
+    value = '+44' + value.substring(4)
+  }
+  
+  // Validate format: should be +44 followed by 10 digits
+  if (value && value !== '+44') {
+    const phoneRegex = /^\+44\d{10}$/
+    if (!phoneRegex.test(value)) {
+      phoneModalError.value = 'Phone number must be in format +44 followed by 10 digits (without leading 0)'
+    } else {
+      phoneModalError.value = ''
+    }
+  }
+  
+  tempPhoneNumber.value = value
+}
+
+// Save phone number and continue to add property
+async function savePhoneAndContinue() {
+  if (!tempPhoneNumber.value || !tempPhoneNumber.value.trim()) {
+    phoneModalError.value = 'Phone number is required'
+    return
+  }
+  
+  const phoneRegex = /^\+44\d{10}$/
+  if (!phoneRegex.test(tempPhoneNumber.value.trim())) {
+    phoneModalError.value = 'Phone number must be in format +44 followed by 10 digits (without leading 0). Example: +447987654321'
+    return
+  }
+  
+  savingPhone.value = true
+  try {
+    const client = useSupabaseClient()
+    const { data: { session } } = await client.auth.getSession()
+    
+    if (!session) {
+      alert('No valid session found')
+      return
+    }
+    
+    const { error } = await client
+      .from('safehouse_profiles')
+      .update({
+        phone: tempPhoneNumber.value.trim()
+      })
+      .eq('id', session.user.id)
+
+    if (error) {
+      console.error('Profile update error:', error)
+      phoneModalError.value = 'Failed to save phone number: ' + (error.message || 'Unknown error')
+    } else {
+      // Reload profile
+      await loadProfile()
+      // Close modal and open add property modal
+      showPhoneRequiredModal.value = false
+      showAddProperty.value = true
+      showFirstPropertyPrompt.value = false
+      tempPhoneNumber.value = ''
+      phoneModalError.value = ''
+    }
+  } catch (error) {
+    console.error('Profile update error:', error)
+    phoneModalError.value = 'Failed to save phone number: ' + (error.message || 'Unknown error')
+  } finally {
+    savingPhone.value = false
+  }
+}
+
+// Go to profile page
+function goToProfile() {
+  showPhoneRequiredModal.value = false
+  navigateTo('/profile')
+}
 
 // Handle canceling property form - show prompt if it's the first property
 function handleCancelAddProperty() {
@@ -1722,7 +1902,14 @@ onMounted(async () => {
   
   // Check if we should auto-show property form (from payment success)
   if (route.query.addFirstProperty === 'true' && properties.value.length === 0) {
-    showAddProperty.value = true
+    // Check phone number first
+    if (!profile.value?.phone || profile.value.phone.trim() === '') {
+      showPhoneRequiredModal.value = true
+      tempPhoneNumber.value = ''
+      phoneModalError.value = ''
+    } else {
+      showAddProperty.value = true
+    }
   }
 })
 
@@ -2183,6 +2370,16 @@ async function createProperty() {
   const client = useSupabaseClient()
   const { data: { session } } = await client.auth.getSession()
   if (!session?.user?.id) return
+  
+  // Check if phone number exists (backup check)
+  if (!profile.value?.phone || profile.value.phone.trim() === '') {
+    alert('Please add your mobile phone number before adding properties. This is required for emergency access notifications.')
+    showAddProperty.value = false
+    showPhoneRequiredModal.value = true
+    tempPhoneNumber.value = ''
+    phoneModalError.value = ''
+    return
+  }
   
   // Check credits before creating
   if (!canAddProperty.value) {

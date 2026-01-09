@@ -8,9 +8,9 @@
           <div class="flex items-center space-x-8">
             <div class="flex-shrink-0 flex items-center space-x-3">
               <div class="h-8 w-8 bg-[#ffffff] rounded-lg flex items-center justify-center">
-                <img src="/images/logo.png" alt="MySafehouse" class="h-full w-full object-cover" />
+                <img src="/images/logo.png" alt="MySafeHouse" class="h-full w-full object-cover" />
               </div>
-              <NuxtLink to="/" class="text-2xl font-bold text-white">MySafehouse</NuxtLink>
+              <NuxtLink to="/" class="text-2xl font-bold text-white">MySafeHouse</NuxtLink>
             </div>
             
             <!-- Navigation Menu -->
@@ -55,7 +55,7 @@
         <div class="text-center">
           <h2 class="text-3xl font-bold text-[#03045e] mb-2">Create your account</h2>
           <p class="text-lg text-gray-600">
-            Join MySafehouse to manage your properties and access requests
+            Join MySafeHouse to manage your properties and access requests
           </p>
         </div>
 
@@ -175,10 +175,15 @@
                 id="phone"
                 v-model="phone" 
                 type="tel" 
-                placeholder="Enter your mobile number" 
+                placeholder="+447987654321" 
                 required 
                 class="w-full"
+                @input="formatPhoneNumber"
               />
+              <p class="mt-1 text-xs text-gray-500">
+                Format: +44 followed by your number without the leading 0 (e.g., +447987654321)
+              </p>
+              <p v-if="phoneError" class="mt-1 text-xs text-red-600">{{ phoneError }}</p>
             </div>
 
             <div>
@@ -227,7 +232,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex items-center justify-center">
           <p class="text-sm text-[#8ee0ee]">
-            Copyright © 2025 MySafehouse. All rights reserved.
+            Copyright © 2025 MySafeHouse. All rights reserved.
           </p>
         </div>
       </div>
@@ -243,6 +248,7 @@ const phone = ref('')
 const password = ref('')
 const loading = ref(false)
 const auth = useAuthStore()
+const phoneError = ref('')
 
 // Payment plan state
 const selectedPlan = ref<string | null>(null)
@@ -317,9 +323,64 @@ function removeAvatar() {
   if (input) input.value = ''
 }
 
+// Format phone number as user types
+function formatPhoneNumber(event: Event) {
+  phoneError.value = ''
+  const input = event.target as HTMLInputElement
+  let value = input.value.trim()
+  
+  // Remove all non-digit characters except +
+  value = value.replace(/[^\d+]/g, '')
+  
+  // If it starts with 0, remove it
+  if (value.startsWith('0')) {
+    value = value.substring(1)
+  }
+  
+  // If it doesn't start with +, add it if it looks like a UK number
+  if (!value.startsWith('+')) {
+    // If it starts with 44, add +
+    if (value.startsWith('44')) {
+      value = '+' + value
+    } else if (value.length > 0) {
+      // Assume UK number, add +44
+      value = '+44' + value
+    }
+  }
+  
+  // If it starts with +44 and has a leading 0 after +44, remove it
+  if (value.startsWith('+44') && value.length > 3 && value[3] === '0') {
+    value = '+44' + value.substring(4)
+  }
+  
+  // Validate format: should be +44 followed by 10 digits
+  if (value && value !== '+44') {
+    const phoneRegex = /^\+44\d{10}$/
+    if (!phoneRegex.test(value)) {
+      phoneError.value = 'Phone number must be in format +44 followed by 10 digits (without leading 0)'
+    } else {
+      phoneError.value = ''
+    }
+  }
+  
+  phone.value = value
+}
+
 async function onSubmit() {
   if (!selectedPlan.value) {
     alert('Please select a payment plan first.')
+    return
+  }
+
+  // Validate phone number format
+  if (!phone.value || !phone.value.trim()) {
+    phoneError.value = 'Phone number is required'
+    return
+  }
+  
+  const phoneRegex = /^\+44\d{10}$/
+  if (!phoneRegex.test(phone.value.trim())) {
+    phoneError.value = 'Phone number must be in format +44 followed by 10 digits (without leading 0). Example: +447987654321'
     return
   }
 

@@ -8,9 +8,9 @@
           <div class="flex items-center space-x-8">
             <div class="flex-shrink-0 flex items-center space-x-3">
               <div class="h-8 w-8 bg-[#ffffff] rounded-lg flex items-center justify-center">
-                <img src="/images/logo.png" alt="MySafehouse" class="h-full w-full object-cover" />
+                <img src="/images/logo.png" alt="MySafeHouse" class="h-full w-full object-cover" />
               </div>
-              <NuxtLink to="/" class="text-2xl font-bold text-white">MySafehouse</NuxtLink>
+              <NuxtLink to="/" class="text-2xl font-bold text-white">MySafeHouse</NuxtLink>
             </div>
             
             <!-- Navigation Menu -->
@@ -99,7 +99,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex items-center justify-center">
           <p class="text-sm text-[#8ee0ee]">
-            Copyright © 2025 MySafehouse. All rights reserved.
+            Copyright © 2025 MySafeHouse. All rights reserved.
           </p>
         </div>
       </div>

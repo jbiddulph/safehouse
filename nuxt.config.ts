@@ -52,8 +52,29 @@ export default defineNuxtConfig({
         if (!pkg.imports) {
           pkg.imports = {}
         }
+        // For Netlify, the .nuxt directory is at the root of the function
         pkg.imports['#internal/*'] = './.nuxt/*'
         nitro.options.packageJson = pkg
+      },
+      'nitro:build:after': async (nitro) => {
+        // Ensure imports field is in the generated package.json after build
+        const outputDir = nitro.options.output.dir
+        const pkgPath = `${outputDir}/package.json`
+        try {
+          const { readFileSync, writeFileSync, existsSync } = await import('fs')
+          if (existsSync(pkgPath)) {
+            const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'))
+            if (!pkg.imports) {
+              pkg.imports = {}
+            }
+            // For Netlify serverless functions, .nuxt is at the function root
+            pkg.imports['#internal/*'] = './.nuxt/*'
+            writeFileSync(pkgPath, JSON.stringify(pkg, null, 2))
+            console.log('✓ Added imports field to generated package.json')
+          }
+        } catch (error) {
+          console.warn('Failed to update generated package.json:', error)
+        }
       }
     }
   },

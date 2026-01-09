@@ -8,9 +8,9 @@
           <div class="flex items-center space-x-8">
             <div class="flex-shrink-0 flex items-center space-x-3">
               <div class="h-8 w-8 bg-[#ffffff] rounded-lg flex items-center justify-center">
-                <img src="/images/logo.png" alt="MySafehouse" class="h-full w-full object-cover" />
+                <img src="/images/logo.png" alt="MySafeHouse" class="h-full w-full object-cover" />
               </div>
-              <NuxtLink to="/" class="text-2xl font-bold text-white">MySafehouse</NuxtLink>
+              <NuxtLink to="/" class="text-2xl font-bold text-white">MySafeHouse</NuxtLink>
             </div>
             
             <!-- Navigation Menu -->
@@ -130,7 +130,17 @@
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Mobile Phone</label>
-              <UInput v-model="profileForm.phone" type="tel" placeholder="Mobile Phone Number" class="w-full" />
+              <UInput 
+                v-model="profileForm.phone" 
+                type="tel" 
+                placeholder="+447987654321" 
+                class="w-full"
+                @input="formatPhoneNumber"
+              />
+              <p class="mt-1 text-xs text-gray-500">
+                Format: +44 followed by your number without the leading 0 (e.g., +447987654321)
+              </p>
+              <p v-if="phoneError" class="mt-1 text-xs text-red-600">{{ phoneError }}</p>
             </div>
             <div class="pt-2">
               <UButton @click="saveProfile" :loading="saving" class="w-full bg-[#03045e] hover:bg-[#03045e] text-white font-semibold py-3 rounded-lg">
@@ -161,7 +171,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex items-center justify-center">
           <p class="text-sm text-[#8ee0ee]">
-            Copyright © 2025 MySafehouse. All rights reserved.
+            Copyright © 2025 MySafeHouse. All rights reserved.
           </p>
         </div>
       </div>
@@ -184,6 +194,9 @@ const profileForm = ref({
   email: '',
   phone: ''
 })
+
+// Phone validation
+const phoneError = ref('')
 
 // Computed property to ensure avatar URL has timestamp for cache busting
 const avatarUrl = computed(() => {
@@ -413,8 +426,60 @@ async function removeAvatar() {
   }
 }
 
+// Format phone number as user types
+function formatPhoneNumber(event: Event) {
+  phoneError.value = ''
+  const input = event.target as HTMLInputElement
+  let value = input.value.trim()
+  
+  // Remove all non-digit characters except +
+  value = value.replace(/[^\d+]/g, '')
+  
+  // If it starts with 0, remove it
+  if (value.startsWith('0')) {
+    value = value.substring(1)
+  }
+  
+  // If it doesn't start with +, add it if it looks like a UK number
+  if (!value.startsWith('+')) {
+    // If it starts with 44, add +
+    if (value.startsWith('44')) {
+      value = '+' + value
+    } else if (value.length > 0) {
+      // Assume UK number, add +44
+      value = '+44' + value
+    }
+  }
+  
+  // If it starts with +44 and has a leading 0 after +44, remove it
+  if (value.startsWith('+44') && value.length > 3 && value[3] === '0') {
+    value = '+44' + value.substring(4)
+  }
+  
+  // Validate format: should be +44 followed by 10 digits
+  if (value && value !== '+44') {
+    const phoneRegex = /^\+44\d{10}$/
+    if (!phoneRegex.test(value)) {
+      phoneError.value = 'Phone number must be in format +44 followed by 10 digits (without leading 0)'
+    } else {
+      phoneError.value = ''
+    }
+  }
+  
+  profileForm.value.phone = value
+}
+
 async function saveProfile() {
   if (!profile.value) return
+  
+  // Validate phone number format
+  if (profileForm.value.phone && profileForm.value.phone.trim()) {
+    const phoneRegex = /^\+44\d{10}$/
+    if (!phoneRegex.test(profileForm.value.phone.trim())) {
+      phoneError.value = 'Phone number must be in format +44 followed by 10 digits (without leading 0). Example: +447987654321'
+      return
+    }
+  }
   
   saving.value = true
   try {
@@ -430,7 +495,7 @@ async function saveProfile() {
       .from('safehouse_profiles')
       .update({
         full_name: profileForm.value.full_name,
-        phone: profileForm.value.phone
+        phone: profileForm.value.phone.trim() || null
       })
       .eq('id', session.user.id)
 
@@ -441,6 +506,7 @@ async function saveProfile() {
     } else {
       // Refresh profile data
       profile.value = await auth.getProfile()
+      phoneError.value = ''
       alert('Profile updated successfully!')
     }
   } catch (error) {

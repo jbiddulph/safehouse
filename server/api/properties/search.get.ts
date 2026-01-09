@@ -12,9 +12,26 @@ export default defineEventHandler(async (event) => {
   }
 
   const config = useRuntimeConfig()
+  // Prefer service role key when available (production),
+  // but gracefully fall back to public anon key (useful in local/dev)
+  const supabaseKey = config.supabaseServiceRoleKey || config.public.supabaseKey
+
+  if (!config.public.supabaseUrl || !supabaseKey) {
+    console.error('Supabase configuration missing for property search', {
+      urlDefined: !!config.public.supabaseUrl,
+      hasServiceRoleKey: !!config.supabaseServiceRoleKey,
+      hasPublicKey: !!config.public.supabaseKey
+    })
+    return {
+      success: false,
+      message: 'Failed to search properties',
+      properties: []
+    }
+  }
+
   const supabase = createClient(
     config.public.supabaseUrl,
-    config.supabaseServiceRoleKey,
+    supabaseKey,
     {
       auth: {
         autoRefreshToken: false,

@@ -192,7 +192,7 @@ export default defineEventHandler(async (event) => {
 
             // Keep SMS very short to stay under Twilio trial limits (160 chars including Twilio prefix)
             const smsBody = [
-              `MySafehouse emergency access: "${property.property_name}".`,
+              `MySafeHouse emergency access: "${property.property_name}".`,
               propertyDisplayAddress || property.address,
               `Requester: ${email}`,
               `Check your email / dashboard to approve or deny.`
