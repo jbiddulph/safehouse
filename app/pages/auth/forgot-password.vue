@@ -34,7 +34,7 @@
           <div class="flex items-center space-x-4">
             <NuxtLink 
               to="/auth/login" 
-              class="text-sm font-medium text-white border-b-2 border-[#8ee0ee] pb-1"
+              class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors"
             >
               Sign In
             </NuxtLink>
@@ -53,73 +53,53 @@
       <div class="max-w-md w-full mx-auto space-y-8">
         <!-- Header Text -->
         <div class="text-center">
-          <h2 class="text-3xl font-bold text-[#03045e] mb-2">Welcome back</h2>
+          <h2 class="text-3xl font-bold text-[#03045e] mb-2">Forgotten Password</h2>
           <p class="text-lg text-gray-600">
-            Sign in to your MySafeHouse account
+            Enter your email address and we'll send you a link to reset your password
           </p>
         </div>
 
-        <!-- Login Form -->
+        <!-- Forgot Password Form -->
         <div class="bg-white py-8 px-6 shadow-xl rounded-lg">
-        <form class="space-y-6" @submit.prevent="onSubmit">
-          <!-- Email Field -->
-          <div>
-            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-            <UInput 
-              id="email"
-              v-model="email" 
-              type="email" 
-              placeholder="Enter your email" 
-              required 
-              class="w-full"
-            />
-          </div>
-
-          <!-- Password Field -->
-          <div>
-            <div class="flex justify-between items-center mb-1">
-              <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-              <NuxtLink 
-                to="/auth/forgot-password" 
-                class="text-sm text-[#8ee0ee] hover:text-[#03045e] transition-colors"
-              >
-                Forgotten Password?
-              </NuxtLink>
+          <form class="space-y-6" @submit.prevent="onSubmit">
+            <!-- Email Field -->
+            <div>
+              <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+              <UInput 
+                id="email"
+                v-model="email" 
+                type="email" 
+                placeholder="Enter your email address" 
+                required 
+                class="w-full"
+              />
+              <p v-if="error" class="mt-1 text-xs text-red-600">{{ error }}</p>
+              <p v-if="success" class="mt-1 text-xs text-green-600">{{ success }}</p>
             </div>
-            <UInput 
-              id="password"
-              v-model="password" 
-              type="password" 
-              placeholder="Enter your password" 
-              required 
-              class="w-full"
-            />
-          </div>
 
+            <!-- Submit Button -->
+            <div class="pt-4">
+              <UButton 
+                type="submit" 
+                :loading="loading" 
+                block 
+                size="lg"
+                class="w-full bg-[#03045e] hover:bg-[#03045e] text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200"
+              >
+                {{ loading ? 'Sending...' : 'Send Reset Link' }}
+              </UButton>
+            </div>
 
-          <!-- Submit Button -->
-          <div class="pt-4">
-            <UButton 
-              type="submit" 
-              :loading="loading" 
-              block 
-              size="lg"
-              class="w-full bg-[#03045e] hover:bg-[#03045e] text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200"
-            >
-              {{ loading ? 'Signing in...' : 'Sign in' }}
-            </UButton>
-          </div>
-
-          <!-- Register Link -->
-          <div class="text-center pt-4 border-t border-gray-200">
-            <p class="text-sm text-gray-600">
-              Don't have an account? 
-              <NuxtLink to="/auth/register" class="font-medium text-[#8ee0ee] hover:text-[#8ee0ee]0 transition-colors">
-                Create one here
-              </NuxtLink>
-            </p>
-          </div>
-        </form>
+            <!-- Back to Login Link -->
+            <div class="text-center pt-4 border-t border-gray-200">
+              <p class="text-sm text-gray-600">
+                Remember your password? 
+                <NuxtLink to="/auth/login" class="font-medium text-[#8ee0ee] hover:text-[#8ee0ee]0 transition-colors">
+                  Sign in here
+                </NuxtLink>
+              </p>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -138,33 +118,52 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({
+  middleware: ['guest-only'],
+  title: 'Forgotten Password',
+  meta: [
+    {
+      name: 'description',
+      content: 'Reset your MySafeHouse password by entering your email address. We'll send you a secure link to create a new password.'
+    }
+  ]
+})
+
 const email = ref('')
-const password = ref('')
 const loading = ref(false)
-const auth = useAuthStore()
-
-
-definePageMeta({ middleware: ['guest-only'] })
-
+const error = ref('')
+const success = ref('')
 
 async function onSubmit() {
+  if (!email.value || !email.value.trim()) {
+    error.value = 'Please enter your email address'
+    return
+  }
+
   loading.value = true
+  error.value = ''
+  success.value = ''
+
   try {
-    await auth.signInWithEmail(email.value, password.value)
-    await navigateTo('/profile')
-  } catch (err: any) {
-    console.error('Login error:', err)
-    if (err.message?.includes('Invalid login credentials')) {
-      alert('Invalid email or password. If you just registered, please check your email and click the confirmation link first.')
-    } else if (err.message?.includes('Email not confirmed')) {
-      alert('Please check your email and click the confirmation link before logging in.')
+    const response = await $fetch('/api/auth/forgot-password', {
+      method: 'POST',
+      body: {
+        email: email.value.trim()
+      }
+    })
+
+    if (response.success) {
+      success.value = 'If an account exists with this email address, you will receive a password reset link shortly. Please check your email inbox.'
+      email.value = ''
     } else {
-      alert('Login failed: ' + (err.message || 'Unknown error'))
+      error.value = response.message || 'Failed to send reset link. Please try again.'
     }
+  } catch (err: any) {
+    console.error('Forgot password error:', err)
+    error.value = err.data?.message || err.message || 'An error occurred. Please try again later.'
   } finally {
     loading.value = false
   }
 }
 </script>
-
 

@@ -211,7 +211,22 @@
                 placeholder="Create a secure password" 
                 required 
                 class="w-full"
+                @input="validatePasswordMatch"
               />
+            </div>
+
+            <div>
+              <label for="passwordConfirmation" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+              <UInput 
+                id="passwordConfirmation"
+                v-model="passwordConfirmation" 
+                type="password" 
+                placeholder="Confirm your password" 
+                required 
+                class="w-full"
+                @input="validatePasswordMatch"
+              />
+              <p v-if="passwordMatchError" class="mt-1 text-xs text-red-600">{{ passwordMatchError }}</p>
             </div>
           </div>
 
@@ -262,9 +277,11 @@ const fullName = ref('')
 const email = ref('')
 const phone = ref('')
 const password = ref('')
+const passwordConfirmation = ref('')
 const loading = ref(false)
 const auth = useAuthStore()
 const phoneError = ref('')
+const passwordMatchError = ref('')
 
 // Use country codes store
 const countryCodesStore = useCountryCodesStore()
@@ -422,6 +439,17 @@ function formatPhoneNumber(event: Event) {
   phone.value = fullPhone
 }
 
+// Validate password match
+function validatePasswordMatch() {
+  passwordMatchError.value = ''
+  
+  if (passwordConfirmation.value && password.value !== passwordConfirmation.value) {
+    passwordMatchError.value = 'Passwords do not match'
+  } else if (passwordConfirmation.value && password.value === passwordConfirmation.value) {
+    passwordMatchError.value = ''
+  }
+}
+
 async function onSubmit() {
   if (!selectedPlan.value) {
     alert('Please select a payment plan first.')
@@ -441,6 +469,17 @@ async function onSubmit() {
   const country = currentCountry.value
   if (!country || !country.pattern.test(fullPhone)) {
     phoneError.value = country ? `Phone number must be in format ${country.code} followed by your number (e.g., ${country.code}${country.example})` : 'Invalid phone number format'
+    return
+  }
+
+  // Validate password match
+  if (!password.value || !passwordConfirmation.value) {
+    passwordMatchError.value = 'Both password fields are required'
+    return
+  }
+
+  if (password.value !== passwordConfirmation.value) {
+    passwordMatchError.value = 'Passwords do not match'
     return
   }
 

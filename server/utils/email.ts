@@ -382,3 +382,70 @@ export async function sendAccessRequestDeniedEmail(
     return false
   }
 }
+
+export async function sendPasswordResetEmail(
+  toEmail: string,
+  resetUrl: string
+) {
+  const emailTransporter = initializeEmail()
+  if (!emailTransporter) {
+    console.warn('Email not initialized. Cannot send password reset email.')
+    return false
+  }
+
+  try {
+    const mailOptions = {
+      from: 'MySafeHouse <noreply@safehouse.app>',
+      to: toEmail,
+      subject: '🔐 Reset Your MySafeHouse Password',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #03045e;">Reset Your Password</h2>
+          
+          <p style="font-size: 16px; color: #374151; line-height: 1.6;">
+            We received a request to reset your password for your MySafeHouse account.
+          </p>
+          
+          <p style="font-size: 16px; color: #374151; line-height: 1.6;">
+            Click the button below to create a new secure password (minimum 6 characters):
+          </p>
+          
+          <div style="text-align: center; margin: 32px 0;">
+            <a href="${resetUrl}" 
+               style="background-color: #03045e; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 18px;">
+              Reset Password
+            </a>
+          </div>
+          
+          <p style="font-size: 14px; color: #6b7280; line-height: 1.6;">
+            Or copy and paste this link into your browser:<br />
+            <a href="${resetUrl}" style="color: #8ee0ee; word-break: break-all;">${resetUrl}</a>
+          </p>
+          
+          <div style="background-color: #fef3c7; padding: 16px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #f59e0b;">
+            <p style="margin: 0; color: #92400e; font-size: 14px;">
+              <strong>Security Note:</strong> This link will expire in 1 hour. If you didn't request a password reset, please ignore this email and your password will remain unchanged.
+            </p>
+          </div>
+          
+          <p style="font-size: 14px; color: #6b7280; line-height: 1.6; margin-top: 24px;">
+            If you're having trouble clicking the button, copy and paste the URL above into your web browser.
+          </p>
+          
+          <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
+            <p style="color: #6b7280; font-size: 14px;">
+              This is an automated message from MySafeHouse. Please do not reply to this email.
+            </p>
+          </div>
+        </div>
+      `
+    }
+
+    const result = await emailTransporter.sendMail(mailOptions)
+    console.log('Password reset email sent successfully:', result.messageId)
+    return true
+  } catch (error) {
+    console.error('Error sending password reset email:', error)
+    return false
+  }
+}
