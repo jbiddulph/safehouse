@@ -1,7 +1,15 @@
 import { createClient } from '@supabase/supabase-js'
-import sharp from 'sharp'
 
 export default defineEventHandler(async (event) => {
+  // Lazy load Sharp inside the function to handle cases where it's not available
+  let sharp: any = null
+  try {
+    const sharpModule = await import('sharp')
+    sharp = sharpModule.default || sharpModule
+  } catch (e) {
+    console.warn('Sharp not available, will upload original images:', e)
+    sharp = null
+  }
   const formData = await readFormData(event)
   const file = formData.get('propertyImage') as File
   const propertyId = formData.get('propertyId') as string
@@ -46,41 +54,54 @@ export default defineEventHandler(async (event) => {
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
 
-    // Process image with Sharp: convert to WEBP, resize if needed, optimize
-    const processedImage = await sharp(buffer)
-      .resize(2000, 2000, {
-        fit: 'inside',
-        withoutEnlargement: true
-      })
-      .webp({ 
-        quality: 85,
-        effort: 6 
-      })
-      .toBuffer()
+    let processedImage: Buffer
+    let fileExtension: string
+    let contentType: string
 
-    // Generate unique filename with .webp extension
+    // Try to use Sharp for image processing, fallback to original if Sharp fails
+    try {
+      // Process image with Sharp: convert to WEBP, resize if needed, optimize
+      processedImage = await sharp(buffer)
+        .resize(2000, 2000, {
+          fit: 'inside',
+          withoutEnlargement: true
+        })
+        .webp({ 
+          quality: 85,
+          effort: 6 
+        })
+        .toBuffer()
+      
+      fileExtension = 'webp'
+      contentType = 'image/webp'
+      console.log('Image processed successfully with Sharp, size reduced from', buffer.length, 'to', processedImage.length)
+    } catch (sharpError: any) {
+      console.warn('Sharp processing failed, using original image:', sharpError.message, sharpError.stack)
+      // Fallback: use original image if Sharp fails
+      processedImage = buffer
+      fileExtension = file.name.split('.').pop() || 'jpg'
+      contentType = file.type || 'image/jpeg'
+    }
+
+    // Generate unique filename
     const timestamp = Date.now()
-    const fileName = `${propertyId}_${timestamp}.webp`
+    const fileName = `${propertyId}_${timestamp}.${fileExtension}`
     const filePath = `property/${fileName}`
 
-    // Upload processed buffer directly to Supabase Storage
-    // In Node.js, Supabase accepts Buffer directly, but we can also use Uint8Array
-    // Convert Buffer to Uint8Array for better compatibility
-    const uint8Array = new Uint8Array(processedImage)
-    
+    // Upload to Supabase Storage - use Buffer directly (Supabase accepts Buffer in Node.js)
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('safehouse')
-      .upload(filePath, uint8Array, {
+      .upload(filePath, processedImage, {
         cacheControl: '3600',
         upsert: true,
-        contentType: 'image/webp'
+        contentType: contentType
       })
 
     if (uploadError) {
       console.error('Upload error:', uploadError)
       throw createError({
         statusCode: 500,
-        statusMessage: 'Failed to upload property image'
+        statusMessage: `Failed to upload property image: ${uploadError.message}`
       })
     }
 
@@ -94,11 +115,15 @@ export default defineEventHandler(async (event) => {
       url: urlData.publicUrl,
       path: filePath
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Property image upload error:', error)
+    const errorMessage = error.message || 'Unknown error occurred'
+    const errorStack = error.stack || ''
+    console.error('Error details:', { message: errorMessage, stack: errorStack, name: error.name })
+    
     throw createError({
       statusCode: 500,
-      statusMessage: 'Failed to upload property image'
+      statusMessage: `Failed to upload property image: ${errorMessage}`
     })
   }
 })
