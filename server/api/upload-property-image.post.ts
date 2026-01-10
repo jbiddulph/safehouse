@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import sharp from 'sharp'
 
 export default defineEventHandler(async (event) => {
   const formData = await readFormData(event)
@@ -20,11 +21,11 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // Validate file size (max 5MB)
-  if (file.size > 5 * 1024 * 1024) {
+  // Increase file size limit to 20MB (will be compressed to WEBP)
+  if (file.size > 20 * 1024 * 1024) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'File size must be less than 5MB'
+      statusMessage: 'File size must be less than 20MB'
     })
   }
 
@@ -41,18 +42,38 @@ export default defineEventHandler(async (event) => {
   )
 
   try {
-    // Generate unique filename using propertyId and timestamp
-    const fileExt = file.name.split('.').pop()
+    // Convert file to Buffer
+    const arrayBuffer = await file.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
+
+    // Process image with Sharp: convert to WEBP, resize if needed, optimize
+    const processedImage = await sharp(buffer)
+      .resize(2000, 2000, {
+        fit: 'inside',
+        withoutEnlargement: true
+      })
+      .webp({ 
+        quality: 85,
+        effort: 6 
+      })
+      .toBuffer()
+
+    // Generate unique filename with .webp extension
     const timestamp = Date.now()
-    const fileName = `${propertyId}_${timestamp}.${fileExt}`
+    const fileName = `${propertyId}_${timestamp}.webp`
     const filePath = `property/${fileName}`
 
-    // Upload file to Supabase Storage
+    // Upload processed buffer directly to Supabase Storage
+    // In Node.js, Supabase accepts Buffer directly, but we can also use Uint8Array
+    // Convert Buffer to Uint8Array for better compatibility
+    const uint8Array = new Uint8Array(processedImage)
+    
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('safehouse')
-      .upload(filePath, file, {
+      .upload(filePath, uint8Array, {
         cacheControl: '3600',
-        upsert: true // This will overwrite existing files with the same name
+        upsert: true,
+        contentType: 'image/webp'
       })
 
     if (uploadError) {
