@@ -13,7 +13,7 @@
                 </svg> -->
                 <img src="/images/logo.png" alt="MySafeHouse" class="h-full w-full object-cover" />
               </div>
-              <h1 class="text-2xl font-bold text-white">MySafeHouse</h1>
+              <h1 class="text-xl font-bold text-white">MySafeHouse</h1>
             </div>
             
             <!-- Navigation Menu -->

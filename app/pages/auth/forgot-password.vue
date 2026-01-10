@@ -10,7 +10,7 @@
               <div class="h-8 w-8 bg-[#ffffff] rounded-lg flex items-center justify-center">
                 <img src="/images/logo.png" alt="MySafeHouse" class="h-full w-full object-cover" />
               </div>
-              <NuxtLink to="/" class="text-2xl font-bold text-white">MySafeHouse</NuxtLink>
+              <NuxtLink to="/" class="text-xl font-bold text-white">MySafeHouse</NuxtLink>
             </div>
             
             <!-- Navigation Menu -->
@@ -34,13 +34,13 @@
           <div class="flex items-center space-x-4">
             <NuxtLink 
               to="/auth/login" 
-              class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors"
+              class="text-sm font-medium text-[#8ee0ee] hover:text-white no-underline hover:no-underline transition-colors"
             >
               Sign In
             </NuxtLink>
             <NuxtLink 
               to="/auth/register" 
-              class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors"
+              class="text-sm font-medium text-[#8ee0ee] hover:text-white no-underline hover:no-underline transition-colors"
             >
               Sign Up
             </NuxtLink>

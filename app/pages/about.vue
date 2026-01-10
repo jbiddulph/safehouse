@@ -10,7 +10,7 @@
               <div class="h-8 w-8 bg-[#ffffff] rounded-lg flex items-center justify-center">
                 <img src="/images/logo.png" alt="MySafeHouse" class="h-full w-full object-cover" />
               </div>
-              <NuxtLink to="/" class="text-2xl font-bold text-white">MySafeHouse</NuxtLink>
+              <NuxtLink to="/" class="text-xl font-bold text-white">MySafeHouse</NuxtLink>
             </div>
             
             <!-- Navigation Menu -->
@@ -35,14 +35,20 @@
             <NuxtLink 
               v-if="!isLoggedIn"
               to="/auth/login" 
-              class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors"
+              :class="[
+                'text-sm font-medium text-[#8ee0ee] hover:text-white no-underline hover:no-underline transition-colors',
+                $route.path === '/auth/login' ? 'text-white border-b-2 border-white pb-1' : ''
+              ]"
             >
               Sign In
             </NuxtLink>
             <NuxtLink 
               v-if="!isLoggedIn"
               to="/auth/register" 
-              class="px-4 py-2 text-sm font-medium text-white bg-[#8ee0ee] rounded-lg hover:bg-[#8ee0ee]/80 transition-colors"
+              :class="[
+                'text-sm font-medium text-[#8ee0ee] hover:text-white no-underline hover:no-underline transition-colors',
+                $route.path === '/auth/register' ? 'text-white border-b-2 border-white pb-1' : ''
+              ]"
             >
               Sign Up
             </NuxtLink>

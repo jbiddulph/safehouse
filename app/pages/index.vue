@@ -12,7 +12,7 @@
               </div>
               <NuxtLink
                 :to="isLoggedIn ? '/dashboard' : '/'"
-                class="text-2xl font-bold text-white no-underline hover:no-underline"
+                class="text-xl font-bold text-white no-underline hover:no-underline"
               >
                 MySafeHouse
               </NuxtLink>
@@ -40,14 +40,20 @@
             <NuxtLink 
               v-if="!isLoggedIn"
               to="/auth/login" 
-              class="text-sm font-medium text-[#8ee0ee] hover:text-white active:text-white no-underline hover:no-underline active:no-underline transition-colors"
+              :class="[
+                'text-sm font-medium text-[#8ee0ee] hover:text-white no-underline hover:no-underline transition-colors',
+                $route.path === '/auth/login' ? 'text-white border-b-2 border-white pb-1' : ''
+              ]"
             >
               Sign In
             </NuxtLink>
             <NuxtLink 
               v-if="!isLoggedIn"
               to="/auth/register" 
-              class="px-4 py-2 text-sm font-medium text-white bg-[#8ee0ee] rounded-lg hover:bg-[#8ee0ee]/80 transition-colors"
+              :class="[
+                'text-sm font-medium text-[#8ee0ee] hover:text-white no-underline hover:no-underline transition-colors',
+                $route.path === '/auth/register' ? 'text-white border-b-2 border-white pb-1' : ''
+              ]"
             >
               Sign Up
             </NuxtLink>
