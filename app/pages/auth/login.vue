@@ -34,7 +34,7 @@
           <div class="flex items-center space-x-4">
             <NuxtLink 
               to="/auth/login" 
-              class="text-sm font-medium text-white border-b-2 border-white pb-1 no-underline"
+              class="text-sm font-medium text-white border-b-2 border-white pb-1 no-underline hover:no-underline hover:border-white hover:text-white"
             >
               Sign In
             </NuxtLink>
