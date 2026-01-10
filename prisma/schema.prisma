@@ -1914,6 +1914,8 @@ model safehouse_properties {
   keysafe_what3words      String?  // What 3 Words location for the keysafe
   keysafe_latitude        Decimal? @db.Decimal(10, 8) // Latitude of the keysafe location
   keysafe_longitude       Decimal? @db.Decimal(11, 8) // Longitude of the keysafe location
+  keysafe_image_url       String?  // URL of the keysafe location image stored in Supabase storage
+  property_image_url      String?  // URL of the property image stored in Supabase storage
   created_at              DateTime? @default(now()) @db.Timestamptz(6)
   updated_at              DateTime? @default(now()) @db.Timestamptz(6)
   access_codes            safehouse_access_codes[]

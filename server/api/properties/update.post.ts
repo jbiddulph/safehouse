@@ -18,7 +18,9 @@ export default defineEventHandler(async (event) => {
     keysafe_notes,
     keysafe_what3words,
     keysafe_latitude,
-    keysafe_longitude
+    keysafe_longitude,
+    keysafe_image_url,
+    property_image_url
   } = body
 
   if (!id || !property_name || !address || !city) {
@@ -91,6 +93,12 @@ export default defineEventHandler(async (event) => {
       updateData.keysafe_longitude = parseFloat(keysafe_longitude)
     } else if (keysafe_longitude === null) {
       updateData.keysafe_longitude = null
+    }
+    if (keysafe_image_url !== undefined) {
+      updateData.keysafe_image_url = keysafe_image_url || null
+    }
+    if (property_image_url !== undefined) {
+      updateData.property_image_url = property_image_url || null
     }
 
     const { data, error } = await supabase

@@ -19,6 +19,8 @@ export default defineEventHandler(async (event) => {
     keysafe_what3words,
     keysafe_latitude,
     keysafe_longitude,
+    keysafe_image_url,
+    property_image_url,
     user_id 
   } = body
 
@@ -146,6 +148,12 @@ export default defineEventHandler(async (event) => {
     }
     if (keysafe_longitude !== null && keysafe_longitude !== undefined) {
       insertData.keysafe_longitude = parseFloat(keysafe_longitude)
+    }
+    if (keysafe_image_url) {
+      insertData.keysafe_image_url = keysafe_image_url
+    }
+    if (property_image_url) {
+      insertData.property_image_url = property_image_url
     }
 
     const { data, error } = await supabase

@@ -279,7 +279,16 @@ export async function sendAccessRequestApprovedEmail(
   toEmail: string,
   propertyName: string,
   propertyAddress: string,
-  requesterName?: string | null
+  requesterName?: string | null,
+  keysafeInfo?: {
+    location?: string | null
+    code?: string | null
+    what3words?: string | null
+    latitude?: number | null
+    longitude?: number | null
+    notes?: string | null
+    image_url?: string | null
+  } | null
 ) {
   const emailTransporter = initializeEmail()
   if (!emailTransporter) {
@@ -289,6 +298,32 @@ export async function sendAccessRequestApprovedEmail(
 
   try {
     const greetingName = requesterName?.trim() || 'there'
+    
+    // Build keysafe information section
+    let keysafeSection = ''
+    const hasKeysafeInfo = keysafeInfo && (
+      keysafeInfo.location || 
+      keysafeInfo.code || 
+      keysafeInfo.what3words || 
+      (keysafeInfo.latitude != null) || 
+      keysafeInfo.notes ||
+      keysafeInfo.image_url
+    )
+
+    if (hasKeysafeInfo) {
+      keysafeSection = `
+        <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="color: #1e40af; margin-top: 0; margin-bottom: 16px; font-size: 18px;">🔑 Keysafe Information</h3>
+          ${keysafeInfo.image_url ? `<div style="margin: 8px 0 16px 0;"><strong>Keysafe Image:</strong><br /><img src="${keysafeInfo.image_url}" alt="Keysafe location" style="max-width: 100%; height: auto; border: 1px solid #dbeafe; border-radius: 8px; margin-top: 8px;" /></div>` : ''}
+          ${keysafeInfo.location ? `<p style="margin: 8px 0;"><strong>Location:</strong> ${keysafeInfo.location}</p>` : ''}
+          ${keysafeInfo.code ? `<p style="margin: 8px 0;"><strong>Access Code:</strong> <code style="background-color: #f3f4f6; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-size: 16px; font-weight: bold;">${keysafeInfo.code}</code></p>` : ''}
+          ${keysafeInfo.what3words ? `<p style="margin: 8px 0;"><strong>What3Words:</strong> <a href="https://what3words.com/${keysafeInfo.what3words.replace(/\s+/g, '.')}" style="color: #3b82f6; text-decoration: none;">${keysafeInfo.what3words}</a></p>` : ''}
+          ${keysafeInfo.latitude && keysafeInfo.longitude ? `<p style="margin: 8px 0;"><strong>Coordinates:</strong> ${keysafeInfo.latitude.toFixed(6)}, ${keysafeInfo.longitude.toFixed(6)}</p>` : ''}
+          ${keysafeInfo.notes ? `<p style="margin: 8px 0; padding-top: 8px; border-top: 1px solid #dbeafe;"><strong>Additional Notes:</strong><br />${keysafeInfo.notes}</p>` : ''}
+        </div>
+      `
+    }
+
     const mailOptions = {
       from: 'MySafeHouse <noreply@safehouse.app>',
       to: toEmail,
@@ -308,11 +343,13 @@ export async function sendAccessRequestApprovedEmail(
             <p style="margin: 8px 0 0 0;"><strong>Address:</strong> ${propertyAddress}</p>
           </div>
 
+          ${keysafeSection}
+
           <p style="font-size: 16px; color: #374151; line-height: 1.6;">
-            Please follow any additional instructions provided by the owner to access the property safely.
+            ${hasKeysafeInfo ? 'Please use the keysafe information provided above to access the property safely.' : 'Please follow any additional instructions provided by the owner to access the property safely.'}
           </p>
 
-            <p style="color: #6b7280; font-size: 14px; margin-top: 24px;">
+          <p style="color: #6b7280; font-size: 14px; margin-top: 24px;">
             Thank you,<br />
             The MySafeHouse Team
           </p>

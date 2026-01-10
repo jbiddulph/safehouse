@@ -259,7 +259,14 @@
                       : 'border-gray-200 group-hover:border-gray-300'"
                   >
                     <img
-                      v-if="hasValidCoordinates(property) && getPropertyMapUrl(property.longitude, property.latitude, 'satellite', 160, 160, 15)"
+                      v-if="property.property_image_url"
+                      :src="property.property_image_url"
+                      :alt="`Image of ${property.property_name}`"
+                      class="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                    <img
+                      v-else-if="hasValidCoordinates(property) && getPropertyMapUrl(property.longitude, property.latitude, 'satellite', 160, 160, 15)"
                       :src="getPropertyMapUrl(property.longitude, property.latitude, 'satellite', 160, 160, 15)"
                       :alt="`Map preview of ${property.property_name}`"
                       class="w-full h-full object-cover"
@@ -267,7 +274,7 @@
                       @error="handleMapImageError"
                     />
                     <div v-else class="w-full h-full flex items-center justify-center text-[11px] text-gray-500">
-                      No location
+                      No image
                     </div>
                   </div>
 
@@ -365,10 +372,21 @@
             </div>
             <!-- Property Details View (when property is selected) -->
             <div v-else-if="currentProperty" class="space-y-6">
-              <!-- Property Map (Satellite View) -->
-              <div v-if="hasValidCoordinates(currentProperty)" class="bg-gray-50 rounded-lg p-4">
-                <h4 class="text-lg font-semibold text-gray-900 mb-3">Location</h4>
+              <!-- Property Image or Map (Satellite View) -->
+              <div v-if="currentProperty.property_image_url || hasValidCoordinates(currentProperty)" class="bg-gray-50 rounded-lg p-4">
+                <h4 class="text-lg font-semibold text-gray-900 mb-3">
+                  {{ currentProperty.property_image_url ? 'Property Image' : 'Location' }}
+                </h4>
                 <img 
+                  v-if="currentProperty.property_image_url"
+                  :src="currentProperty.property_image_url"
+                  :alt="`Image of ${currentProperty.property_name}`"
+                  class="w-full h-64 rounded border border-gray-200 object-cover bg-gray-100 cursor-pointer"
+                  @click="viewPropertyDetails(currentProperty)"
+                  loading="lazy"
+                />
+                <img 
+                  v-else-if="hasValidCoordinates(currentProperty)"
                   :src="getPropertyMapUrl(currentProperty.longitude, currentProperty.latitude, 'satellite', 800, 256, 13)"
                   :alt="`Map of ${currentProperty.property_name}`"
                   class="w-full h-64 rounded border border-gray-200 object-cover bg-gray-100 cursor-pointer"
@@ -379,9 +397,13 @@
               </div>
               
               <!-- Keysafe Information -->
-              <div v-if="currentProperty.keysafe_location || currentProperty.keysafe_code || currentProperty.keysafe_what3words" class="bg-gray-50 rounded-lg p-4">
+              <div v-if="currentProperty.keysafe_location || currentProperty.keysafe_code || currentProperty.keysafe_what3words || currentProperty.keysafe_image_url" class="bg-gray-50 rounded-lg p-4">
                 <h4 class="text-lg font-semibold text-gray-900 mb-4">Keysafe Information</h4>
                 <div class="space-y-2">
+                  <div v-if="currentProperty.keysafe_image_url" class="mb-4">
+                    <p class="text-sm font-medium text-gray-500 mb-2">Keysafe Image</p>
+                    <img :src="currentProperty.keysafe_image_url" alt="Keysafe location" class="max-w-full h-auto rounded-lg border border-gray-300" />
+                  </div>
                   <div v-if="currentProperty.keysafe_location">
                     <p class="text-sm font-medium text-gray-500">Location</p>
                     <p class="text-base text-gray-900">{{ currentProperty.keysafe_location }}</p>
@@ -462,9 +484,18 @@
             <div v-else class="space-y-4">
                     <div v-for="property in properties" :key="property.id" class="border rounded-lg p-4 hover:bg-gray-50">
                       <div class="flex items-start gap-4 mb-3">
-                        <!-- Small Map -->
-                        <div v-if="hasValidCoordinates(property)" class="flex-shrink-0">
+                        <!-- Property Image or Small Map -->
+                        <div v-if="property.property_image_url || hasValidCoordinates(property)" class="flex-shrink-0">
                           <img 
+                            v-if="property.property_image_url"
+                            :src="property.property_image_url"
+                            :alt="`Image of ${property.property_name}`"
+                            class="w-32 h-24 rounded border border-gray-200 object-cover bg-gray-100 cursor-pointer"
+                            @click.stop="viewPropertyDetails(property)"
+                            loading="lazy"
+                          />
+                          <img 
+                            v-else-if="hasValidCoordinates(property)"
                             :src="getPropertyMapUrl(property.longitude, property.latitude)"
                             :alt="`Map of ${property.property_name}`"
                             class="w-32 h-24 rounded border border-gray-200 object-cover bg-gray-100 cursor-pointer"
@@ -739,6 +770,26 @@
                 <option value="vacation">Vacation</option>
               </select>
             </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Property Image (Optional)</label>
+              <input 
+                type="file" 
+                accept="image/*"
+                @change="handlePropertyImageChange"
+                class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#03045e] file:text-white hover:file:bg-[#023e8a]"
+              >
+              <p class="mt-1 text-xs text-gray-500">Upload an image of the property</p>
+              <div v-if="propertyImagePreview" class="mt-2">
+                <img :src="propertyImagePreview" alt="Property preview" class="h-32 w-auto rounded border border-gray-300">
+                <button 
+                  type="button"
+                  @click="removePropertyImage"
+                  class="mt-2 text-xs text-red-600 hover:text-red-800"
+                >
+                  Remove image
+                </button>
+              </div>
+            </div>
             
             <!-- Keysafe Information Section -->
             <div class="border-t pt-4 mt-4">
@@ -803,6 +854,26 @@
                     placeholder="Any additional notes about the keysafe..."
                     class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
                   ></textarea>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Keysafe Image (Optional)</label>
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    @change="handleKeysafeImageChange"
+                    class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#03045e] file:text-white hover:file:bg-[#023e8a]"
+                  >
+                  <p class="mt-1 text-xs text-gray-500">Upload an image showing the keysafe location</p>
+                  <div v-if="keysafeImagePreview" class="mt-2">
+                    <img :src="keysafeImagePreview" alt="Keysafe preview" class="h-32 w-auto rounded border border-gray-300">
+                    <button 
+                      type="button"
+                      @click="removeKeysafeImage"
+                      class="mt-2 text-xs text-red-600 hover:text-red-800"
+                    >
+                      Remove image
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1106,6 +1177,9 @@
           
           <!-- Property Info -->
           <div class="bg-gray-50 rounded-lg p-4 mb-6">
+            <div v-if="selectedProperty?.property_image_url" class="mb-4">
+              <img :src="selectedProperty.property_image_url" :alt="`Image of ${selectedProperty.property_name}`" class="w-full max-h-64 rounded-lg border border-gray-300 object-cover">
+            </div>
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <p class="text-sm font-medium text-gray-500">Address</p>
@@ -1131,8 +1205,12 @@
             </div>
             
             <!-- Keysafe Information -->
-            <div v-if="selectedProperty?.keysafe_location || selectedProperty?.keysafe_code || selectedProperty?.keysafe_what3words" class="mt-4 pt-4 border-t border-gray-300">
+            <div v-if="selectedProperty?.keysafe_location || selectedProperty?.keysafe_code || selectedProperty?.keysafe_what3words || selectedProperty?.keysafe_image_url" class="mt-4 pt-4 border-t border-gray-300">
               <h4 class="text-sm font-semibold text-gray-900 mb-3">Keysafe Information</h4>
+              <div v-if="selectedProperty?.keysafe_image_url" class="mb-4">
+                <p class="text-sm font-medium text-gray-500 mb-2">Keysafe Image</p>
+                <img :src="selectedProperty.keysafe_image_url" alt="Keysafe location" class="max-w-full h-auto rounded-lg border border-gray-300" />
+              </div>
               <div class="grid grid-cols-2 gap-4">
                 <div v-if="selectedProperty?.keysafe_location">
                   <p class="text-sm font-medium text-gray-500">Location</p>
@@ -1378,6 +1456,29 @@
                 <option value="vacation">Vacation</option>
               </select>
             </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Property Image (Optional)</label>
+              <div v-if="editingProperty.property_image_url && !editPropertyImagePreview" class="mb-2">
+                <img :src="editingProperty.property_image_url" alt="Current property image" class="h-32 w-auto rounded border border-gray-300">
+              </div>
+              <input 
+                type="file" 
+                accept="image/*"
+                @change="handleEditPropertyImageChange"
+                class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#03045e] file:text-white hover:file:bg-[#023e8a]"
+              >
+              <p class="mt-1 text-xs text-gray-500">Upload an image of the property</p>
+              <div v-if="editPropertyImagePreview" class="mt-2">
+                <img :src="editPropertyImagePreview" alt="Property preview" class="h-32 w-auto rounded border border-gray-300">
+                <button 
+                  type="button"
+                  @click="removeEditPropertyImage"
+                  class="mt-2 text-xs text-red-600 hover:text-red-800"
+                >
+                  Remove new image
+                </button>
+              </div>
+            </div>
             
             <!-- Keysafe Information Section -->
             <div class="border-t pt-4 mt-4">
@@ -1442,6 +1543,29 @@
                     placeholder="Any additional notes about the keysafe..."
                     class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
                   ></textarea>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Keysafe Image (Optional)</label>
+                  <div v-if="editingProperty.keysafe_image_url && !editKeysafeImagePreview" class="mb-2">
+                    <img :src="editingProperty.keysafe_image_url" alt="Current keysafe image" class="h-32 w-auto rounded border border-gray-300">
+                  </div>
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    @change="handleEditKeysafeImageChange"
+                    class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#03045e] file:text-white hover:file:bg-[#023e8a]"
+                  >
+                  <p class="mt-1 text-xs text-gray-500">Upload an image showing the keysafe location</p>
+                  <div v-if="editKeysafeImagePreview" class="mt-2">
+                    <img :src="editKeysafeImagePreview" alt="Keysafe preview" class="h-32 w-auto rounded border border-gray-300">
+                    <button 
+                      type="button"
+                      @click="removeEditKeysafeImage"
+                      class="mt-2 text-xs text-red-600 hover:text-red-800"
+                    >
+                      Remove new image
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1756,6 +1880,11 @@ watch(showEditProperty, (isOpen) => {
       }
       editPropertyMapMarker.value = null
     }
+    // Reset image fields when modal closes
+    editKeysafeImageFile.value = null
+    editKeysafeImagePreview.value = null
+    editPropertyImageFile.value = null
+    editPropertyImagePreview.value = null
   }
 })
 
@@ -1811,8 +1940,18 @@ const newProperty = ref({
   keysafe_notes: '',
   keysafe_what3words: '',
   keysafe_latitude: null as number | null,
-  keysafe_longitude: null as number | null
+  keysafe_longitude: null as number | null,
+  keysafe_image_url: null as string | null,
+  property_image_url: null as string | null
 })
+
+// Keysafe image upload for new property
+const keysafeImageFile = ref<File | null>(null)
+const keysafeImagePreview = ref<string | null>(null)
+
+// Property image upload for new property
+const propertyImageFile = ref<File | null>(null)
+const propertyImagePreview = ref<string | null>(null)
 
 // Address autocomplete for property form
 const addressQuery = ref('')
@@ -1851,8 +1990,18 @@ const editingProperty = ref({
   keysafe_notes: '',
   keysafe_what3words: '',
   keysafe_latitude: null as number | null,
-  keysafe_longitude: null as number | null
+  keysafe_longitude: null as number | null,
+  keysafe_image_url: null as string | null,
+  property_image_url: null as string | null
 })
+
+// Keysafe image upload for edit property
+const editKeysafeImageFile = ref<File | null>(null)
+const editKeysafeImagePreview = ref<string | null>(null)
+
+// Property image upload for edit property
+const editPropertyImageFile = ref<File | null>(null)
+const editPropertyImagePreview = ref<string | null>(null)
 
 // Address autocomplete for edit property form
 const editAddressQuery = ref('')
@@ -2195,10 +2344,11 @@ function initializeMap() {
       
       const { initMap, addMarker, reverseGeocode } = useMapbox()
       
-      // Initialize map centered on UK
+      // Initialize map centered on UK with satellite view and street labels
       propertyMap.value = initMap(propertyMapContainer.value, {
         center: [-2.2374, 53.4808], // Manchester, UK
         zoom: 6,
+        style: 'mapbox://styles/mapbox/satellite-streets-v12', // Satellite view with street names
         onMapClick: async (lng: number, lat: number) => {
           await handleMapClick(lng, lat)
         }
@@ -2334,6 +2484,11 @@ watch(showAddProperty, (isOpen) => {
       emergency_access_level: 'standard'
     }
     showAddContactInPropertyForm.value = false
+    // Reset image fields when modal closes
+    keysafeImageFile.value = null
+    keysafeImagePreview.value = null
+    propertyImageFile.value = null
+    propertyImagePreview.value = null
   }
 })
 
@@ -2456,6 +2611,116 @@ function selectAddressSuggestion(suggestion: any) {
   selectedAddressIndex.value = -1
 }
 
+// Keysafe image handlers for add property
+function handleKeysafeImageChange(event: Event) {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (file) {
+    keysafeImageFile.value = file
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      keysafeImagePreview.value = e.target?.result as string
+    }
+    reader.readAsDataURL(file)
+  }
+}
+
+function removeKeysafeImage() {
+  keysafeImageFile.value = null
+  keysafeImagePreview.value = null
+  newProperty.value.keysafe_image_url = null
+  const input = document.querySelector('input[type="file"][accept="image/*"]') as HTMLInputElement
+  if (input) input.value = ''
+}
+
+// Keysafe image handlers for edit property
+function handleEditKeysafeImageChange(event: Event) {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (file) {
+    editKeysafeImageFile.value = file
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      editKeysafeImagePreview.value = e.target?.result as string
+    }
+    reader.readAsDataURL(file)
+  }
+}
+
+function removeEditKeysafeImage() {
+  editKeysafeImageFile.value = null
+  editKeysafeImagePreview.value = null
+  const inputs = document.querySelectorAll('input[type="file"][accept="image/*"]')
+  // Find the keysafe image input in edit form (should be the last one or second to last)
+  if (inputs.length >= 2) {
+    const keysafeInput = inputs[inputs.length - 1] as HTMLInputElement
+    if (keysafeInput) keysafeInput.value = ''
+  }
+}
+
+// Property image handlers for add property
+function handlePropertyImageChange(event: Event) {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (file) {
+    propertyImageFile.value = file
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      propertyImagePreview.value = e.target?.result as string
+    }
+    reader.readAsDataURL(file)
+  }
+}
+
+function removePropertyImage() {
+  propertyImageFile.value = null
+  propertyImagePreview.value = null
+  newProperty.value.property_image_url = null
+  // Reset the file input by finding it via event or selector
+  nextTick(() => {
+    const fileInputs = document.querySelectorAll('input[type="file"][accept="image/*"]')
+    // The property image input should be the first one in the add property form
+    if (fileInputs.length > 0 && showAddProperty.value) {
+      const propertyInput = Array.from(fileInputs).find(input => {
+        const label = input.previousElementSibling as HTMLLabelElement
+        return label && label.textContent?.includes('Property Image')
+      }) as HTMLInputElement
+      if (propertyInput) propertyInput.value = ''
+    }
+  })
+}
+
+// Property image handlers for edit property
+function handleEditPropertyImageChange(event: Event) {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (file) {
+    editPropertyImageFile.value = file
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      editPropertyImagePreview.value = e.target?.result as string
+    }
+    reader.readAsDataURL(file)
+  }
+}
+
+function removeEditPropertyImage() {
+  editPropertyImageFile.value = null
+  editPropertyImagePreview.value = null
+  // Reset the file input by finding it via selector
+  nextTick(() => {
+    const fileInputs = document.querySelectorAll('input[type="file"][accept="image/*"]')
+    // The property image input should be in the edit property form
+    if (fileInputs.length > 0 && showEditProperty.value) {
+      const propertyInput = Array.from(fileInputs).find(input => {
+        const label = input.previousElementSibling as HTMLLabelElement
+        return label && label.textContent?.includes('Property Image')
+      }) as HTMLInputElement
+      if (propertyInput) propertyInput.value = ''
+    }
+  })
+}
+
 async function createProperty() {
   const client = useSupabaseClient()
   const { data: { session } } = await client.auth.getSession()
@@ -2499,13 +2764,91 @@ async function createProperty() {
   
   creatingProperty.value = true
   try {
+    // Upload keysafe image first if exists
+    let keysafeImageUrl = newProperty.value.keysafe_image_url
+    if (keysafeImageFile.value) {
+      try {
+        // Generate a temporary property ID for the upload (we'll use a temporary UUID or timestamp)
+        // Actually, we need to create the property first to get an ID, then update it with the image
+        // So we'll do a two-step process: create property, then upload image if needed
+      } catch (imageError) {
+        console.error('Failed to upload keysafe image:', imageError)
+        alert('Failed to upload keysafe image. Please try again.')
+        creatingProperty.value = false
+        return
+      }
+    }
+
     const { success, property } = await $fetch('/api/properties', {
       method: 'POST',
       body: {
         ...newProperty.value,
+        keysafe_image_url: null, // Will be set after property is created
+        property_image_url: null, // Will be set after property is created
         user_id: session.user.id
       }
     })
+
+    // Upload property image after property is created
+    if (success && property && propertyImageFile.value) {
+      try {
+        const formData = new FormData()
+        formData.append('propertyImage', propertyImageFile.value)
+        formData.append('propertyId', property.id)
+
+        const uploadResult = await $fetch('/api/upload-property-image', {
+          method: 'POST',
+          body: formData
+        })
+
+        if (uploadResult.success) {
+          property.property_image_url = uploadResult.url
+        }
+      } catch (imageError) {
+        console.error('Failed to upload property image:', imageError)
+        // Don't fail the property creation if image upload fails
+      }
+    }
+
+    // Upload keysafe image after property is created
+    if (success && property && keysafeImageFile.value) {
+      try {
+        const formData = new FormData()
+        formData.append('keysafeImage', keysafeImageFile.value)
+        formData.append('propertyId', property.id)
+
+        const uploadResult = await $fetch('/api/upload-keysafe-image', {
+          method: 'POST',
+          body: formData
+        })
+
+        if (uploadResult.success) {
+          property.keysafe_image_url = uploadResult.url
+        }
+      } catch (imageError) {
+        console.error('Failed to upload keysafe image:', imageError)
+        // Don't fail the property creation if image upload fails
+      }
+    }
+
+    // Update property with both image URLs if either was uploaded
+    if (success && property && (propertyImageFile.value || keysafeImageFile.value)) {
+      try {
+        await $fetch('/api/properties/update', {
+          method: 'POST',
+          body: {
+            id: property.id,
+            ...newProperty.value,
+            keysafe_image_url: property.keysafe_image_url || null,
+            property_image_url: property.property_image_url || null,
+            user_id: session.user.id
+          }
+        })
+      } catch (updateError) {
+        console.error('Failed to update property with image URLs:', updateError)
+        // Don't fail the property creation if update fails
+      }
+    }
 
     if (success) {
       properties.value.unshift(property)
@@ -2577,8 +2920,15 @@ async function createProperty() {
         keysafe_notes: '',
         keysafe_what3words: '',
         keysafe_latitude: null,
-        keysafe_longitude: null
+        keysafe_longitude: null,
+        keysafe_image_url: null,
+        property_image_url: null
       }
+      // Reset image fields
+      keysafeImageFile.value = null
+      keysafeImagePreview.value = null
+      propertyImageFile.value = null
+      propertyImagePreview.value = null
       // Reset contact form
       propertyFormContact.value = {
         contact_name: '',
@@ -2928,8 +3278,16 @@ async function editProperty(property) {
     keysafe_notes: property.keysafe_notes || '',
     keysafe_what3words: property.keysafe_what3words || '',
     keysafe_latitude: property.keysafe_latitude ? parseFloat(String(property.keysafe_latitude)) : null,
-    keysafe_longitude: property.keysafe_longitude ? parseFloat(String(property.keysafe_longitude)) : null
+    keysafe_longitude: property.keysafe_longitude ? parseFloat(String(property.keysafe_longitude)) : null,
+    keysafe_image_url: property.keysafe_image_url || null,
+    property_image_url: property.property_image_url || null
   }
+  
+  // Reset edit image fields
+  editKeysafeImageFile.value = null
+  editKeysafeImagePreview.value = null
+  editPropertyImageFile.value = null
+  editPropertyImagePreview.value = null
   
   // Set address query for autocomplete
   editAddressQuery.value = property.address || ''
@@ -2955,6 +3313,54 @@ async function updateProperty() {
   
   updatingProperty.value = true
   try {
+    // Upload property image if a new one is selected
+    let propertyImageUrl = editingProperty.value.property_image_url
+    if (editPropertyImageFile.value) {
+      try {
+        const formData = new FormData()
+        formData.append('propertyImage', editPropertyImageFile.value)
+        formData.append('propertyId', editingProperty.value.id)
+
+        const uploadResult = await $fetch('/api/upload-property-image', {
+          method: 'POST',
+          body: formData
+        })
+
+        if (uploadResult.success) {
+          propertyImageUrl = uploadResult.url
+        }
+      } catch (imageError) {
+        console.error('Failed to upload property image:', imageError)
+        alert('Failed to upload property image. Please try again.')
+        updatingProperty.value = false
+        return
+      }
+    }
+
+    // Upload keysafe image if a new one is selected
+    let keysafeImageUrl = editingProperty.value.keysafe_image_url
+    if (editKeysafeImageFile.value) {
+      try {
+        const formData = new FormData()
+        formData.append('keysafeImage', editKeysafeImageFile.value)
+        formData.append('propertyId', editingProperty.value.id)
+
+        const uploadResult = await $fetch('/api/upload-keysafe-image', {
+          method: 'POST',
+          body: formData
+        })
+
+        if (uploadResult.success) {
+          keysafeImageUrl = uploadResult.url
+        }
+      } catch (imageError) {
+        console.error('Failed to upload keysafe image:', imageError)
+        alert('Failed to upload keysafe image. Please try again.')
+        updatingProperty.value = false
+        return
+      }
+    }
+
     const { success, property: updatedProperty } = await $fetch('/api/properties/update', {
       method: 'POST',
       body: {
@@ -2973,7 +3379,9 @@ async function updateProperty() {
         keysafe_notes: editingProperty.value.keysafe_notes || null,
         keysafe_what3words: editingProperty.value.keysafe_what3words || null,
         keysafe_latitude: editingProperty.value.keysafe_latitude || null,
-        keysafe_longitude: editingProperty.value.keysafe_longitude || null
+        keysafe_longitude: editingProperty.value.keysafe_longitude || null,
+        keysafe_image_url: keysafeImageUrl,
+        property_image_url: propertyImageUrl
       }
     })
 
@@ -2996,6 +3404,12 @@ async function updateProperty() {
           })
         }
       }
+      
+      // Reset image fields
+      editKeysafeImageFile.value = null
+      editKeysafeImagePreview.value = null
+      editPropertyImageFile.value = null
+      editPropertyImagePreview.value = null
       
       showEditProperty.value = false
       alert('Property updated successfully!')
@@ -3055,7 +3469,7 @@ function initEditPropertyMap() {
         editPropertyMap.value = initMap(editPropertyMapContainer.value, {
           center,
           zoom: editingProperty.value.latitude && editingProperty.value.longitude ? 15 : 6,
-          style: 'mapbox://styles/mapbox/satellite-v9', // Use satellite view
+          style: 'mapbox://styles/mapbox/satellite-streets-v12', // Satellite view with street names
           onMapClick: async (lng: number, lat: number) => {
             await handleEditMapClick(lng, lat)
           }

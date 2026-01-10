@@ -80,7 +80,14 @@ export default defineEventHandler(async (event) => {
           state,
           postal_code,
           user_id,
-          emergency_access_enabled
+          emergency_access_enabled,
+          keysafe_location,
+          keysafe_code,
+          keysafe_what3words,
+          keysafe_latitude,
+          keysafe_longitude,
+          keysafe_notes,
+          keysafe_image_url
         )
       `)
       .eq('id', requestId)
@@ -199,11 +206,23 @@ export default defineEventHandler(async (event) => {
 
       try {
         if (action === 'approve') {
+          // Include keysafe information when approving
+          const keysafeInfo = {
+            location: request.property.keysafe_location || null,
+            code: request.property.keysafe_code || null,
+            what3words: request.property.keysafe_what3words || null,
+            latitude: request.property.keysafe_latitude ? parseFloat(request.property.keysafe_latitude.toString()) : null,
+            longitude: request.property.keysafe_longitude ? parseFloat(request.property.keysafe_longitude.toString()) : null,
+            notes: request.property.keysafe_notes || null,
+            image_url: request.property.keysafe_image_url || null
+          }
+
           await sendAccessRequestApprovedEmail(
             request.requester_email,
             request.property.property_name,
             propertyDisplayAddress || request.property.address,
-            request.requester_name
+            request.requester_name,
+            keysafeInfo
           )
         } else {
           await sendAccessRequestDeniedEmail(
