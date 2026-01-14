@@ -3313,6 +3313,11 @@ async function updateProperty() {
   
   updatingProperty.value = true
   try {
+    // Ensure the main address field reflects whatever is in the edit address input
+    if (editAddressQuery.value && editAddressQuery.value.trim().length > 0) {
+      editingProperty.value.address = editAddressQuery.value.trim()
+    }
+
     // Upload property image if a new one is selected
     let propertyImageUrl = editingProperty.value.property_image_url
     if (editPropertyImageFile.value) {

@@ -170,12 +170,15 @@ function validatePassword() {
   passwordError.value = ''
   passwordMatchError.value = ''
 
-  if (password.value && password.value.length < 6) {
+  const pwd = password.value?.trim() || ''
+  const confirm = passwordConfirmation.value?.trim() || ''
+
+  if (pwd && pwd.length < 6) {
     passwordError.value = 'Password must be at least 6 characters long'
     return false
   }
 
-  if (passwordConfirmation.value && password.value !== passwordConfirmation.value) {
+  if (confirm && pwd !== confirm) {
     passwordMatchError.value = 'Passwords do not match'
     return false
   }
@@ -189,21 +192,24 @@ async function onSubmit() {
     return
   }
 
+  const pwd = password.value?.trim() || ''
+  const confirm = passwordConfirmation.value?.trim() || ''
+
   if (!validatePassword()) {
     return
   }
 
-  if (!password.value || !passwordConfirmation.value) {
+  if (!pwd || !confirm) {
     error.value = 'Please fill in all fields'
     return
   }
 
-  if (password.value.length < 6) {
+  if (pwd.length < 6) {
     passwordError.value = 'Password must be at least 6 characters long'
     return
   }
 
-  if (password.value !== passwordConfirmation.value) {
+  if (pwd !== confirm) {
     passwordMatchError.value = 'Passwords do not match'
     return
   }
@@ -217,8 +223,8 @@ async function onSubmit() {
       method: 'POST',
       body: {
         token: token.value,
-        password: password.value,
-        passwordConfirmation: passwordConfirmation.value
+        password: pwd,
+        passwordConfirmation: confirm
       }
     })
 

@@ -91,20 +91,11 @@
           <!-- Actions -->
           <div class="space-y-3">
             <button 
-              v-if="property.emergency_access_enabled"
-              @click="requestAccess('emergency')"
-              :disabled="requestingAccess"
-              class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {{ requestingAccess ? 'Requesting Access...' : 'Request Emergency Access' }}
-            </button>
-            
-            <button 
-              @click="requestAccess('standard')"
+              @click="requestAccess"
               :disabled="requestingAccess"
               class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-[#03045e] hover:bg-[#03045e] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {{ requestingAccess ? 'Requesting Access...' : 'Request Standard Access' }}
+              {{ requestingAccess ? 'Requesting Access...' : 'Request Access' }}
             </button>
             
             <NuxtLink 
@@ -131,23 +122,22 @@
         </button>
         <div class="text-center">
           <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4"
-               :class="accessType === 'emergency' ? 'bg-red-100' : 'bg-[#f0f9fb]'">
+               :class="isEmergencyRequest ? 'bg-red-100' : 'bg-[#f0f9fb]'">
             <Icon name="mdi:alert" 
-                 :class="accessType === 'emergency' ? 'text-red-600' : 'text-[#8ee0ee]'"
+                 :class="isEmergencyRequest ? 'text-red-600' : 'text-[#8ee0ee]'"
                  class="h-6 w-6" />
           </div>
           
           <h3 v-if="!emailSent" class="text-lg font-medium text-gray-900 mb-2">
-            Request {{ accessType === 'emergency' ? 'Emergency' : 'Standard' }} Access
+            Request {{ isEmergencyRequest ? 'Emergency' : 'Standard' }} Access
           </h3>
           <h3 v-else class="text-lg font-medium text-[#03045e] mb-2">Email Sent!</h3>
           
           <p v-if="!emailSent" class="text-sm text-gray-500 mb-6">
-            Enter your email address so we can alert the property owner of your {{ accessType === 'emergency' ? 'emergency' : 'standard' }} access request for {{ property?.property_name }}.
-            <span v-if="accessType === 'emergency'">We'll also verify you're at the property location for security.</span>
+            Enter your email address so we can alert the property owner of your {{ isEmergencyRequest ? 'emergency' : 'standard' }} access request for {{ property?.property_name }}. We also need to verify you're at the property location for security.
           </p>
           <p v-else class="text-sm text-[#8ee0ee] mb-6">
-            We've notified the property owner. Please wait for them to approve your {{ accessType === 'emergency' ? 'emergency' : 'standard' }} access request for {{ property?.property_name }}.
+            We've notified the property owner. Please wait for them to approve your {{ isEmergencyRequest ? 'emergency' : 'standard' }} access request for {{ property?.property_name }}.
           </p>
         </div>
 
@@ -167,8 +157,21 @@
               />
             </div>
 
-            <!-- Location Verification (Required for Emergency Access) -->
-            <div v-if="accessType === 'emergency'" class="space-y-3">
+            <!-- Emergency Checkbox -->
+            <div class="flex items-center">
+              <input
+                id="isEmergency"
+                v-model="isEmergencyRequest"
+                type="checkbox"
+                class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+              />
+              <label for="isEmergency" class="ml-2 block text-sm text-gray-700">
+                This is an emergency
+              </label>
+            </div>
+
+            <!-- Location Verification (Always Required) -->
+            <div class="space-y-3">
               <div class="flex items-center justify-between">
                 <label class="text-sm font-medium text-gray-700">
                   Location Verification
@@ -195,6 +198,10 @@
                   <Icon name="mdi:check-circle" class="w-4 h-4 mr-1" />
                   Verified at property (within {{ locationVerification.distance?.toFixed(0) }}m)
                 </div>
+                <div v-else-if="locationVerification.distance !== null && !locationVerification.isVerified" class="text-red-600 flex items-center">
+                  <Icon name="mdi:alert-circle" class="w-4 h-4 mr-1" />
+                  You are not at the property location. You are {{ locationVerification.distance?.toFixed(0) }}m away from the property.
+                </div>
                 <div v-else-if="locationVerification.error" class="text-red-600 flex items-center">
                   <Icon name="mdi:alert-circle" class="w-4 h-4 mr-1" />
                   {{ locationVerification.error }}
@@ -215,9 +222,9 @@
               </button>
               <button
                 type="submit"
-                :disabled="emailSending || !emailForm.email || (accessType === 'emergency' && !locationVerification.isVerified)"
+                :disabled="emailSending || !emailForm.email || !locationVerification.isVerified"
                 class="px-4 py-2 text-sm font-medium text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
-                :class="accessType === 'emergency' ? 'bg-red-600 hover:bg-red-700' : 'bg-[#03045e] hover:bg-[#03045e]'"
+                :class="isEmergencyRequest ? 'bg-red-600 hover:bg-red-700' : 'bg-[#03045e] hover:bg-[#03045e]'"
               >
                 {{ emailSending ? 'Sending...' : 'Send Access Request' }}
               </button>
@@ -228,7 +235,8 @@
         <div v-else class="text-center">
           <button
             @click="closeEmailModal"
-            class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
+            class="px-4 py-2 text-sm font-medium text-white rounded-md"
+            :class="isEmergencyRequest ? 'bg-red-600 hover:bg-red-700' : 'bg-[#03045e] hover:bg-[#03045e]'"
           >
             Close
           </button>
@@ -259,7 +267,7 @@ const emailForm = ref({
 })
 const emailSending = ref(false)
 const emailSent = ref(false)
-const accessType = ref<'emergency' | 'standard'>('emergency')
+const isEmergencyRequest = ref(false)
 
 // Location verification
 const { verifyLocationAtProperty } = useLocationVerification()
@@ -402,11 +410,10 @@ onUnmounted(() => {
   }
 })
 
-// Request access (emergency or standard)
-async function requestAccess(type: 'emergency' | 'standard') {
+// Request access
+async function requestAccess() {
   if (!property.value) return
   
-  accessType.value = type
   requestingAccess.value = true
   try {
     // Check if user is logged in
@@ -432,18 +439,21 @@ async function requestAccess(type: 'emergency' | 'standard') {
 // Send access request email
 async function sendAccessRequestEmail() {
   if (!emailForm.value.email || !property.value) return
-  // Location verification required only for emergency access
-  if (accessType.value === 'emergency' && !locationVerification.value.isVerified) return
+  // Location verification always required
+  if (!locationVerification.value.isVerified) return
   
   emailSending.value = true
   try {
+    // Determine access type based on checkbox
+    const accessType = isEmergencyRequest.value ? 'emergency' : 'standard'
+    
     const response = await $fetch('/api/access-requests/send-email', {
       method: 'POST',
       body: {
         email: emailForm.value.email,
         property_id: property.value.id,
-        access_type: accessType.value, // 'emergency' or 'standard'
-        location_verified: accessType.value === 'emergency' ? locationVerification.value.isVerified : false,
+        access_type: accessType, // 'emergency' or 'standard' based on checkbox
+        location_verified: locationVerification.value.isVerified,
         user_location: locationVerification.value.userLocation,
         distance_from_property: locationVerification.value.distance
       }
@@ -452,9 +462,11 @@ async function sendAccessRequestEmail() {
     if (response.success) {
       emailSent.value = true
       
-      // Log emergency request
-      const { logEmergencyRequest } = useAccessLogger()
-      await logEmergencyRequest(property.value.id, emailForm.value.email, emailForm.value.phoneNumber)
+      // Log emergency request if it's an emergency
+      if (isEmergencyRequest.value) {
+        const { logEmergencyRequest } = useAccessLogger()
+        await logEmergencyRequest(property.value.id, emailForm.value.email, emailForm.value.phoneNumber)
+      }
     } else {
       alert('Failed to send access request email: ' + (response.message || 'Unknown error'))
     }
@@ -477,6 +489,16 @@ async function verifyLocation() {
   locationVerification.value.error = null
 
   try {
+    // Parse coordinates (handle Decimal types from database)
+    const propertyLat = parseFloat(String(property.value.latitude))
+    const propertyLon = parseFloat(String(property.value.longitude))
+    
+    if (isNaN(propertyLat) || isNaN(propertyLon)) {
+      locationVerification.value.error = 'Invalid property coordinates'
+      isVerifyingLocation.value = false
+      return
+    }
+
     // Fetch distance tolerance from settings
     let distanceTolerance = 50 // Default fallback
     try {
@@ -490,8 +512,8 @@ async function verifyLocation() {
     }
 
     const result = await verifyLocationAtProperty(
-      property.value.latitude,
-      property.value.longitude,
+      propertyLat,
+      propertyLon,
       distanceTolerance
     )
 
@@ -499,6 +521,9 @@ async function verifyLocation() {
   } catch (error) {
     console.error('Location verification error:', error)
     locationVerification.value.error = 'Failed to verify location. Please try again.'
+    locationVerification.value.isVerified = false
+    locationVerification.value.distance = null
+    locationVerification.value.userLocation = null
   } finally {
     isVerifyingLocation.value = false
   }
@@ -517,7 +542,7 @@ function closeEmailModal() {
   showEmailModal.value = false
   emailSent.value = false
   emailForm.value.email = ''
-  accessType.value = 'emergency' // Reset to default
+  isEmergencyRequest.value = false // Reset checkbox
   // Reset location verification
   locationVerification.value = {
     isVerified: false,

@@ -442,10 +442,13 @@ function formatPhoneNumber(event: Event) {
 // Validate password match
 function validatePasswordMatch() {
   passwordMatchError.value = ''
-  
-  if (passwordConfirmation.value && password.value !== passwordConfirmation.value) {
+
+  const pwd = password.value?.trim() || ''
+  const confirm = passwordConfirmation.value?.trim() || ''
+
+  if (confirm && pwd !== confirm) {
     passwordMatchError.value = 'Passwords do not match'
-  } else if (passwordConfirmation.value && password.value === passwordConfirmation.value) {
+  } else if (confirm && pwd === confirm) {
     passwordMatchError.value = ''
   }
 }
@@ -472,14 +475,12 @@ async function onSubmit() {
     return
   }
 
-  // Validate password match
-  if (!password.value || !passwordConfirmation.value) {
-    passwordMatchError.value = 'Both password fields are required'
-    return
-  }
+  // Basic password presence validation for submit
+  const pwd = password.value?.trim() || ''
+  const confirm = passwordConfirmation.value?.trim() || ''
 
-  if (password.value !== passwordConfirmation.value) {
-    passwordMatchError.value = 'Passwords do not match'
+  if (!pwd || !confirm) {
+    passwordMatchError.value = 'Both password fields are required'
     return
   }
 

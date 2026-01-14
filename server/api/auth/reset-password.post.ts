@@ -4,6 +4,9 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const { token, password, passwordConfirmation } = body
 
+  const pwd = (password || '').trim()
+  const confirm = (passwordConfirmation || '').trim()
+
   if (!token) {
     return {
       success: false,
@@ -11,21 +14,21 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  if (!password || !passwordConfirmation) {
+  if (!pwd || !confirm) {
     return {
       success: false,
       message: 'Password and confirmation are required'
     }
   }
 
-  if (password.length < 6) {
+  if (pwd.length < 6) {
     return {
       success: false,
       message: 'Password must be at least 6 characters long'
     }
   }
 
-  if (password !== passwordConfirmation) {
+  if (pwd !== confirm) {
     return {
       success: false,
       message: 'Passwords do not match'
@@ -115,7 +118,7 @@ export default defineEventHandler(async (event) => {
     // Update the user's password
     const { error: updateError } = await adminSupabase.auth.admin.updateUserById(
       userData.user.id,
-      { password: password }
+      { password: pwd }
     )
 
     if (updateError) {

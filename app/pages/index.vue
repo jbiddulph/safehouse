@@ -130,30 +130,9 @@
                   @blur="hideSuggestions"
                 />
                 
-                <!-- Search Button / Loading indicator -->
+                <!-- Loading indicator -->
                 <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
-                  <!-- Icon button before an address is selected -->
-                  <button
-                    v-if="!loading && !searching && !selectedAddress"
-                    @click="searchProperties"
-                    :disabled="!addressQuery || !addressQuery.trim()"
-                    class="p-2 text-[#03045e] hover:text-[#8ee0ee] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    type="button"
-                    aria-label="Search properties"
-                  >
-                    <Icon name="mdi:magnify" class="h-6 w-6" />
-                  </button>
-                  <!-- Full button after an address has been selected -->
-                  <button
-                    v-else-if="!loading && !searching && selectedAddress"
-                    @click="searchProperties"
-                    :disabled="!addressQuery || !addressQuery.trim()"
-                    class="px-4 py-1.5 text-sm font-medium bg-[#03045e] text-white rounded-md hover:bg-[#03045e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    type="button"
-                  >
-                    Go
-                  </button>
-                  <div v-else class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#03045e]"></div>
+                  <div v-if="loading || searching" class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#03045e]"></div>
                 </div>
               </div>
 
@@ -185,14 +164,17 @@
                 </div>
               </div>
 
-              <!-- Address Suggestions -->
+              <!-- Property Suggestions from Database -->
               <div 
                 v-if="showSuggestions && suggestions.length > 0" 
                 class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
               >
+                <div class="px-4 py-2 bg-[#f0f9fb] border-b border-gray-200 text-sm font-medium text-[#03045e]">
+                  Matching Properties
+                </div>
                 <div
                   v-for="(suggestion, index) in suggestions"
-                  :key="index"
+                  :key="suggestion.id || index"
                   :class="[
                     'px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0',
                     selectedIndex === index ? 'bg-[#f0f9fb] text-[#03045e]' : 'hover:bg-gray-50'
@@ -200,16 +182,23 @@
                   @click="selectSuggestion(suggestion)"
                   @mouseenter="selectedIndex = index"
                 >
-                  <div class="font-medium">{{ suggestion.formatted_address }}</div>
-                  <div v-if="suggestion.postcode" class="text-sm text-gray-500">
-                    {{ suggestion.postcode }}
-                    <span v-if="suggestion.city"> • {{ suggestion.city }}</span>
-                    <span v-if="suggestion.house_number" class="text-[#8ee0ee] font-medium">
-                      • House #{{ suggestion.house_number }}
-                    </span>
-                  </div>
-                  <div v-else-if="suggestion.types" class="text-sm text-gray-500">
-                    {{ suggestion.types?.join(', ') }}
+                  <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                      <div class="font-medium text-[#03045e]">{{ suggestion.property_name || suggestion.formatted_address }}</div>
+                      <div class="text-sm text-gray-600 mt-1">{{ suggestion.formatted_address }}</div>
+                      <div v-if="suggestion.postcode || suggestion.city" class="text-sm text-gray-500 mt-1">
+                        <span v-if="suggestion.postcode">{{ suggestion.postcode }}</span>
+                        <span v-if="suggestion.postcode && suggestion.city"> • </span>
+                        <span v-if="suggestion.city">{{ suggestion.city }}</span>
+                        <span v-if="suggestion.state" class="ml-1">{{ suggestion.state }}</span>
+                      </div>
+                    </div>
+                    <div class="ml-3 flex flex-col items-end">
+                      <span class="inline-block px-2 py-1 text-xs font-medium bg-[#8ee0ee] text-[#03045e] rounded-full">
+                        {{ suggestion.property_type }}
+                      </span>
+                      <span class="text-xs text-[#8ee0ee] font-medium mt-1">Click to view →</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -314,29 +303,45 @@ function handleInputFocus() {
   }
 }
 
-// Fetch address suggestions from server-side API
+// Fetch address suggestions from database
 async function fetchAddressSuggestions() {
-  if (!addressQuery.value || addressQuery.value.length < 3) return
+  if (!addressQuery.value || addressQuery.value.length < 3) {
+    suggestions.value = []
+    showSuggestions.value = false
+    return
+  }
   
   loading.value = true
   try {
-    const response = await $fetch('/api/address-autocomplete', {
+    // Search database for matching properties
+    const response = await $fetch('/api/properties/search', {
       query: {
-        q: addressQuery.value
+        address: addressQuery.value.trim()
       }
     })
     
-    if (response.success && response.suggestions) {
-      suggestions.value = response.suggestions
+    if (response.success && response.properties && response.properties.length > 0) {
+      // Convert properties to suggestion format
+      suggestions.value = response.properties.map((property: any) => ({
+        id: property.id,
+        formatted_address: property.address,
+        address: property.address,
+        city: property.city,
+        state: property.state,
+        postcode: property.postal_code,
+        country: property.country,
+        property_name: property.property_name,
+        property_type: property.property_type,
+        isProperty: true // Flag to indicate this is a database property
+      }))
     } else {
-      console.error('Address autocomplete error:', response.message)
       suggestions.value = []
     }
     
     showSuggestions.value = true
     selectedIndex.value = -1
   } catch (error) {
-    console.error('Error fetching address suggestions:', error)
+    console.error('Error fetching property suggestions:', error)
     suggestions.value = []
   } finally {
     loading.value = false
@@ -354,32 +359,32 @@ function navigateSuggestions(direction: 'up' | 'down') {
   }
 }
 
-// Select a suggestion
+// Select a suggestion - navigate directly to property if it's a database match
 async function selectSuggestion(suggestion?: any) {
-  let addressToSelect = null
+  let selectedSuggestion = null
   
   if (suggestion) {
-    addressToSelect = suggestion
-    selectedAddress.value = suggestion
-    addressQuery.value = suggestion.formatted_address || ''
-    addToRecentSearches(suggestion)
+    selectedSuggestion = suggestion
   } else if (selectedIndex.value >= 0 && suggestions.value[selectedIndex.value]) {
-    addressToSelect = suggestions.value[selectedIndex.value]
-    selectedAddress.value = suggestions.value[selectedIndex.value]
-    addressQuery.value = suggestions.value[selectedIndex.value]?.formatted_address || ''
-    addToRecentSearches(suggestions.value[selectedIndex.value])
+    selectedSuggestion = suggestions.value[selectedIndex.value]
   } else {
-    // If Enter is pressed but no suggestion is selected, trigger search with current input
-    if (addressQuery.value && addressQuery.value.trim()) {
-      searchProperties()
-      return
-    }
+    // If Enter is pressed but no suggestion is selected, do nothing
+    return
   }
   
-  // Check if the selected address exists in the database
-  if (addressToSelect) {
-    await checkAddressExists(addressToSelect)
+  // If it's a database property, navigate directly to it
+  if (selectedSuggestion.isProperty && selectedSuggestion.id) {
+    await navigateTo(`/property/${selectedSuggestion.id}`)
+    showSuggestions.value = false
+    showRecentSearches.value = false
+    selectedIndex.value = -1
+    return
   }
+  
+  // Otherwise, handle as address (shouldn't happen with new flow, but keep for safety)
+  selectedAddress.value = selectedSuggestion
+  addressQuery.value = selectedSuggestion.formatted_address || ''
+  addToRecentSearches(selectedSuggestion)
   
   showSuggestions.value = false
   showRecentSearches.value = false
@@ -407,7 +412,7 @@ function hideSuggestions() {
   }, 200)
 }
 
-// Check if an address exists in the database
+// Check if an address exists in the database and navigate if exactly one property found
 async function checkAddressExists(address: any) {
   if (!address) {
     addressExistsInDatabase.value = false
@@ -436,7 +441,17 @@ async function checkAddressExists(address: any) {
     })
     
     // Set addressExistsInDatabase based on whether properties were found
-    addressExistsInDatabase.value = response.success && response.properties && response.properties.length > 0
+    const hasProperties = response.success && response.properties && response.properties.length > 0
+    addressExistsInDatabase.value = hasProperties
+    
+    // If exactly one property found, navigate to it automatically
+    if (hasProperties && response.properties.length === 1) {
+      const property = response.properties[0]
+      await navigateTo(`/property/${property.id}`)
+    } else if (hasProperties && response.properties.length > 1) {
+      // Multiple properties found - show results modal
+      showSearchResults(response.properties)
+    }
   } catch (error) {
     console.error('Error checking if address exists:', error)
     addressExistsInDatabase.value = false

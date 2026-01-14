@@ -1923,10 +1923,37 @@ model safehouse_properties {
   property_contacts       safehouse_property_contacts[]
   tenant_contacts         safehouse_contacts[]
   access_requests         safehouse_access_requests[]
+  nfc_codes               safehouse_nfc_code_properties[]
 
   @@index([user_id])
   @@index([qr_code])
   @@index([nfc_id])
+  @@schema("public")
+}
+
+model safehouse_nfc_codes {
+  id                      String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code_id                 String   @unique @db.VarChar(50)
+  created_at              DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at              DateTime? @default(now()) @db.Timestamptz(6)
+  properties              safehouse_nfc_code_properties[]
+
+  @@index([code_id])
+  @@schema("public")
+}
+
+model safehouse_nfc_code_properties {
+  id                      String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nfc_code_id             String   @db.Uuid
+  property_id             String   @db.Uuid
+  created_at              DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at              DateTime? @default(now()) @db.Timestamptz(6)
+  nfc_code                safehouse_nfc_codes @relation(fields: [nfc_code_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  property                safehouse_properties @relation(fields: [property_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([nfc_code_id, property_id])
+  @@index([nfc_code_id])
+  @@index([property_id])
   @@schema("public")
 }
 
