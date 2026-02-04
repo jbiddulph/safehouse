@@ -128,6 +128,7 @@
                   @keydown.enter="selectSuggestion"
                   @focus="handleInputFocus"
                   @blur="hideSuggestions"
+                  autocomplete="off"
                 />
                 
                 <!-- Loading indicator -->

@@ -84,6 +84,7 @@
             <thead class="bg-gray-50">
               <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code ID</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">URL</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned Properties</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
@@ -92,6 +93,16 @@
               <tr v-for="nfcCode in paginatedNfcCodes" :key="nfcCode.id" class="hover:bg-gray-50">
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span class="text-sm font-medium text-gray-900">{{ nfcCode.code_id }}</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <a
+                    :href="formatNfcUrl(nfcCode.code_id)"
+                    class="text-sm text-[#03045e] hover:underline break-all"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    {{ formatNfcUrl(nfcCode.code_id) }}
+                  </a>
                 </td>
                 <td class="px-6 py-4">
                   <div v-if="nfcCode.properties && nfcCode.properties.length > 0" class="space-y-2">
@@ -229,6 +240,8 @@ const itemsPerPage = 50
 
 const profile = ref(null)
 const isAdmin = ref(false)
+const runtimeConfig = useRuntimeConfig()
+const baseUrl = computed(() => runtimeConfig.public.baseUrl || '')
 
 onMounted(async () => {
   await loadProfile()
@@ -387,4 +400,10 @@ const paginatedNfcCodes = computed(() => {
   const end = start + itemsPerPage
   return filteredNfcCodes.value.slice(start, end)
 })
+
+function formatNfcUrl(codeId: string) {
+  const trimmedBase = baseUrl.value ? baseUrl.value.replace(/\/+$/, '') : ''
+  if (!trimmedBase) return `/nfc/${codeId}`
+  return `${trimmedBase}/nfc/${codeId}`
+}
 </script>

@@ -713,6 +713,7 @@
                 required 
                 placeholder="Start typing an address..."
                 class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                autocomplete="off"
               >
               
               <!-- Address Suggestions -->
@@ -1399,6 +1400,7 @@
                 required 
                 placeholder="Start typing an address..."
                 class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                autocomplete="off"
               >
               
               <!-- Address Suggestions -->
