@@ -138,6 +138,7 @@
 </template>
 
 <script setup lang="ts">
+const route = useRoute()
 const email = ref('')
 const password = ref('')
 const loading = ref(false)
@@ -151,7 +152,8 @@ async function onSubmit() {
   loading.value = true
   try {
     await auth.signInWithEmail(email.value, password.value)
-    await navigateTo('/profile')
+    const redirectTarget = typeof route.query.redirect === 'string' ? route.query.redirect : '/profile'
+    await navigateTo(redirectTarget)
   } catch (err: any) {
     console.error('Login error:', err)
     if (err.message?.includes('Invalid login credentials')) {
@@ -166,5 +168,4 @@ async function onSubmit() {
   }
 }
 </script>
-
 

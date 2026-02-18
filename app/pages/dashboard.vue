@@ -172,12 +172,13 @@
                 <Icon name="mdi:key-variant" class="h-6 w-6" />
               </div>
               <div>
-                <p class="text-sm text-[#8ee0ee]">Available Credits</p>
-                <p class="text-2xl font-bold">{{ creditsInfo.availableCredits }}</p>
-                <p class="text-xs text-white/70 mt-1">
+                <p class="text-sm text-[#8ee0ee]">{{ hasActiveSubscription ? 'Available Credits' : 'Subscription Status' }}</p>
+                <p v-if="hasActiveSubscription" class="text-2xl font-bold">{{ creditsInfo.availableCredits }}</p>
+                <p v-else class="text-2xl font-bold">Inactive</p>
+                <p v-if="hasActiveSubscription" class="text-xs text-white/70 mt-1">
                   {{ creditsInfo.usedCredits }} of {{ creditsInfo.maxProperties || 5 }} properties used
                 </p>
-                <p v-if="creditsInfo.usedCredits >= 5" class="text-xs text-yellow-200 mt-1">
+                <p v-if="hasActiveSubscription && creditsInfo.usedCredits >= 5" class="text-xs text-yellow-200 mt-1">
                   Maximum limit reached (5 properties)
                 </p>
               </div>
@@ -196,14 +197,30 @@
                   </option>
                 </select>
               </div>
-              <button 
+              <button
+                v-if="canAddProperty"
                 @click="handleAddPropertyClick" 
-                :disabled="!canAddProperty"
-                class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-semibold text-[#03045e] bg-[#8ee0ee] hover:bg-[#7dd3e0] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee] disabled:opacity-50 disabled:cursor-not-allowed"
+                class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-semibold text-[#03045e] bg-[#8ee0ee] hover:bg-[#7dd3e0] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee]"
               >
                 <Icon name="mdi:home-plus" class="-ml-1 mr-2 h-4 w-4" />
                 Add Property
               </button>
+              <NuxtLink
+                v-else-if="!hasActiveSubscription"
+                to="/payments"
+                class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-semibold text-[#03045e] bg-[#8ee0ee] hover:bg-[#7dd3e0] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee]"
+              >
+                <Icon name="mdi:credit-card-check-outline" class="-ml-1 mr-2 h-4 w-4" />
+                Subscribe
+              </NuxtLink>
+              <NuxtLink
+                v-else
+                to="/payments?action=buy-credits"
+                class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-semibold text-[#03045e] bg-[#8ee0ee] hover:bg-[#7dd3e0] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee]"
+              >
+                <Icon name="mdi:plus-circle" class="-ml-1 mr-2 h-4 w-4" />
+                Buy Credits
+              </NuxtLink>
               <button 
                 @click="showAddContact = true" 
                 class="inline-flex items-center px-4 py-2 border border-white/40 rounded-lg text-sm font-semibold text-white bg-transparent hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee]"
@@ -211,7 +228,7 @@
                 <Icon name="mdi:account-plus" class="-ml-1 mr-2 h-4 w-4" />
                 Add Contact
               </button>
-              <div v-if="creditsInfo.availableCredits === 0 && creditsInfo.canAddMore" class="flex items-center">
+              <div v-if="hasActiveSubscription && creditsInfo.availableCredits === 0 && creditsInfo.canAddMore" class="flex items-center">
                 <NuxtLink to="/payments?action=buy-credits" class="inline-flex items-center px-4 py-2 bg-white text-[#03045e] rounded-lg font-semibold hover:bg-gray-100 transition-colors">
                   <Icon name="mdi:plus-circle" class="mr-2 h-5 w-5" />
                   Buy More Credits
@@ -219,10 +236,13 @@
               </div>
             </div>
           </div>
-          <div v-if="creditsInfo.subscriptionStatus !== 'active'" class="mt-3 pt-3 border-t border-white/20">
+          <div v-if="!hasActiveSubscription" class="mt-3 pt-3 border-t border-white/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <p class="text-sm text-yellow-200">
               ⚠️ Your subscription is not active. Please complete payment to add properties.
             </p>
+            <NuxtLink to="/payments" class="inline-flex items-center text-sm font-semibold text-white underline">
+              Subscribe now
+            </NuxtLink>
           </div>
         </div>
       </div>
@@ -349,7 +369,7 @@
               </div>
             </div>
             <!-- First Property Prompt -->
-            <div v-if="showFirstPropertyPrompt && properties.length === 0" class="text-center py-8 bg-gradient-to-r from-[#03045e] to-[#023e8a] rounded-lg shadow-lg p-6 text-white">
+            <div v-if="showFirstPropertyPrompt && properties.length === 0 && canAddProperty" class="text-center py-8 bg-gradient-to-r from-[#03045e] to-[#023e8a] rounded-lg shadow-lg p-6 text-white">
               <Icon name="mdi:home-plus" class="mx-auto h-16 w-16 text-[#8ee0ee] mb-4" />
               <h3 class="text-xl font-bold mb-2">Add Your First Property Now</h3>
               <p class="text-[#8ee0ee] mb-6">Get started by adding your first property to begin managing access and emergency contacts.</p>
@@ -362,12 +382,22 @@
             <div v-else-if="properties.length === 0" class="text-center py-6">
               <Icon name="mdi:home" class="mx-auto h-12 w-12 text-gray-400" />
               <h3 class="mt-2 text-sm font-medium text-gray-900">No properties</h3>
-              <p class="mt-1 text-sm text-gray-500">Get started by adding your first property.</p>
+              <p v-if="canAddProperty" class="mt-1 text-sm text-gray-500">Get started by adding your first property.</p>
+              <p v-else-if="!hasActiveSubscription" class="mt-1 text-sm text-gray-500">Activate your subscription to add properties.</p>
+              <p v-else class="mt-1 text-sm text-gray-500">You need at least 1 available credit to add a property.</p>
               <div class="mt-6">
-                <button @click="handleAddPropertyClick" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#03045e] hover:bg-[#03045e]">
+                <button v-if="canAddProperty" @click="handleAddPropertyClick" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#03045e] hover:bg-[#03045e]">
                   <Icon name="mdi:plus" class="-ml-1 mr-2 h-5 w-5" />
                   Add Property
                 </button>
+                <NuxtLink v-else-if="!hasActiveSubscription" to="/payments" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#03045e] hover:bg-[#023e8a]">
+                  <Icon name="mdi:credit-card-check-outline" class="-ml-1 mr-2 h-5 w-5" />
+                  Subscribe
+                </NuxtLink>
+                <NuxtLink v-else to="/payments?action=buy-credits" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#03045e] hover:bg-[#023e8a]">
+                  <Icon name="mdi:plus-circle" class="-ml-1 mr-2 h-5 w-5" />
+                  Buy Credits
+                </NuxtLink>
               </div>
             </div>
             <!-- Property Details View (when property is selected) -->
@@ -697,10 +727,10 @@
           </div>
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- Form Section -->
-            <form @submit.prevent="createProperty" class="space-y-4">
+            <form @submit.prevent="createProperty" novalidate class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-700">Property Name</label>
-              <input v-model="newProperty.property_name" type="text" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900">
+              <input v-model="newProperty.property_name" type="text" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900">
             </div>
             <div class="relative">
               <label class="block text-sm font-medium text-gray-700">Address</label>
@@ -710,7 +740,6 @@
                 @focus="handleAddressInputFocus"
                 @blur="hideAddressSuggestions"
                 type="text" 
-                required 
                 placeholder="Start typing an address..."
                 class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
                 autocomplete="off"
@@ -750,7 +779,7 @@
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700">City</label>
-                <input v-model="newProperty.city" type="text" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900">
+                <input v-model="newProperty.city" type="text" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900">
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700">State</label>
@@ -1604,9 +1633,15 @@ definePageMeta({ middleware: ['auth'] })
 const auth = useAuthStore()
 const profile = ref(null)
 const creditsInfo = ref(null)
+const hasActiveSubscription = computed(() => {
+  const profileStatus = profile.value?.subscription_status
+  const creditsStatus = creditsInfo.value?.subscriptionStatus
+  const status = profileStatus ?? creditsStatus
+  return status === 'active'
+})
 const canAddProperty = computed(() => {
   if (!creditsInfo.value) return false
-  return creditsInfo.value.availableCredits > 0 && creditsInfo.value.subscriptionStatus === 'active'
+  return creditsInfo.value.availableCredits > 0 && hasActiveSubscription.value
 })
 const properties = ref([])
 const pendingAccessRequests = ref<any[]>([])
@@ -1691,6 +1726,15 @@ watch(currentProperty, async (newProperty) => {
 
 // Handle add property click - check for phone number first
 function handleAddPropertyClick() {
+  if (!canAddProperty.value) {
+    if (!hasActiveSubscription.value) {
+      navigateTo('/payments')
+      return
+    }
+    navigateTo('/payments?action=buy-credits')
+    return
+  }
+
   // Check if user has a phone number
   if (!profile.value?.phone || profile.value.phone.trim() === '') {
     showPhoneRequiredModal.value = true
@@ -1802,8 +1846,10 @@ function goToProfile() {
 function handleCancelAddProperty() {
   showAddProperty.value = false
   // If user has no properties, show prompt
-  if (properties.value.length === 0) {
+  if (properties.value.length === 0 && canAddProperty.value) {
     showFirstPropertyPrompt.value = true
+  } else {
+    showFirstPropertyPrompt.value = false
   }
 }
 
@@ -2143,6 +2189,11 @@ onMounted(async () => {
   
   // Check if we should auto-show property form (from payment success)
   if (route.query.addFirstProperty === 'true' && properties.value.length === 0) {
+    if (!canAddProperty.value) {
+      showFirstPropertyPrompt.value = false
+      return
+    }
+
     // Check phone number first
     if (!profile.value?.phone || profile.value.phone.trim() === '') {
       showPhoneRequiredModal.value = true
@@ -2727,6 +2778,22 @@ async function createProperty() {
   const client = useSupabaseClient()
   const { data: { session } } = await client.auth.getSession()
   if (!session?.user?.id) return
+
+  // Use explicit validation so submit always provides a clear message.
+  if (!newProperty.value.property_name?.trim()) {
+    alert('Property name is required.')
+    return
+  }
+
+  if (!addressQuery.value?.trim() && !newProperty.value.address?.trim()) {
+    alert('Address is required.')
+    return
+  }
+
+  if (!newProperty.value.city?.trim()) {
+    alert('City is required. Please select an address suggestion or enter a city manually.')
+    return
+  }
   
   // Check if phone number exists (backup check)
   if (!profile.value?.phone || profile.value.phone.trim() === '') {
@@ -2740,7 +2807,7 @@ async function createProperty() {
   
   // Check credits before creating
   if (!canAddProperty.value) {
-    if (creditsInfo.value?.subscriptionStatus !== 'active') {
+    if (!hasActiveSubscription.value) {
       alert('Active subscription required. Please complete your payment to add properties.')
       return
     }

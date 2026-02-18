@@ -221,11 +221,12 @@
         <div v-else class="text-center pt-6">
           <UButton 
             :disabled="!selectedOption"
-            @click="continueToRegistration"
+            :loading="processingPlanCheckout"
+            @click="continueToCheckout"
             size="lg"
             class="bg-[#03045e] hover:bg-[#03045e] text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Continue to Create Account
+            Continue to Payment
           </UButton>
         </div>
       </div>
@@ -250,6 +251,7 @@ const selectedOption = ref<'basic' | 'premium' | null>(null)
 const isBuyingCredits = ref(false)
 const additionalCreditsToBuy = ref(1)
 const isLoggedIn = ref(false)
+const processingPlanCheckout = ref(false)
 
 // Allow both guests (for registration) and authenticated users (for buying credits)
 definePageMeta({
@@ -263,9 +265,9 @@ definePageMeta({
 })
 
 onMounted(async () => {
+  const client = useSupabaseClient()
   try {
-    const supabase = useSupabaseClient()
-    const { data: { session } } = await supabase.auth.getSession()
+    const { data: { session } } = await client.auth.getSession()
     isLoggedIn.value = !!session?.user
   } catch (error) {
     console.error('Error checking auth status on payments page:', error)
@@ -276,12 +278,22 @@ onMounted(async () => {
   if (route.query.action === 'buy-credits') {
     isBuyingCredits.value = true
     // Redirect to login if not authenticated
-    const client = useSupabaseClient()
     client.auth.getSession().then(({ data: { session } }) => {
       if (!session) {
         navigateTo('/auth/login?redirect=/payments?action=buy-credits')
       }
     })
+  }
+
+  // Auto-start checkout after login redirect back to payments page.
+  if (!isBuyingCredits.value && route.query.checkout === 'true') {
+    const requestedPlan = route.query.plan
+    if (requestedPlan === 'basic' || requestedPlan === 'premium') {
+      selectedOption.value = requestedPlan
+      if (isLoggedIn.value) {
+        await continueToCheckout()
+      }
+    }
   }
 })
 
@@ -289,14 +301,41 @@ function selectOption(option: 'basic' | 'premium') {
   selectedOption.value = option
 }
 
-async function continueToRegistration() {
-  if (selectedOption.value) {
-    navigateTo({
-      path: '/auth/register',
-      query: {
-        plan: selectedOption.value
+async function continueToCheckout() {
+  if (!selectedOption.value) return
+
+  processingPlanCheckout.value = true
+  try {
+    const client = useSupabaseClient()
+    const { data: { session } } = await client.auth.getSession()
+
+    if (!session?.user?.id) {
+      const redirectPath = `/payments?checkout=true&plan=${selectedOption.value}`
+      await navigateTo(`/auth/login?redirect=${encodeURIComponent(redirectPath)}`)
+      return
+    }
+
+    const response = await $fetch('/api/stripe/create-checkout-session', {
+      method: 'POST',
+      body: {
+        userId: session.user.id,
+        subscriptionType: selectedOption.value,
+        additionalCredits: 0,
+        totalAmount: 24
       }
     })
+
+    if (response.checkoutUrl) {
+      window.location.href = response.checkoutUrl
+      return
+    }
+
+    throw new Error('Failed to create checkout session')
+  } catch (error: any) {
+    console.error('Failed to start subscription checkout:', error)
+    alert('Failed to redirect to Stripe checkout: ' + (error.data?.message || error.message || 'Unknown error'))
+  } finally {
+    processingPlanCheckout.value = false
   }
 }
 
@@ -337,4 +376,3 @@ async function purchaseAdditionalCredits() {
   }
 }
 </script>
-
