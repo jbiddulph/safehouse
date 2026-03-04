@@ -485,7 +485,7 @@ function closeAssignListModal() {
 }
 
 async function assignPropertyToNfc() {
-  if (!selectedNfcCode.value || !selectedPropertyId.value) return
+  if (!selectedNfcCode.value || !selectedPropertyId.value) return false
   
   assigning.value = true
   try {
@@ -503,13 +503,16 @@ async function assignPropertyToNfc() {
       alert(`Success! ${propertyName} has been assigned to NFC code ${selectedNfcCode.value.code_id}`)
       await loadNfcCodes()
       closeAssignModal()
+      return true
     } else {
       alert('Failed to assign property: ' + (response.message || 'Unknown error'))
+      return false
     }
   } catch (error: any) {
     console.error('Error assigning property:', error)
     const errorMessage = error.data?.message || error.message || 'Network error'
     alert('Failed to assign property: ' + errorMessage)
+    return false
   } finally {
     assigning.value = false
   }
@@ -517,8 +520,10 @@ async function assignPropertyToNfc() {
 
 async function assignPropertyById(propertyId: string) {
   selectedPropertyId.value = propertyId
-  await assignPropertyToNfc()
-  closeAssignListModal()
+  const assigned = await assignPropertyToNfc()
+  if (assigned) {
+    closeAssignListModal()
+  }
 }
 
 async function removePropertyFromNfc(nfcCodeId: string, propertyId: string) {
