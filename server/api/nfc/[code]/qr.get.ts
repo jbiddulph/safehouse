@@ -1,6 +1,6 @@
 import QRCode from 'qrcode'
-import { resolvePublicBaseUrl } from '../../../../utils/base-url'
-import { buildNfcUrl } from '../../../../utils/qr'
+import { resolvePublicBaseUrl } from '../../../utils/base-url'
+import { buildNfcUrl } from '../../../utils/qr'
 
 function isValidNfcCode(code: string) {
   const match = /^26-(\d+)$/.exec(code)
