@@ -9,7 +9,7 @@
         <h1 class="text-4xl font-bold text-[#03045e] mb-6">Privacy Policy</h1>
         
         <div class="prose prose-lg max-w-none">
-          <p class="text-gray-600 mb-6">Last updated: January 2025</p>
+          <p class="text-gray-600 mb-6">Last updated: January 2026</p>
           
           <h2 class="text-2xl font-semibold text-[#03045e] mt-8 mb-4">Introduction</h2>
           <p class="text-gray-700 mb-4">
