@@ -148,10 +148,16 @@
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <button
-                    @click="openAssignModal(nfcCode)"
-                    class="text-[#8ee0ee] hover:text-[#03045e] mr-4"
+                    @click="openAssignDropdownModal(nfcCode)"
+                    class="text-[#8ee0ee] hover:text-[#03045e] mr-3"
                   >
-                    Assign Property
+                    Assign from dropdown
+                  </button>
+                  <button
+                    @click="openAssignListModal(nfcCode)"
+                    class="text-[#03045e] hover:text-[#023e8a]"
+                  >
+                    Assign from list
                   </button>
                 </td>
               </tr>
@@ -176,6 +182,101 @@
               @click="currentPage++"
               :disabled="currentPage >= totalPages"
               class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Assign from List Modal -->
+    <div v-if="showAssignListModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" @click.self="closeAssignListModal">
+      <div class="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[85vh] flex flex-col">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-medium text-gray-900">Assign from list to {{ selectedNfcCode?.code_id }}</h3>
+          <button
+            @click="closeAssignListModal"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            <Icon name="mdi:close" class="h-6 w-6" />
+          </button>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Search properties</label>
+          <input
+            v-model="propertySearchQuery"
+            type="text"
+            placeholder="Search property name, address, city, state or post code"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]"
+          />
+        </div>
+
+        <div class="overflow-auto border border-gray-200 rounded-md flex-1">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Property</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">City</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">State</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Post code</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr v-if="propertyListLoading">
+                <td colspan="6" class="px-4 py-8 text-center text-sm text-gray-500">Loading properties...</td>
+              </tr>
+              <tr v-else-if="filteredProperties.length === 0">
+                <td colspan="6" class="px-4 py-8 text-center text-sm text-gray-500">No properties found</td>
+              </tr>
+              <tr
+                v-for="property in paginatedFilteredProperties"
+                :key="property.id"
+                class="hover:bg-gray-50"
+              >
+                <td class="px-4 py-3 text-sm text-gray-900">{{ property.property_name || '-' }}</td>
+                <td class="px-4 py-3 text-sm text-gray-700">{{ property.address || '-' }}</td>
+                <td class="px-4 py-3 text-sm text-gray-700">{{ property.city || '-' }}</td>
+                <td class="px-4 py-3 text-sm text-gray-700">{{ property.state || '-' }}</td>
+                <td class="px-4 py-3 text-sm text-gray-700">{{ property.postal_code || '-' }}</td>
+                <td class="px-4 py-3 text-sm">
+                  <button
+                    @click="assignPropertyById(property.id)"
+                    :disabled="assigning"
+                    class="px-3 py-1.5 text-xs font-medium text-white bg-[#03045e] rounded-md hover:bg-[#023e8a] disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {{ assigning ? 'Assigning...' : 'Assign' }}
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mt-4 flex items-center justify-between">
+          <div class="text-sm text-gray-700">
+            Showing
+            {{ filteredProperties.length ? (propertyListCurrentPage - 1) * propertyListItemsPerPage + 1 : 0 }}
+            to
+            {{ Math.min(propertyListCurrentPage * propertyListItemsPerPage, filteredProperties.length) }}
+            of
+            {{ filteredProperties.length }} properties
+          </div>
+          <div class="flex gap-2">
+            <button
+              @click="propertyListCurrentPage--"
+              :disabled="propertyListCurrentPage === 1"
+              class="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+            <button
+              @click="propertyListCurrentPage++"
+              :disabled="propertyListCurrentPage >= propertyListTotalPages"
+              class="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next
             </button>
@@ -250,10 +351,15 @@ const searchQuery = ref('')
 const assignmentFilter = ref('')
 const loading = ref(false)
 const showAssignModal = ref(false)
+const showAssignListModal = ref(false)
 const selectedNfcCode = ref(null)
 const selectedPropertyId = ref('')
 const assigning = ref(false)
 const availableProperties = ref([])
+const propertyListLoading = ref(false)
+const propertySearchQuery = ref('')
+const propertyListCurrentPage = ref(1)
+const propertyListItemsPerPage = 10
 const currentPage = ref(1)
 const itemsPerPage = 50
 const profile = ref(null)
@@ -329,6 +435,7 @@ function searchNfcCodes() {
 }
 
 async function loadProperties() {
+  propertyListLoading.value = true
   try {
     // Load all properties (admin can see all properties)
     const response = await $fetch('/api/properties')
@@ -342,19 +449,39 @@ async function loadProperties() {
     console.error('Error loading properties:', error)
     alert('Failed to load properties. Please refresh the page.')
     availableProperties.value = []
+  } finally {
+    propertyListLoading.value = false
   }
 }
 
-function openAssignModal(nfcCode: any) {
+function openAssignDropdownModal(nfcCode: any) {
   selectedNfcCode.value = nfcCode
   selectedPropertyId.value = ''
   showAssignModal.value = true
+}
+
+async function openAssignListModal(nfcCode: any) {
+  selectedNfcCode.value = nfcCode
+  propertySearchQuery.value = ''
+  propertyListCurrentPage.value = 1
+  showAssignListModal.value = true
+
+  if (!availableProperties.value.length) {
+    await loadProperties()
+  }
 }
 
 function closeAssignModal() {
   showAssignModal.value = false
   selectedNfcCode.value = null
   selectedPropertyId.value = ''
+}
+
+function closeAssignListModal() {
+  showAssignListModal.value = false
+  selectedNfcCode.value = null
+  propertySearchQuery.value = ''
+  propertyListCurrentPage.value = 1
 }
 
 async function assignPropertyToNfc() {
@@ -388,6 +515,12 @@ async function assignPropertyToNfc() {
   }
 }
 
+async function assignPropertyById(propertyId: string) {
+  selectedPropertyId.value = propertyId
+  await assignPropertyToNfc()
+  closeAssignListModal()
+}
+
 async function removePropertyFromNfc(nfcCodeId: string, propertyId: string) {
   if (!confirm('Are you sure you want to remove this property assignment?')) return
   
@@ -417,6 +550,39 @@ const paginatedNfcCodes = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage
   const end = start + itemsPerPage
   return filteredNfcCodes.value.slice(start, end)
+})
+
+const filteredProperties = computed(() => {
+  const term = propertySearchQuery.value.trim().toLowerCase()
+  if (!term) return availableProperties.value
+
+  return availableProperties.value.filter((property: any) => {
+    const fields = [
+      property.property_name,
+      property.address,
+      property.city,
+      property.state,
+      property.postal_code
+    ]
+    return fields.some((field: string | null | undefined) =>
+      String(field || '').toLowerCase().includes(term)
+    )
+  })
+})
+
+const propertyListTotalPages = computed(() => {
+  const total = Math.ceil(filteredProperties.value.length / propertyListItemsPerPage)
+  return total > 0 ? total : 1
+})
+
+const paginatedFilteredProperties = computed(() => {
+  const start = (propertyListCurrentPage.value - 1) * propertyListItemsPerPage
+  const end = start + propertyListItemsPerPage
+  return filteredProperties.value.slice(start, end)
+})
+
+watch(propertySearchQuery, () => {
+  propertyListCurrentPage.value = 1
 })
 
 function formatNfcUrl(codeId: string) {
