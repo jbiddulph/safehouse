@@ -32,7 +32,7 @@
       <!-- Quick Actions Section -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <NuxtLink 
-          to="/admin-access-logs" 
+          to="/admin/access-logs" 
           class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-200"
         >
           <div class="flex items-center">
@@ -132,6 +132,36 @@
                 {{ savingSettings ? 'Saving...' : 'Save Settings' }}
               </button>
             </div>
+          </div>
+
+          <!-- Maintenance Mode -->
+          <div class="border-t border-gray-200 pt-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Maintenance Mode
+            </label>
+            <p class="text-sm text-gray-500 mb-3">
+              When enabled, visitors are redirected to the coming soon page. Admin and auth routes remain accessible.
+            </p>
+            <label class="inline-flex items-center cursor-pointer">
+              <input
+                v-model="settingsForm.maintenance_mode_enabled"
+                type="checkbox"
+                class="h-4 w-4 rounded border-gray-300 text-[#03045e] focus:ring-[#8ee0ee]"
+              />
+              <span class="ml-3 text-sm text-gray-700">
+                {{ settingsForm.maintenance_mode_enabled ? 'Enabled' : 'Disabled' }}
+              </span>
+            </label>
+          </div>
+
+          <div class="pt-2">
+            <button
+              @click="saveSettings"
+              :disabled="savingSettings"
+              class="px-4 py-2 text-sm font-medium text-white bg-[#03045e] rounded-md hover:bg-[#03045e] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {{ savingSettings ? 'Saving...' : 'Save Settings' }}
+            </button>
             <p v-if="settingsSaved" class="mt-2 text-sm text-[#8ee0ee]">Settings saved successfully!</p>
           </div>
         </div>
@@ -288,7 +318,8 @@ const loadingSettings = ref(false)
 const savingSettings = ref(false)
 const settingsSaved = ref(false)
 const settingsForm = ref({
-  location_verification_distance_meters: 50
+  location_verification_distance_meters: 50,
+  maintenance_mode_enabled: false
 })
 
 // Load profile and check admin access
@@ -429,6 +460,10 @@ async function loadSettings() {
           10
         ) || 50
       }
+      if (response.settings.maintenance_mode_enabled) {
+        settingsForm.value.maintenance_mode_enabled =
+          response.settings.maintenance_mode_enabled.value === 'true'
+      }
     }
   } catch (error) {
     console.error('Error loading settings:', error)
@@ -451,16 +486,26 @@ async function saveSettings() {
       return
     }
 
-    const response = await $fetch('/api/admin/settings', {
-      method: 'PUT',
-      body: {
-        setting_key: 'location_verification_distance_meters',
-        setting_value: distance,
-        description: 'Maximum distance in meters for location verification when requesting emergency access'
-      }
-    })
+    const [distanceResponse, maintenanceResponse] = await Promise.all([
+      $fetch('/api/admin/settings', {
+        method: 'PUT',
+        body: {
+          setting_key: 'location_verification_distance_meters',
+          setting_value: distance,
+          description: 'Maximum distance in meters for location verification when requesting emergency access'
+        }
+      }),
+      $fetch('/api/admin/settings', {
+        method: 'PUT',
+        body: {
+          setting_key: 'maintenance_mode_enabled',
+          setting_value: settingsForm.value.maintenance_mode_enabled,
+          description: 'Whether maintenance mode is enabled and visitors are redirected to /coming-soon'
+        }
+      })
+    ])
 
-    if (response.success) {
+    if (distanceResponse.success && maintenanceResponse.success) {
       settingsSaved.value = true
       setTimeout(() => {
         settingsSaved.value = false

@@ -24,11 +24,24 @@ export default defineEventHandler(async (event) => {
       deviceType,
       startDate,
       endDate,
-      search
+      search,
+      sortBy: sortByQuery = 'created_at',
+      sortOrder: sortOrderQuery = 'desc'
     } = query
 
     // Calculate offset for pagination
     const offset = (Number(page) - 1) * Number(limit)
+    const normalizedSortBy = Array.isArray(sortByQuery) ? sortByQuery[0] : sortByQuery
+    const normalizedSortOrder = Array.isArray(sortOrderQuery) ? sortOrderQuery[0] : sortOrderQuery
+    const allowedSortBy = new Set([
+      'created_at',
+      'property_name',
+      'user_email',
+      'access_type',
+      'device_type'
+    ])
+    const sortBy = allowedSortBy.has(normalizedSortBy) ? normalizedSortBy : 'created_at'
+    const ascending = normalizedSortOrder === 'asc'
 
     // Build the query
     let queryBuilder = supabase
@@ -42,7 +55,6 @@ export default defineEventHandler(async (event) => {
           user_id
         )
       `)
-      .order('created_at', { ascending: false })
 
     // Apply filters
     if (propertyId) {
@@ -72,6 +84,20 @@ export default defineEventHandler(async (event) => {
       )
     }
 
+    // Apply sorting
+    if (sortBy === 'property_name') {
+      queryBuilder = queryBuilder.order('property_name', {
+        ascending,
+        foreignTable: 'safehouse_properties',
+        nullsFirst: false
+      })
+    } else {
+      queryBuilder = queryBuilder.order(sortBy, {
+        ascending,
+        nullsFirst: false
+      })
+    }
+
     // Get total count for pagination
     const { count, error: countError } = await queryBuilder
       .select('*', { count: 'exact', head: true })
@@ -97,7 +123,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Manually fetch property data for each log entry
-    const logsWithProperties = await Promise.all(
+    let logsWithProperties = await Promise.all(
       (logs || []).map(async (log) => {
         if (log.property_id) {
           try {
@@ -124,6 +150,22 @@ export default defineEventHandler(async (event) => {
         }
       })
     )
+
+    // Defensive fallback for property name sorting if relation order is unavailable
+    if (sortBy === 'property_name') {
+      logsWithProperties = logsWithProperties.sort((a, b) => {
+        const propertyA = Array.isArray(a.safehouse_properties)
+          ? a.safehouse_properties[0]
+          : a.safehouse_properties
+        const propertyB = Array.isArray(b.safehouse_properties)
+          ? b.safehouse_properties[0]
+          : b.safehouse_properties
+        const nameA = (propertyA?.property_name || '').toLowerCase()
+        const nameB = (propertyB?.property_name || '').toLowerCase()
+        const result = nameA.localeCompare(nameB)
+        return ascending ? result : -result
+      })
+    }
 
     // Get summary statistics
     const { data: stats, error: statsError } = await supabase

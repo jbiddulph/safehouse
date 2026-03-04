@@ -99,7 +99,7 @@
       <!-- Filters -->
       <div class="bg-white shadow rounded-lg mb-6">
         <div class="px-6 py-4">
-          <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
               <input
@@ -159,6 +159,33 @@
                 class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
                 @change="loadLogs"
               />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+              <select
+                v-model="sort.by"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
+                @change="applySorting"
+              >
+                <option value="created_at">Date</option>
+                <option value="property_name">Property Name</option>
+                <option value="user_email">User Email</option>
+                <option value="access_type">Access Type</option>
+                <option value="device_type">Device Type</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Sort Order</label>
+              <select
+                v-model="sort.order"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
+                @change="applySorting"
+              >
+                <option value="asc">A-Z / Oldest First</option>
+                <option value="desc">Z-A / Newest First</option>
+              </select>
             </div>
           </div>
         </div>
@@ -352,6 +379,10 @@ const filters = ref({
   startDate: '',
   endDate: ''
 })
+const sort = ref({
+  by: 'created_at',
+  order: 'desc'
+})
 
 // Debounced search
 let searchTimeout: NodeJS.Timeout
@@ -372,6 +403,8 @@ const loadLogs = async () => {
     const query = new URLSearchParams({
       page: pagination.value.page.toString(),
       limit: pagination.value.limit.toString(),
+      sortBy: sort.value.by,
+      sortOrder: sort.value.order,
       ...Object.fromEntries(
         Object.entries(filters.value).filter(([_, value]) => value)
       )
@@ -392,6 +425,11 @@ const loadLogs = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const applySorting = () => {
+  pagination.value.page = 1
+  loadLogs()
 }
 
 // Change page
