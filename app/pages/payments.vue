@@ -73,14 +73,16 @@
       <div class="max-w-4xl w-full mx-auto space-y-8">
         <!-- Header Text -->
         <div class="text-center">
-          <h2 class="text-3xl font-bold text-[#03045e] mb-2">Choose Your Plan</h2>
+          <h2 class="text-3xl font-bold text-[#03045e] mb-2">
+            {{ isBuyingCredits ? 'Purchase Additional Credits' : 'Choose Your Plan' }}
+          </h2>
           <p class="text-lg text-gray-600">
-            Select a payment option to get started with MySafeHouse
+            {{ isBuyingCredits ? 'Buy credits to add more properties to your account' : 'Select a payment option to get started with MySafeHouse' }}
           </p>
         </div>
 
         <!-- Payment Options -->
-        <div class="grid md:grid-cols-2 gap-6">
+        <div v-if="!isBuyingCredits" class="grid md:grid-cols-2 gap-6">
           <!-- Option 1: Basic Plan -->
           <div 
             class="bg-white rounded-lg shadow-xl p-8 border-2 transition-all cursor-pointer hover:border-[#8ee0ee]"
@@ -248,7 +250,11 @@
 <script setup lang="ts">
 const route = useRoute()
 const selectedOption = ref<'basic' | 'premium' | null>(null)
-const isBuyingCredits = ref(false)
+const isBuyingCredits = ref(
+  Array.isArray(route.query.action)
+    ? route.query.action.includes('buy-credits')
+    : route.query.action === 'buy-credits'
+)
 const additionalCreditsToBuy = ref(1)
 const isLoggedIn = ref(false)
 const processingPlanCheckout = ref(false)
@@ -275,7 +281,7 @@ onMounted(async () => {
   }
 
   // Check if user is buying additional credits
-  if (route.query.action === 'buy-credits') {
+  if (isBuyingCredits.value) {
     isBuyingCredits.value = true
     // Redirect to login if not authenticated
     client.auth.getSession().then(({ data: { session } }) => {
