@@ -16,31 +16,34 @@
           </div>
 
           <nav class="hidden md:flex items-center space-x-6">
-            <NuxtLink to="/about" :class="navLinkClass('/about')">About Us</NuxtLink>
-            <NuxtLink to="/how-it-works" :class="navLinkClass('/how-it-works')">How It Works</NuxtLink>
-            <NuxtLink to="/privacy-policy" :class="navLinkClass('/privacy-policy')">Privacy Policy</NuxtLink>
-            <NuxtLink to="/terms" :class="navLinkClass('/terms')">Terms & Conditions</NuxtLink>
+            <NuxtLink to="/about" :prefetch="false" :class="navLinkClass('/about')">About Us</NuxtLink>
+            <NuxtLink to="/how-it-works" :prefetch="false" :class="navLinkClass('/how-it-works')">How It Works</NuxtLink>
+            <NuxtLink to="/privacy-policy" :prefetch="false" :class="navLinkClass('/privacy-policy')">Privacy Policy</NuxtLink>
+            <NuxtLink to="/terms" :prefetch="false" :class="navLinkClass('/terms')">Terms & Conditions</NuxtLink>
           </nav>
         </div>
 
         <div class="hidden md:flex items-center space-x-4">
-          <NuxtLink
-            v-if="!isLoggedIn"
-            to="/auth/login"
-            :class="authLinkClass('/auth/login')"
-          >
+            <NuxtLink
+              v-if="!isLoggedIn"
+              to="/auth/login"
+              :prefetch="false"
+              :class="authLinkClass('/auth/login')"
+            >
             Sign In
           </NuxtLink>
-          <NuxtLink
-            v-if="!isLoggedIn"
-            to="/auth/register"
-            :class="authLinkClass('/auth/register')"
-          >
+            <NuxtLink
+              v-if="!isLoggedIn"
+              to="/auth/register"
+              :prefetch="false"
+              :class="authLinkClass('/auth/register')"
+            >
             Sign Up
           </NuxtLink>
           <NuxtLink
             v-if="isLoggedIn && showDashboardButton"
             to="/dashboard"
+            :prefetch="false"
             class="px-4 py-2 text-sm font-medium text-white bg-[#8ee0ee] rounded-lg hover:bg-[#8ee0ee]/80 transition-colors"
           >
             Dashboard
@@ -59,18 +62,17 @@
       </div>
     </div>
 
-    <div
-      v-if="mobileMenuOpen"
-      class="md:hidden absolute right-4 top-16 w-64 bg-[#023e8a] border border-[#8ee0ee]/30 rounded-lg shadow-xl overflow-hidden"
-    >
-      <nav class="py-2">
-        <NuxtLink to="/about" :class="mobileLinkClass('/about')" @click="mobileMenuOpen = false">About Us</NuxtLink>
-        <NuxtLink to="/how-it-works" :class="mobileLinkClass('/how-it-works')" @click="mobileMenuOpen = false">How It Works</NuxtLink>
-        <NuxtLink to="/privacy-policy" :class="mobileLinkClass('/privacy-policy')" @click="mobileMenuOpen = false">Privacy Policy</NuxtLink>
-        <NuxtLink to="/terms" :class="mobileLinkClass('/terms')" @click="mobileMenuOpen = false">Terms & Conditions</NuxtLink>
-        <NuxtLink to="/auth/login" :class="mobileLinkClass('/auth/login')" @click="mobileMenuOpen = false">Sign In</NuxtLink>
-        <NuxtLink to="/auth/register" :class="mobileLinkClass('/auth/register')" @click="mobileMenuOpen = false">Sign Up</NuxtLink>
-      </nav>
+    <div v-if="mobileMenuOpen" class="md:hidden w-full bg-[#03045e] border-t border-[#8ee0ee]/30">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+        <nav class="space-y-1">
+          <NuxtLink to="/about" :prefetch="false" :class="mobileLinkClass('/about')" @click="mobileMenuOpen = false">About Us</NuxtLink>
+          <NuxtLink to="/how-it-works" :prefetch="false" :class="mobileLinkClass('/how-it-works')" @click="mobileMenuOpen = false">How It Works</NuxtLink>
+          <NuxtLink to="/privacy-policy" :prefetch="false" :class="mobileLinkClass('/privacy-policy')" @click="mobileMenuOpen = false">Privacy Policy</NuxtLink>
+          <NuxtLink to="/terms" :prefetch="false" :class="mobileLinkClass('/terms')" @click="mobileMenuOpen = false">Terms & Conditions</NuxtLink>
+          <NuxtLink to="/auth/login" :prefetch="false" :class="mobileLinkClass('/auth/login')" @click="mobileMenuOpen = false">Sign In</NuxtLink>
+          <NuxtLink to="/auth/register" :prefetch="false" :class="mobileLinkClass('/auth/register')" @click="mobileMenuOpen = false">Sign Up</NuxtLink>
+        </nav>
+      </div>
     </div>
   </nav>
 </template>
@@ -110,7 +112,7 @@ function authLinkClass(path: string) {
 function mobileLinkClass(path: string) {
   const isActive = route.path === path
   return isActive
-    ? 'block px-4 py-2 text-sm font-medium text-white bg-[#03045e]'
-    : 'block px-4 py-2 text-sm font-medium text-[#8ee0ee] hover:text-white hover:bg-[#03045e]/60 transition-colors'
+    ? 'block w-full px-2 py-2 text-sm font-medium text-white bg-[#023e8a] rounded'
+    : 'block w-full px-2 py-2 text-sm font-medium text-[#8ee0ee] hover:text-white hover:bg-[#023e8a]/60 rounded transition-colors'
 }
 </script>

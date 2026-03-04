@@ -620,6 +620,12 @@ async function signOut() {
 function initBackgroundMap() {
   if (!backgroundMapContainer.value) return
   if (typeof window === 'undefined') return
+
+  const isSmallScreen = window.innerWidth < 768
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (isSmallScreen || prefersReducedMotion) {
+    return
+  }
   
   // Ensure container has explicit dimensions
   const container = backgroundMapContainer.value
@@ -646,10 +652,11 @@ function initBackgroundMap() {
       if (!backgroundMapContainer.value) return
       
       // Wait a bit more to ensure container is fully rendered
-      requestAnimationFrame(() => {
+      requestAnimationFrame(async () => {
         if (!backgroundMapContainer.value) return
         
-        const { initMap } = useMapbox()
+        const mapboxModule = await import('~/composables/useMapbox')
+        const { initMap } = mapboxModule.useMapbox()
       
       // Worthing, UK coordinates: -0.3750, 50.8175
       backgroundMap.value = initMap(backgroundMapContainer.value, {
@@ -771,9 +778,16 @@ onMounted(() => {
   
   // Initialize background map
   if (typeof window !== 'undefined') {
-    setTimeout(() => {
-      initBackgroundMap()
-    }, 500)
+    const idleCallback = (window as any).requestIdleCallback as ((cb: () => void, opts?: { timeout: number }) => void) | undefined
+    if (idleCallback) {
+      idleCallback(() => {
+        initBackgroundMap()
+      }, { timeout: 2000 })
+    } else {
+      setTimeout(() => {
+        initBackgroundMap()
+      }, 1200)
+    }
   }
 })
 
