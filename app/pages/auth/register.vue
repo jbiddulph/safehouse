@@ -1,53 +1,7 @@
 <template>
   <div class="min-h-screen bg-[#f0f9fb] flex flex-col">
     <!-- Top Navigation -->
-    <nav class="bg-[#03045e] shadow-lg border-b border-[#03045e]">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
-          <!-- Logo and Title -->
-          <div class="flex items-center space-x-8">
-            <div class="flex-shrink-0 flex items-center space-x-3">
-              <div class="h-8 w-8 bg-[#ffffff] rounded-lg flex items-center justify-center">
-                <img src="/images/logo.png" alt="MySafeHouse" class="h-full w-full object-cover" />
-              </div>
-              <NuxtLink to="/" class="text-xl font-bold text-white">MySafeHouse</NuxtLink>
-            </div>
-            
-            <!-- Navigation Menu -->
-            <nav class="hidden md:flex items-center space-x-6">
-              <NuxtLink to="/about" class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors">
-                About Us
-              </NuxtLink>
-              <NuxtLink to="/how-it-works" class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors">
-                How It Works
-              </NuxtLink>
-              <NuxtLink to="/privacy-policy" class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors">
-                Privacy Policy
-              </NuxtLink>
-              <NuxtLink to="/terms" class="text-sm font-medium text-[#8ee0ee] hover:text-white transition-colors">
-                Terms & Conditions
-              </NuxtLink>
-            </nav>
-          </div>
-
-          <!-- Auth Buttons -->
-          <div class="flex items-center space-x-4">
-            <NuxtLink 
-              to="/auth/login" 
-              class="text-sm font-medium text-[#8ee0ee] hover:text-white no-underline hover:no-underline transition-colors"
-            >
-              Sign In
-            </NuxtLink>
-            <NuxtLink 
-              to="/auth/register" 
-              class="text-sm font-medium text-white border-b-2 border-white pb-1 no-underline hover:no-underline hover:border-white hover:text-white"
-            >
-              Sign Up
-            </NuxtLink>
-          </div>
-        </div>
-      </div>
-    </nav>
+    <PublicTopNav />
 
     <div class="flex-1 py-12 px-4 sm:px-6 lg:px-8">
       <div class="max-w-md w-full mx-auto space-y-8">
