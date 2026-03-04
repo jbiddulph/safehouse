@@ -633,7 +633,7 @@
             <div class="flex items-center">
               <div class="flex-shrink-0">
                 <div class="h-12 w-12 bg-[#03045e] rounded-lg flex items-center justify-center">
-                  <Icon name="mdi:account-group" class="h-6 w-6 text-[#8ee0ee]" />
+                  <Icon name="mdi:alert" class="h-6 w-6 text-[#8ee0ee]" />
                 </div>
               </div>
               <div class="ml-5 w-0 flex-1">
@@ -651,7 +651,7 @@
             <div class="flex items-center">
               <div class="flex-shrink-0">
                 <div class="h-12 w-12 bg-[#03045e] rounded-lg flex items-center justify-center">
-                  <Icon name="mdi:account-multiple" class="h-6 w-6 text-[#8ee0ee]" />
+                  <Icon name="mdi:home-account" class="h-6 w-6 text-[#8ee0ee]" />
                 </div>
               </div>
               <div class="ml-5 w-0 flex-1">
@@ -1662,7 +1662,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex items-center justify-center">
           <p class="text-sm text-[#8ee0ee]">
-            Copyright © 2025 MySafeHouse. All rights reserved.
+            Copyright © 2026 MySafeHouse. All rights reserved.
           </p>
         </div>
       </div>
