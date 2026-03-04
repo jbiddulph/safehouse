@@ -11,7 +11,7 @@ export function buildPropertyUrl(baseUrl: string, propertyId: string) {
 }
 
 export function buildNfcUrl(baseUrl: string, nfcCode: string) {
-  return `${normalizeBaseUrl(baseUrl)}/nfc/${encodeURIComponent(nfcCode)}`
+  return `${normalizeBaseUrl(baseUrl)}/tag/${encodeURIComponent(nfcCode)}`
 }
 
 export async function generateQrDataUrl(targetUrl: string, width = 220) {

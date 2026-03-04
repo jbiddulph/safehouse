@@ -592,8 +592,8 @@ watch(propertySearchQuery, () => {
 
 function formatNfcUrl(codeId: string) {
   const trimmedBase = baseUrl.value ? baseUrl.value.replace(/\/+$/, '') : ''
-  if (!trimmedBase) return `/nfc/${codeId}`
-  return `${trimmedBase}/nfc/${codeId}`
+  if (!trimmedBase) return `/tag/${codeId}`
+  return `${trimmedBase}/tag/${codeId}`
 }
 
 function getNfcQrImageUrl(codeId: string, updatedAt?: string) {

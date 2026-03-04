@@ -151,7 +151,7 @@ const currentSeo = computed(() => {
     }
   }
 
-  if (path.startsWith('/nfc/')) {
+  if (path.startsWith('/nfc/') || path.startsWith('/tag/')) {
     return {
       title: 'NFC Access',
       description: 'NFC property access route provided by MySafeHouse.',
