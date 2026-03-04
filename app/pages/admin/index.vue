@@ -250,6 +250,36 @@
             </div>
           </div>
         </div>
+        <div v-if="users.length > 0 && userPagination.totalPages > 1" class="mt-6 flex items-center justify-between">
+          <p class="text-sm text-gray-600">
+            Showing
+            <span class="font-medium">{{ (userPagination.page - 1) * userPagination.limit + 1 }}</span>
+            to
+            <span class="font-medium">{{ Math.min(userPagination.page * userPagination.limit, userPagination.total) }}</span>
+            of
+            <span class="font-medium">{{ userPagination.total }}</span>
+            users
+          </p>
+          <div class="flex items-center gap-2">
+            <button
+              @click="changeUserPage(userPagination.page - 1)"
+              :disabled="userPagination.page <= 1 || loading"
+              class="px-3 py-1 text-sm border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+            <span class="text-sm text-gray-600">
+              Page {{ userPagination.page }} of {{ userPagination.totalPages }}
+            </span>
+            <button
+              @click="changeUserPage(userPagination.page + 1)"
+              :disabled="userPagination.page >= userPagination.totalPages || loading"
+              class="px-3 py-1 text-sm border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+          </div>
+        </div>
         <div v-else-if="!loading" class="text-center py-8 text-gray-500">
           No users found
         </div>
@@ -308,6 +338,12 @@ const users = ref([])
 const searchQuery = ref('')
 const roleFilter = ref('')
 const loading = ref(false)
+const userPagination = ref({
+  page: 1,
+  limit: 50,
+  total: 0,
+  totalPages: 0
+})
 const promotingUser = ref(null)
 const demotingUser = ref(null)
 const profile = ref(null)
@@ -352,9 +388,15 @@ async function loadProfile() {
 async function loadUsers() {
   loading.value = true
   try {
-    const response = await $fetch('/api/admin/users')
+    const response = await $fetch('/api/admin/users', {
+      query: {
+        page: userPagination.value.page,
+        limit: userPagination.value.limit
+      }
+    })
     if (response.success) {
       users.value = response.users
+      userPagination.value = response.pagination || userPagination.value
     }
   } catch (error) {
     console.error('Error loading users:', error)
@@ -365,6 +407,11 @@ async function loadUsers() {
 
 // Search users
 async function searchUsers() {
+  userPagination.value.page = 1
+  await fetchUsersWithFilters()
+}
+
+async function fetchUsersWithFilters() {
   if (!searchQuery.value && !roleFilter.value) {
     await loadUsers()
     return
@@ -375,17 +422,26 @@ async function searchUsers() {
     const response = await $fetch('/api/admin/users', {
       query: {
         search: searchQuery.value,
-        role: roleFilter.value
+        role: roleFilter.value,
+        page: userPagination.value.page,
+        limit: userPagination.value.limit
       }
     })
     if (response.success) {
       users.value = response.users
+      userPagination.value = response.pagination || userPagination.value
     }
   } catch (error) {
     console.error('Error searching users:', error)
   } finally {
     loading.value = false
   }
+}
+
+async function changeUserPage(page: number) {
+  if (page < 1 || page > userPagination.value.totalPages) return
+  userPagination.value.page = page
+  await fetchUsersWithFilters()
 }
 
 // Promote user to admin
@@ -402,7 +458,7 @@ async function promoteToAdmin(userId: string) {
     })
     
     if (response.success) {
-      await loadUsers()
+      await fetchUsersWithFilters()
       alert('User promoted to admin successfully!')
     } else {
       alert('Failed to promote user')
@@ -429,7 +485,7 @@ async function demoteToStandard(userId: string) {
     })
     
     if (response.success) {
-      await loadUsers()
+      await fetchUsersWithFilters()
       alert('User demoted to standard role successfully!')
     } else {
       alert('Failed to demote user')

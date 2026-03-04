@@ -86,6 +86,7 @@
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code ID</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">URL</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned Properties</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">QR Codes</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
@@ -96,12 +97,12 @@
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <a
-                    :href="formatNfcUrl(nfcCode.code_id)"
+                    :href="nfcCode.nfc_url || formatNfcUrl(nfcCode.code_id)"
                     class="text-sm text-[#03045e] hover:underline break-all"
                     target="_blank"
                     rel="noopener"
                   >
-                    {{ formatNfcUrl(nfcCode.code_id) }}
+                    {{ nfcCode.nfc_url || formatNfcUrl(nfcCode.code_id) }}
                   </a>
                 </td>
                 <td class="px-6 py-4">
@@ -127,6 +128,23 @@
                     </div>
                   </div>
                   <span v-else class="text-sm text-gray-400">No properties assigned</span>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-3 p-2 rounded-md bg-gray-50">
+                    <img
+                      :src="getNfcQrImageUrl(nfcCode.code_id, nfcCode.updated_at)"
+                      alt="NFC QR code"
+                      class="h-14 w-14 border border-gray-200 rounded-md bg-white"
+                    />
+                    <a
+                      :href="nfcCode.nfc_url || formatNfcUrl(nfcCode.code_id)"
+                      target="_blank"
+                      rel="noopener"
+                      class="text-xs text-[#03045e] hover:underline break-all"
+                    >
+                      {{ nfcCode.nfc_url || formatNfcUrl(nfcCode.code_id) }}
+                    </a>
+                  </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <button
@@ -221,6 +239,7 @@
 </template>
 
 <script setup lang="ts">
+
 definePageMeta({
   middleware: 'auth'
 })
@@ -237,7 +256,6 @@ const assigning = ref(false)
 const availableProperties = ref([])
 const currentPage = ref(1)
 const itemsPerPage = 50
-
 const profile = ref(null)
 const isAdmin = ref(false)
 const runtimeConfig = useRuntimeConfig()
@@ -405,5 +423,11 @@ function formatNfcUrl(codeId: string) {
   const trimmedBase = baseUrl.value ? baseUrl.value.replace(/\/+$/, '') : ''
   if (!trimmedBase) return `/nfc/${codeId}`
   return `${trimmedBase}/nfc/${codeId}`
+}
+
+function getNfcQrImageUrl(codeId: string, updatedAt?: string) {
+  const encodedCode = encodeURIComponent(codeId)
+  const cacheBuster = `updated=${encodeURIComponent(updatedAt || '')}`
+  return `/api/nfc/${encodedCode}/qr?${cacheBuster}`
 }
 </script>

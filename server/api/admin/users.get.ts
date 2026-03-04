@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
-  const { search, role } = query
+  const { search, role, page = 1, limit = 50 } = query
 
   const config = useRuntimeConfig()
   const supabase = createClient(
@@ -17,6 +17,10 @@ export default defineEventHandler(async (event) => {
   )
 
   try {
+    const pageNumber = Math.max(1, Number(page) || 1)
+    const limitNumber = Math.max(1, Math.min(200, Number(limit) || 50))
+    const offset = (pageNumber - 1) * limitNumber
+
     let queryBuilder = supabase
       .from('safehouse_profiles')
       .select(`
@@ -26,7 +30,7 @@ export default defineEventHandler(async (event) => {
         role,
         created_at,
         updated_at
-      `)
+      `, { count: 'exact' })
       .order('created_at', { ascending: false })
 
     // Apply search filter
@@ -39,7 +43,8 @@ export default defineEventHandler(async (event) => {
       queryBuilder = queryBuilder.eq('role', role)
     }
 
-    const { data: users, error } = await queryBuilder
+    const { data: users, count, error } = await queryBuilder
+      .range(offset, offset + limitNumber - 1)
 
     if (error) {
       console.error('Error fetching users:', error)
@@ -52,14 +57,26 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      users: users || []
+      users: users || [],
+      pagination: {
+        page: pageNumber,
+        limit: limitNumber,
+        total: count || 0,
+        totalPages: Math.ceil((count || 0) / limitNumber)
+      }
     }
   } catch (error) {
     console.error('Error in users API:', error)
     return {
       success: false,
       message: 'Failed to fetch users',
-      users: []
+      users: [],
+      pagination: {
+        page: 1,
+        limit: 50,
+        total: 0,
+        totalPages: 0
+      }
     }
   }
 })

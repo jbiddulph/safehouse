@@ -1,4 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
+import { resolvePublicBaseUrl } from '../utils/base-url'
+import { buildNfcUrl, generateQrDataUrl } from '../utils/qr'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
@@ -17,6 +19,8 @@ export default defineEventHandler(async (event) => {
   )
 
   try {
+    const baseUrl = await resolvePublicBaseUrl()
+
     let request = supabase
       .from('safehouse_properties')
       .select(`
@@ -38,7 +42,44 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    return { properties: data }
+    const properties = data || []
+    const propertyIds = properties.map((property: any) => property.id)
+    const nfcAssignmentsMap = new Map<string, { code_id: string; url: string; qr_data_url: string }>()
+
+    if (propertyIds.length > 0) {
+      const { data: assignments } = await supabase
+        .from('safehouse_nfc_code_properties')
+        .select('property_id, safehouse_nfc_codes(code_id)')
+        .in('property_id', propertyIds)
+
+      const assignmentRows = assignments || []
+
+      for (const assignment of assignmentRows) {
+        const propertyId = assignment.property_id
+        if (nfcAssignmentsMap.has(propertyId)) continue
+
+        const nfcCode = Array.isArray(assignment.safehouse_nfc_codes)
+          ? assignment.safehouse_nfc_codes[0]?.code_id
+          : assignment.safehouse_nfc_codes?.code_id
+
+        if (!nfcCode) continue
+
+        const nfcUrl = buildNfcUrl(baseUrl, nfcCode)
+        const qrDataUrl = await generateQrDataUrl(nfcUrl, 180)
+        nfcAssignmentsMap.set(propertyId, {
+          code_id: nfcCode,
+          url: nfcUrl,
+          qr_data_url: qrDataUrl
+        })
+      }
+    }
+
+    const enrichedProperties = properties.map((property: any) => ({
+      ...property,
+      nfc_assignment: nfcAssignmentsMap.get(property.id) || null
+    }))
+
+    return { properties: enrichedProperties }
   } catch (error) {
     console.error('Properties fetch error:', error)
     throw createError({

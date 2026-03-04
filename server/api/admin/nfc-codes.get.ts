@@ -1,4 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
+import { resolvePublicBaseUrl } from '../../utils/base-url'
+import { buildNfcUrl, generateQrDataUrl } from '../../utils/qr'
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
@@ -18,6 +20,8 @@ export default defineEventHandler(async (event) => {
   )
 
   try {
+    const baseUrl = await resolvePublicBaseUrl()
+
     // Check if user is admin (you may want to add proper auth middleware)
     // For now, we'll proceed assuming admin check is done elsewhere
 
@@ -150,22 +154,41 @@ export default defineEventHandler(async (event) => {
         }
       }
       
+      const nfcIdToCodeId = new Map<string, string>()
+      allNfcCodes.forEach((nfc: any) => {
+        nfcIdToCodeId.set(nfc.id, nfc.code_id)
+      })
+
       // Group assignments by NFC code ID with property details
       allAssignments.forEach((assignment: any) => {
         const codeId = assignment.nfc_code_id
         const property = propertiesMap.get(assignment.property_id)
-        
-        if (property) {
+        const nfcCodeId = nfcIdToCodeId.get(codeId)
+
+        if (property && nfcCodeId) {
           if (!assignmentsByCodeId.has(codeId)) {
             assignmentsByCodeId.set(codeId, [])
           }
-          assignmentsByCodeId.get(codeId)!.push({
-            id: property.id,
-            property_name: property.property_name,
-            address: property.address
-          })
+          assignmentsByCodeId.get(codeId)!.push(
+            {
+              id: property.id,
+              property_name: property.property_name,
+              address: property.address,
+              nfc_code_id: nfcCodeId,
+              nfc_url: buildNfcUrl(baseUrl, nfcCodeId),
+              qr_data_url: null as string | null
+            }
+          )
         }
       })
+
+      for (const assignments of assignmentsByCodeId.values()) {
+        for (const property of assignments) {
+          if (property.nfc_url) {
+            property.qr_data_url = await generateQrDataUrl(property.nfc_url, 120)
+          }
+        }
+      }
     }
 
     // Combine NFC codes with their property assignments
@@ -177,6 +200,7 @@ export default defineEventHandler(async (event) => {
       return {
         id: code.id,
         code_id: code.code_id,
+        nfc_url: buildNfcUrl(baseUrl, code.code_id),
         numericPart: numericPart, // Add numeric part for sorting
         created_at: code.created_at,
         updated_at: code.updated_at,

@@ -460,6 +460,25 @@
                   </div>
                 </div>
               </div>
+
+              <div v-if="currentProperty.nfc_assignment" class="bg-gray-50 rounded-lg p-4">
+                <h4 class="text-lg font-semibold text-gray-900 mb-3">NFC QR Code</h4>
+                <div class="flex items-start gap-3">
+                  <img
+                    :src="currentProperty.nfc_assignment.qr_data_url"
+                    alt="NFC QR code"
+                    class="h-24 w-24 border border-gray-200 rounded-md bg-white"
+                  />
+                  <a
+                    :href="currentProperty.nfc_assignment.url"
+                    target="_blank"
+                    rel="noopener"
+                    class="text-xs text-[#03045e] hover:underline break-all"
+                  >
+                    {{ currentProperty.nfc_assignment.url }}
+                  </a>
+                </div>
+              </div>
               
               <!-- Emergency Contacts Section -->
               <div class="bg-gray-50 rounded-lg p-4">
@@ -542,7 +561,21 @@
                             </span>
                           </div>
                           <p class="text-sm text-gray-500 cursor-pointer" @click.stop="viewPropertyDetails(property)">{{ property.address }}, {{ property.city }}</p>
-                          <p class="text-xs text-gray-400">QR: {{ property.qr_code }}</p>
+                          <div v-if="property.nfc_assignment" class="mt-2 flex items-start gap-2">
+                            <img
+                              :src="property.nfc_assignment.qr_data_url"
+                              alt="NFC QR code"
+                              class="h-12 w-12 border border-gray-200 rounded bg-white"
+                            />
+                            <a
+                              :href="property.nfc_assignment.url"
+                              target="_blank"
+                              rel="noopener"
+                              class="text-xs text-[#03045e] hover:underline break-all"
+                            >
+                              {{ property.nfc_assignment.url }}
+                            </a>
+                          </div>
                           
                           <!-- Contact Status -->
                           <div class="mt-2 flex items-center space-x-2">
@@ -1216,15 +1249,25 @@
                 <p class="text-sm text-gray-900">{{ selectedProperty?.address }}, {{ selectedProperty?.city }}</p>
               </div>
               <div>
-                <p class="text-sm font-medium text-gray-500">QR Code</p>
-                <p class="text-sm text-gray-900 font-mono mb-2">{{ selectedProperty?.qr_code }}</p>
-                <button @click="showQRCode(selectedProperty)" class="text-xs text-[#03045e] hover:text-[#8ee0ee] font-medium">
-                  View QR Code →
-                </button>
-              </div>
-              <div>
-                <p class="text-sm font-medium text-gray-500">NFC ID</p>
-                <p class="text-sm text-gray-900 font-mono">{{ selectedProperty?.nfc_id }}</p>
+                <p class="text-sm font-medium text-gray-500">NFC QR Code</p>
+                <div v-if="selectedProperty?.nfc_assignment" class="mt-2">
+                  <img
+                    :src="selectedProperty.nfc_assignment.qr_data_url"
+                    alt="NFC QR code"
+                    class="h-24 w-24 border border-gray-200 rounded-md bg-white"
+                  />
+                  <a
+                    :href="selectedProperty.nfc_assignment.url"
+                    target="_blank"
+                    rel="noopener"
+                    class="mt-2 block text-xs text-[#03045e] hover:text-[#8ee0ee] font-medium break-all"
+                  >
+                    {{ selectedProperty.nfc_assignment.url }}
+                  </a>
+                </div>
+                <p v-else class="text-sm text-gray-500 mt-2">
+                  No NFC assigned to this property.
+                </p>
               </div>
               <div>
                 <p class="text-sm font-medium text-gray-500">Status</p>
@@ -3286,7 +3329,10 @@ async function showQRCode(property) {
   try {
     const response = await $fetch('/api/qr-code/generate', {
       method: 'POST',
-      body: { property_id: property.id }
+      body: {
+        property_id: property.id,
+        nfc_code: property.nfc_assignment?.code_id
+      }
     })
     
     if (response.success) {

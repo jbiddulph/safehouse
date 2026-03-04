@@ -69,6 +69,25 @@
             </span>
           </div>
 
+          <div v-if="property.nfc_assignment" class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+            <h4 class="text-sm font-medium text-gray-700 mb-3 text-center">NFC QR Code</h4>
+            <div class="flex flex-col items-center">
+              <img
+                :src="property.nfc_assignment.qr_data_url"
+                alt="NFC QR code"
+                class="h-40 w-40 border border-gray-200 rounded-md bg-white"
+              />
+              <a
+                :href="property.nfc_assignment.url"
+                target="_blank"
+                rel="noopener"
+                class="mt-3 text-xs text-[#03045e] hover:underline break-all text-center"
+              >
+                {{ property.nfc_assignment.url }}
+              </a>
+            </div>
+          </div>
+
           <!-- Property Map -->
           <div v-if="hasValidCoordinates(property)" class="mt-6">
             <h4 class="text-sm font-medium text-gray-700 mb-2">Property Location</h4>
