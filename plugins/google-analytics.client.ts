@@ -3,12 +3,21 @@ export default defineNuxtPlugin(() => {
 
   if (!process.client) return
 
+  if (document.getElementById('google-analytics-gtag')) return
+
   window.dataLayer = window.dataLayer || []
+
   function gtag(...args: any[]) {
     window.dataLayer.push(args)
   }
 
   ;(window as any).gtag = gtag
+
+  const script = document.createElement('script')
+  script.id = 'google-analytics-gtag'
+  script.async = true
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`
+  document.head.appendChild(script)
 
   gtag('js', new Date())
   // Disable the automatic first page view so we can consistently track via router hooks.
