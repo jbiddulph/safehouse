@@ -25,6 +25,10 @@ export default defineNuxtConfig({
         {
           src: 'https://www.googletagmanager.com/gtag/js?id=G-LVMM6QM8KE',
           async: true
+        },
+        {
+          key: 'google-analytics-init',
+          children: "window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-LVMM6QM8KE');"
         }
       ]
     }
