@@ -8,6 +8,8 @@ export default defineEventHandler(async (event) => {
     '/property',
     '/access-request',
     '/access-code-verification',
+    '/access/accepted',
+    '/access/denied',
     '/auth/login',
     '/auth/register',
     '/auth/confirm'
