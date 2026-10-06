@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
 import twilio from 'twilio'
 import { sendAccessRequestNotification } from '../../utils/email'
+import { createAccessRequestStatusToken } from '../../utils/access-request-status-token'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -234,10 +235,18 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const statusToken = createAccessRequestStatusToken(
+      accessRequestRecord.id,
+      email,
+      config.supabaseServiceRoleKey
+    )
+
     return {
       success: true,
       message: 'Access request sent to property owner',
-      domainAllowed
+      domainAllowed,
+      request_id: accessRequestRecord.id,
+      status_token: statusToken
     }
   } catch (error: any) {
     console.error('Error in send access request email:', error)

@@ -107,14 +107,35 @@
             </p>
           </div>
 
+          <!-- Background wait banner (if requester closes the modal but stays on this page) -->
+          <div
+            v-if="isWaitingForDecision && !showEmailModal"
+            class="rounded-lg border border-[#8ee0ee] bg-[#f0f9fb] p-4 text-center space-y-2"
+          >
+            <div class="flex items-center justify-center gap-2 text-[#03045e]">
+              <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-[#03045e]"></div>
+              <p class="text-sm font-medium">Waiting for property owner response…</p>
+            </div>
+            <p class="text-xs text-gray-600">
+              We'll redirect this browser when they approve or deny. You can also leave and use your email.
+            </p>
+            <p v-if="statusPollError" class="text-xs text-red-600">{{ statusPollError }}</p>
+          </div>
+
           <!-- Actions -->
           <div class="space-y-3">
             <button 
               @click="requestAccess"
-              :disabled="requestingAccess"
+              :disabled="requestingAccess || isWaitingForDecision"
               class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-[#03045e] hover:bg-[#03045e] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {{ requestingAccess ? 'Requesting Access...' : 'Request Access' }}
+              {{
+                isWaitingForDecision
+                  ? 'Waiting for owner…'
+                  : requestingAccess
+                    ? 'Requesting Access...'
+                    : 'Request Access'
+              }}
             </button>
             
             <NuxtLink 
@@ -132,7 +153,7 @@
     <div v-if="showEmailModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 relative">
         <button
-          @click="closeEmailModal"
+          @click="emailSent ? dismissWaitingModal() : closeEmailModal()"
           type="button"
           class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
           aria-label="Close email request modal"
@@ -154,6 +175,10 @@
           
           <p v-if="!emailSent" class="text-sm text-gray-500 mb-6">
             Enter your email address so we can alert the property owner of your {{ isEmergencyRequest ? 'emergency' : 'standard' }} access request for {{ property?.property_name }}. We also need to verify you're at the property location for security.
+          </p>
+          <p v-else-if="isWaitingForDecision" class="text-sm text-gray-600 mb-6">
+            We've notified the property owner. Stay on this page and we'll redirect you when they respond.
+            You can also leave — details will be sent to your email.
           </p>
           <p v-else class="text-sm text-[#8ee0ee] mb-6">
             We've notified the property owner. Please wait for them to approve your {{ isEmergencyRequest ? 'emergency' : 'standard' }} access request for {{ property?.property_name }}.
@@ -251,14 +276,23 @@
           </form>
         </div>
 
-        <div v-else class="text-center">
+        <div v-else class="text-center space-y-4">
+          <div v-if="isWaitingForDecision" class="flex flex-col items-center gap-3">
+            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#03045e]"></div>
+            <p class="text-sm font-medium text-gray-800">Waiting for property owner response…</p>
+            <p v-if="statusPollError" class="text-xs text-red-600">{{ statusPollError }}</p>
+          </div>
+
           <button
-            @click="closeEmailModal"
+            @click="dismissWaitingModal"
             class="px-4 py-2 text-sm font-medium text-white rounded-md"
             :class="isEmergencyRequest ? 'bg-red-600 hover:bg-red-700' : 'bg-[#03045e] hover:bg-[#03045e]'"
           >
-            Close
+            {{ isWaitingForDecision ? 'Continue waiting in background' : 'Close' }}
           </button>
+          <p v-if="isWaitingForDecision" class="text-xs text-gray-500">
+            You can leave the site anytime — approval details are also emailed to you.
+          </p>
         </div>
       </div>
     </div>
@@ -287,6 +321,11 @@ const emailForm = ref({
 const emailSending = ref(false)
 const emailSent = ref(false)
 const isEmergencyRequest = ref(false)
+const pendingRequestId = ref<string | null>(null)
+const pendingStatusToken = ref<string | null>(null)
+const isWaitingForDecision = ref(false)
+const statusPollError = ref('')
+let statusPollTimer: ReturnType<typeof setInterval> | null = null
 
 // Location verification
 const { verifyLocationAtProperty } = useLocationVerification()
@@ -417,8 +456,9 @@ function initPropertyMap() {
   })
 }
 
-// Cleanup map on unmount
+// Cleanup map and polling on unmount
 onUnmounted(() => {
+  stopStatusPolling()
   if (propertyMapMarker.value) {
     propertyMapMarker.value.remove()
     propertyMapMarker.value = null
@@ -428,6 +468,89 @@ onUnmounted(() => {
     propertyMap.value = null
   }
 })
+
+function stopStatusPolling() {
+  if (statusPollTimer) {
+    clearInterval(statusPollTimer)
+    statusPollTimer = null
+  }
+  isWaitingForDecision.value = false
+}
+
+function clearPendingRequest() {
+  pendingRequestId.value = null
+  pendingStatusToken.value = null
+  statusPollError.value = ''
+}
+
+async function checkAccessRequestStatus() {
+  if (!pendingRequestId.value || !pendingStatusToken.value) return
+
+  try {
+    const response = await $fetch<{
+      success: boolean
+      status: string
+    }>('/api/access-requests/status', {
+      query: {
+        request_id: pendingRequestId.value,
+        token: pendingStatusToken.value
+      }
+    })
+
+    statusPollError.value = ''
+
+    if (response.status === 'approved') {
+      const requestId = pendingRequestId.value
+      const token = pendingStatusToken.value
+      stopStatusPolling()
+      clearPendingRequest()
+      showEmailModal.value = false
+      await navigateTo({
+        path: '/access/accepted',
+        query: {
+          request_id: requestId,
+          token
+        }
+      })
+      return
+    }
+
+    if (response.status === 'denied') {
+      stopStatusPolling()
+      clearPendingRequest()
+      showEmailModal.value = false
+      // Leave the property page entirely so no property details remain visible
+      await navigateTo('/access/denied')
+      return
+    }
+
+    if (response.status === 'expired') {
+      stopStatusPolling()
+      clearPendingRequest()
+      statusPollError.value = 'This request expired. Please submit a new access request.'
+    }
+  } catch (err: any) {
+    console.error('Access request status poll failed:', err)
+    statusPollError.value = 'Still waiting for a response. Checking again…'
+  }
+}
+
+function startStatusPolling() {
+  if (statusPollTimer) {
+    clearInterval(statusPollTimer)
+    statusPollTimer = null
+  }
+  if (!pendingRequestId.value || !pendingStatusToken.value) return
+
+  isWaitingForDecision.value = true
+  statusPollError.value = ''
+
+  // Check immediately, then every 3 seconds while the requester stays on the page
+  checkAccessRequestStatus()
+  statusPollTimer = setInterval(() => {
+    checkAccessRequestStatus()
+  }, 3000)
+}
 
 // Request access
 async function requestAccess() {
@@ -466,7 +589,12 @@ async function sendAccessRequestEmail() {
     // Determine access type based on checkbox
     const accessType = isEmergencyRequest.value ? 'emergency' : 'standard'
     
-    const response = await $fetch('/api/access-requests/send-email', {
+    const response = await $fetch<{
+      success: boolean
+      message?: string
+      request_id?: string
+      status_token?: string
+    }>('/api/access-requests/send-email', {
       method: 'POST',
       body: {
         email: emailForm.value.email,
@@ -480,16 +608,23 @@ async function sendAccessRequestEmail() {
     
     if (response.success) {
       emailSent.value = true
-      
+      pendingRequestId.value = response.request_id || null
+      pendingStatusToken.value = response.status_token || null
+
       // Log emergency request if it's an emergency
       if (isEmergencyRequest.value) {
         const { logEmergencyRequest } = useAccessLogger()
         await logEmergencyRequest(property.value.id, emailForm.value.email, emailForm.value.phoneNumber)
       }
+
+      // Keep waiting in-browser (especially useful for emergency) and redirect on decision
+      if (response.request_id && response.status_token) {
+        startStatusPolling()
+      }
     } else {
       alert('Failed to send access request email: ' + (response.message || 'Unknown error'))
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error sending access request email:', error)
     alert('Failed to send access request email: ' + (error.message || 'Network error'))
   } finally {
@@ -556,8 +691,18 @@ function getLocationButtonText(): string {
   return 'Verify Location'
 }
 
-// Close email modal
+// Close email modal without cancelling an in-flight wait (keeps polling alive)
+function dismissWaitingModal() {
+  showEmailModal.value = false
+  if (!isWaitingForDecision.value) {
+    closeEmailModal()
+  }
+}
+
+// Fully reset the request UI (also used when starting a fresh request)
 function closeEmailModal() {
+  stopStatusPolling()
+  clearPendingRequest()
   showEmailModal.value = false
   emailSent.value = false
   emailForm.value.email = ''

@@ -63,6 +63,16 @@ const seoByPath: Record<string, { title: string; description: string; keywords: 
     description: 'Submit an emergency or standard access request to a registered MySafeHouse property.',
     keywords: 'request property access, emergency request, MySafeHouse access request'
   },
+  '/access/accepted': {
+    title: 'Access Approved',
+    description: 'Your MySafeHouse emergency access request was approved. View property access details.',
+    keywords: 'access approved, emergency access granted, MySafeHouse access details'
+  },
+  '/access/denied': {
+    title: 'Permission Denied',
+    description: 'Your MySafeHouse access request was declined by the property owner.',
+    keywords: 'access denied, permission denied, MySafeHouse access request'
+  },
   '/access-requests': {
     title: 'Access Requests',
     description: 'Review and manage incoming MySafeHouse access requests for your properties.',
