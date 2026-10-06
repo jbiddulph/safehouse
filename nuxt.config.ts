@@ -21,8 +21,14 @@ export default defineNuxtConfig({
       titleTemplate: (title?: string) => {
         return title ? `${title} | MySafeHouse` : 'MySafeHouse – secure emergency access to your home'
       },
-      // Google tag (gtag.js) — G-LVMM6QM8KE
+      // Google Tag Manager — GTM-PDQQ5MB7 (as high in <head> as possible)
       script: [
+        {
+          key: 'google-tag-manager',
+          tagPriority: 'critical',
+          innerHTML: "(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-PDQQ5MB7');"
+        },
+        // Google tag (gtag.js) — G-LVMM6QM8KE
         {
           src: 'https://www.googletagmanager.com/gtag/js?id=G-LVMM6QM8KE',
           async: true
@@ -31,6 +37,14 @@ export default defineNuxtConfig({
           key: 'google-analytics-init',
           type: 'text/javascript',
           innerHTML: "window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-LVMM6QM8KE');"
+        }
+      ],
+      // Google Tag Manager (noscript) — immediately after opening <body>
+      noscript: [
+        {
+          key: 'google-tag-manager-noscript',
+          tagPosition: 'bodyOpen',
+          innerHTML: '<iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PDQQ5MB7" height="0" width="0" style="display:none;visibility:hidden"></iframe>'
         }
       ]
     }
