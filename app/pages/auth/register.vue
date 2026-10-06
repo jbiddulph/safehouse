@@ -70,7 +70,7 @@
                 min="0"
                 max="10"
                 placeholder="0"
-                class="w-full"
+                class="w-full text-gray-500"
               />
               <p class="text-xs text-gray-500 mt-1">£12 per additional credit per year</p>
             </div>
@@ -107,7 +107,7 @@
                 type="text" 
                 placeholder="Enter your full name" 
                 required 
-                class="w-full"
+                class="w-full text-gray-500"
               />
             </div>
 
@@ -119,7 +119,7 @@
                 type="email" 
                 placeholder="Enter your email" 
                 required 
-                class="w-full"
+                class="w-full text-gray-500"
               />
             </div>
 
@@ -145,7 +145,7 @@
                     type="tel" 
                     :placeholder="phonePlaceholder" 
                     required 
-                    class="w-full"
+                    class="w-full text-gray-500"
                     @input="formatPhoneNumber"
                   />
                 </div>
@@ -164,7 +164,7 @@
                 type="password" 
                 placeholder="Create a secure password" 
                 required 
-                class="w-full"
+                class="w-full text-gray-500"
                 @input="validatePasswordMatch"
               />
             </div>
@@ -177,7 +177,7 @@
                 type="password" 
                 placeholder="Confirm your password" 
                 required 
-                class="w-full"
+                class="w-full text-gray-500"
                 @input="validatePasswordMatch"
               />
               <p v-if="passwordMatchError" class="mt-1 text-xs text-red-600">{{ passwordMatchError }}</p>

@@ -106,7 +106,7 @@
                 v-model="filters.search"
                 type="text"
                 placeholder="Email, device, property..."
-                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0 text-gray-500"
                 @input="debouncedSearch"
               />
             </div>
@@ -146,7 +146,7 @@
               <input
                 v-model="filters.startDate"
                 type="date"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0 text-gray-500"
                 @change="loadLogs"
               />
             </div>
@@ -156,7 +156,7 @@
               <input
                 v-model="filters.endDate"
                 type="date"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0 text-gray-500"
                 @change="loadLogs"
               />
             </div>

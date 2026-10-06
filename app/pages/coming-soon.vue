@@ -32,7 +32,7 @@
               type="email"
               placeholder="Enter your email"
               required
-              class="flex-1 px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-[#8ee0ee] focus:border-transparent"
+              class="flex-1 px-4 py-2 rounded-lg bg-white/20 border border-white/30 placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-[#8ee0ee] focus:border-transparent text-gray-500"
               :disabled="submitting"
             />
             <button

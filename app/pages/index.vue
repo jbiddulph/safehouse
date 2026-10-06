@@ -37,7 +37,7 @@
                   v-model="addressQuery"
                   type="text"
                   placeholder="Start typing an address..."
-                  class="w-full px-5 pr-14 py-4 sm:py-5 text-xl sm:text-2xl font-medium text-[#03045e] placeholder:text-gray-500 placeholder:font-normal border-2 border-gray-300 rounded-xl shadow-inner bg-white focus:ring-4 focus:ring-[#8ee0ee]/40 focus:border-[#03045e] outline-none transition"
+                  class="w-full px-5 pr-14 py-4 sm:py-5 text-xl sm:text-2xl font-medium placeholder:text-gray-500 placeholder:font-normal border-2 border-gray-300 rounded-xl shadow-inner bg-white focus:ring-4 focus:ring-[#8ee0ee]/40 focus:border-[#03045e] outline-none transition text-gray-500"
                   @input="handleAddressInput"
                   @keydown.down="navigateSuggestions('down')"
                   @keydown.up="navigateSuggestions('up')"
