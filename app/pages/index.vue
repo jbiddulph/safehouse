@@ -14,7 +14,7 @@
       
       <!-- Centered Search Box Overlay -->
       <div class="absolute inset-0 z-50 flex items-center justify-center h-full py-12 px-4 sm:px-6 lg:px-8 pointer-events-auto">
-        <div class="w-full max-w-2xl">
+        <div class="w-full max-w-3xl">
           <div class="text-center mb-8">
             <h1 class="text-4xl font-bold text-[#03045e] mb-4">MySafeHouse</h1>
             <p class="text-lg text-gray-600 mb-4">
@@ -25,10 +25,10 @@
             </div>
           </div>
 
-          <!-- Address Search -->
-          <div class="bg-white py-8 px-6 shadow-lg rounded-lg">
+          <!-- Address Search — primary homepage tool -->
+          <div class="bg-white py-8 px-5 sm:px-8 shadow-2xl rounded-2xl border-2 border-[#03045e]/15 ring-1 ring-black/5">
             <div class="relative">
-              <label for="address-input" class="block text-sm font-medium text-gray-700 mb-2">
+              <label for="address-input" class="block text-base sm:text-lg font-semibold text-[#03045e] mb-3">
                 Property Address
               </label>
               <div class="relative">
@@ -37,7 +37,7 @@
                   v-model="addressQuery"
                   type="text"
                   placeholder="Start typing an address..."
-                  class="w-full px-4 pr-14 py-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]"
+                  class="w-full px-5 pr-14 py-4 sm:py-5 text-xl sm:text-2xl font-medium text-[#03045e] placeholder:text-gray-500 placeholder:font-normal border-2 border-gray-300 rounded-xl shadow-inner bg-white focus:ring-4 focus:ring-[#8ee0ee]/40 focus:border-[#03045e] outline-none transition"
                   @input="handleAddressInput"
                   @keydown.down="navigateSuggestions('down')"
                   @keydown.up="navigateSuggestions('up')"
@@ -48,27 +48,27 @@
                 />
                 
                 <!-- Loading indicator -->
-                <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
-                  <div v-if="loading || searching" class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#03045e]"></div>
+                <div class="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  <div v-if="loading || searching" class="animate-spin rounded-full h-7 w-7 border-b-2 border-[#03045e]"></div>
                 </div>
               </div>
 
               <!-- Recent Searches -->
               <div 
                 v-if="showRecentSearches && recentSearches.length > 0 && (!addressQuery || addressQuery.length === 0)" 
-                class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                class="absolute z-10 w-full mt-2 bg-white border-2 border-gray-200 rounded-xl shadow-xl max-h-72 overflow-y-auto"
               >
-                <div class="px-4 py-2 bg-gray-50 border-b border-gray-200 text-sm font-medium text-gray-700">
+                <div class="px-5 py-3 bg-gray-50 border-b border-gray-200 text-sm font-semibold text-gray-700">
                   Recent Searches
                 </div>
                 <div
                   v-for="(search, index) in recentSearches"
                   :key="`recent-${index}`"
-                  class="px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0 hover:bg-gray-50"
+                  class="px-5 py-4 cursor-pointer border-b border-gray-100 last:border-b-0 hover:bg-gray-50"
                   @click="selectRecentSearch(search)"
                 >
-                  <div class="font-medium">{{ search.formatted_address }}</div>
-                  <div v-if="search.postcode" class="text-sm text-gray-500">
+                  <div class="font-medium text-base text-[#03045e]">{{ search.formatted_address }}</div>
+                  <div v-if="search.postcode" class="text-sm text-gray-600 mt-0.5">
                     {{ search.postcode }}
                     <span v-if="search.city"> • {{ search.city }}</span>
                     <span v-if="search.house_number" class="text-[#8ee0ee] font-medium">
@@ -84,16 +84,16 @@
               <!-- Property Suggestions from Database -->
               <div 
                 v-if="showSuggestions && suggestions.length > 0" 
-                class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                class="absolute z-10 w-full mt-2 bg-white border-2 border-gray-200 rounded-xl shadow-xl max-h-72 overflow-y-auto"
               >
-                <div class="px-4 py-2 bg-[#f0f9fb] border-b border-gray-200 text-sm font-medium text-[#03045e]">
+                <div class="px-5 py-3 bg-[#f0f9fb] border-b border-gray-200 text-sm font-semibold text-[#03045e]">
                   Matching Properties
                 </div>
                 <div
                   v-for="(suggestion, index) in suggestions"
                   :key="suggestion.id || index"
                   :class="[
-                    'px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0',
+                    'px-5 py-4 cursor-pointer border-b border-gray-100 last:border-b-0',
                     selectedIndex === index ? 'bg-[#f0f9fb] text-[#03045e]' : 'hover:bg-gray-50'
                   ]"
                   @click="selectSuggestion(suggestion)"
@@ -101,9 +101,9 @@
                 >
                   <div class="flex items-start justify-between">
                     <div class="flex-1">
-                      <div class="font-medium text-[#03045e]">{{ suggestion.property_name || suggestion.formatted_address }}</div>
-                      <div class="text-sm text-gray-600 mt-1">{{ suggestion.formatted_address }}</div>
-                      <div v-if="suggestion.postcode || suggestion.city" class="text-sm text-gray-500 mt-1">
+                      <div class="font-semibold text-base text-[#03045e]">{{ suggestion.property_name || suggestion.formatted_address }}</div>
+                      <div class="text-sm text-gray-700 mt-1">{{ suggestion.formatted_address }}</div>
+                      <div v-if="suggestion.postcode || suggestion.city" class="text-sm text-gray-600 mt-1">
                         <span v-if="suggestion.postcode">{{ suggestion.postcode }}</span>
                         <span v-if="suggestion.postcode && suggestion.city"> • </span>
                         <span v-if="suggestion.city">{{ suggestion.city }}</span>
@@ -123,16 +123,16 @@
               <!-- No results message -->
               <div 
                 v-if="showSuggestions && suggestions.length === 0 && addressQuery && addressQuery.length > 2 && !loading"
-                class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg p-4 text-center text-gray-500"
+                class="absolute z-10 w-full mt-2 bg-white border-2 border-gray-200 rounded-xl shadow-xl p-5 text-center text-gray-600 text-base"
               >
                 No addresses found. Try a different search term.
               </div>
             </div>
 
             <!-- Selected Address Display -->
-            <div v-if="selectedAddress && addressExistsInDatabase" class="mt-4 p-4 bg-[#f0f9fb] border border-[#8ee0ee] rounded-lg">
+            <div v-if="selectedAddress && addressExistsInDatabase" class="mt-5 p-4 bg-[#f0f9fb] border border-[#8ee0ee] rounded-xl">
               <h3 class="font-medium text-[#03045e] mb-1">Search Address:</h3>
-              <p class="text-[#03045e]">{{ selectedAddress?.formatted_address || '' }}</p>
+              <p class="text-[#03045e] text-base">{{ selectedAddress?.formatted_address || '' }}</p>
             </div>
           </div>
         </div>
