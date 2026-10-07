@@ -1,6 +1,18 @@
+import { consumeRateLimit } from '../utils/rate-limit'
+
+const RATE_LIMIT = 30
+const RATE_WINDOW_MS = 60_000
+const MAX_QUERY_LENGTH = 120
+
+function clientKey(event: any): string {
+  const forwarded = getHeader(event, 'x-forwarded-for')
+  if (forwarded) return String(forwarded).split(',')[0].trim()
+  return getRequestIP(event, { xForwardedFor: true }) || 'unknown'
+}
+
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
-  const searchTerm = query.q as string
+  const searchTerm = typeof query.q === 'string' ? query.q.trim() : ''
 
   if (!searchTerm || searchTerm.length < 3) {
     return {
@@ -9,7 +21,28 @@ export default defineEventHandler(async (event) => {
     }
   }
 
+  if (searchTerm.length > MAX_QUERY_LENGTH) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: `Search term must be at most ${MAX_QUERY_LENGTH} characters`
+    })
+  }
+
+  const rate = consumeRateLimit(`address-autocomplete:${clientKey(event)}`, RATE_LIMIT, RATE_WINDOW_MS)
+  setHeader(event, 'X-RateLimit-Limit', String(RATE_LIMIT))
+  setHeader(event, 'X-RateLimit-Remaining', String(rate.remaining))
+  setHeader(event, 'Cache-Control', 'no-store')
+
+  if (!rate.allowed) {
+    setHeader(event, 'Retry-After', String(rate.retryAfterSec))
+    throw createError({
+      statusCode: 429,
+      statusMessage: 'Too many address lookups. Please try again shortly.'
+    })
+  }
+
   const config = useRuntimeConfig()
+  // Server-only key (not in runtimeConfig.public)
   const googleApiKey = config.googleApiKey
 
   if (!googleApiKey) {
