@@ -2,6 +2,7 @@
 
 - [MySafeHouse User & Admin Guide (PDF)](./MySafeHouse-User-Admin-Guide.pdf) — product overview, how to use the website, and Admin Panel reference.
 - [Supabase security notes](./SUPABASE_SECURITY.md) — env vars for URL/anon key, why they appear in the browser, and RLS review guidance.
+- [Mapping API keys](./MAP_API_KEYS.md) — Google/Mapbox visibility, domain/API restrictions, quotas.
 
 To regenerate the PDF:
 

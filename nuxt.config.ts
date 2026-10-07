@@ -122,6 +122,7 @@ export default defineNuxtConfig({
     twilioFromNumber: process.env.TWILIO_FROM_NUMBER,
     // DATABASE_URL removed - only needed for Prisma migrations (build-time), not runtime
     // Remove DATABASE_URL from Netlify environment variables to reduce Lambda size
+    // Google Places is used only via server proxy (/api/address-autocomplete) — keep server-only
     googleApiKey: process.env.GOOGLE_API,
     stripeSecretKey: process.env.STRIPE_SECRET_KEY,
     public: {
@@ -130,7 +131,7 @@ export default defineNuxtConfig({
       // protect data with RLS, not by hiding these values.
       supabaseUrl: process.env.SUPABASE_URL,
       supabaseKey: process.env.SUPABASE_ANON_KEY,
-      googleApiKey: process.env.GOOGLE_API,
+      // Mapbox GL requires a browser token. Restrict it by URL in the Mapbox dashboard.
       mapboxApiKey: process.env.MAPBOX_API,
       stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY
     }
