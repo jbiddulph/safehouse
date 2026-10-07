@@ -59,6 +59,16 @@ export default defineNuxtConfig({
     },
     // Ensure webhook endpoint can receive raw body
     routeRules: {
+      // Security headers for SSR/API responses (Netlify.toml also sets these at the CDN edge)
+      '/**': {
+        headers: {
+          'X-Frame-Options': 'DENY',
+          'Referrer-Policy': 'strict-origin-when-cross-origin',
+          'Permissions-Policy': 'accelerometer=(), camera=(), geolocation=(self), gyroscope=(), interest-cohort=(), magnetometer=(), microphone=(), payment=(self), usb=()',
+          'X-Content-Type-Options': 'nosniff',
+          'Content-Security-Policy': "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self' https://checkout.stripe.com https://hooks.stripe.com; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://js.stripe.com; style-src 'self' 'unsafe-inline' https://api.mapbox.com; img-src 'self' data: blob: https://*.supabase.co https://*.mapbox.com https://api.mapbox.com https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.googletagmanager.com; font-src 'self' data: https://api.mapbox.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.mapbox.com https://events.mapbox.com https://*.tiles.mapbox.com https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com https://*.analytics.google.com https://api.stripe.com https://maps.googleapis.com; worker-src 'self' blob:; child-src 'self' blob:; frame-src 'self' https://www.googletagmanager.com https://js.stripe.com https://hooks.stripe.com https://checkout.stripe.com; media-src 'self'; upgrade-insecure-requests"
+        }
+      },
       '/api/stripe/webhook': {
         cors: true,
         headers: {
