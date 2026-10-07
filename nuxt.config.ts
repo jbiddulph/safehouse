@@ -114,6 +114,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     mailtrapUser: process.env.MAILTRAP_USERNAME,
     mailtrapPass: process.env.MAILTRAP_PASSWORD,
+    // Server-only secret — never expose via runtimeConfig.public
     supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
     // Twilio (server-side only)
     twilioAccountSid: process.env.TWILIO_ACCOUNT_SID || process.env.TWILIO_SID,
@@ -125,6 +126,8 @@ export default defineNuxtConfig({
     stripeSecretKey: process.env.STRIPE_SECRET_KEY,
     public: {
       baseUrl: process.env.BASE_URL || process.env.NETLIFY_URL || 'https://mysafehouse.co.uk',
+      // Public Supabase client credentials (from env). Safe/expected in the browser;
+      // protect data with RLS, not by hiding these values.
       supabaseUrl: process.env.SUPABASE_URL,
       supabaseKey: process.env.SUPABASE_ANON_KEY,
       googleApiKey: process.env.GOOGLE_API,
@@ -133,6 +136,7 @@ export default defineNuxtConfig({
     }
   },
   supabase: {
+    // Loaded from environment variables — do not hardcode project URL/keys here
     url: process.env.SUPABASE_URL,
     key: process.env.SUPABASE_ANON_KEY,
     clientOptions: {

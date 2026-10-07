@@ -1,6 +1,8 @@
 import QRCode from 'qrcode'
 
 export default defineEventHandler(async (event) => {
+  assertDebugEndpointAllowed(event)
+
   const body = await readBody(event)
   const { data = 'https://safehouse.app/access-request?property=test-123' } = body
 

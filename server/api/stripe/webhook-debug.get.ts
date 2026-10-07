@@ -1,6 +1,8 @@
 export default defineEventHandler(async (event) => {
+  assertDebugEndpointAllowed(event)
+
   const config = useRuntimeConfig()
-  
+
   // Check if Stripe is configured
   const stripeConfigured = !!config.stripeSecretKey
   const webhookSecretSet = !!process.env.STRIPE_WEBHOOK_SECRET

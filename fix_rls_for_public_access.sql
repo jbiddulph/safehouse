@@ -1,3 +1,9 @@
+-- WARNING: DO NOT APPLY IN PRODUCTION WITHOUT REVIEW
+-- This script creates a public SELECT policy (USING true) on safehouse_profiles,
+-- which exposes all profile rows to anyone with the anon key.
+-- Prefer owner-scoped policies (auth.uid() = id) as in fix_rls_comprehensive.sql.
+--
+-- Historical helper only — kept for reference.
 -- Fix RLS policies to allow public access for authentication purposes
 -- This allows anonymous users to access profiles for auth state initialization
 

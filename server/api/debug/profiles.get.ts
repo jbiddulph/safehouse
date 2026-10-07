@@ -1,6 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 
 export default defineEventHandler(async (event) => {
+  assertDebugEndpointAllowed(event)
+
   const config = useRuntimeConfig()
   const supabase = createClient(
     config.public.supabaseUrl,

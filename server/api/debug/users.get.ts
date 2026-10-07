@@ -4,6 +4,8 @@ const { PrismaClient } = pkg
 const prisma = new PrismaClient()
 
 export default defineEventHandler(async (event) => {
+  assertDebugEndpointAllowed(event)
+
   try {
     const users = await prisma.users.findMany({
       select: {

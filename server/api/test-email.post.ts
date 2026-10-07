@@ -2,6 +2,8 @@ import { sendAccessRequestConfirmation } from '../utils/email'
 import { initializeEmail } from '../utils/email'
 
 export default defineEventHandler(async (event) => {
+  assertDebugEndpointAllowed(event)
+
   const body = await readBody(event)
   const { toEmail, testType = 'confirmation' } = body
   const config = useRuntimeConfig()
