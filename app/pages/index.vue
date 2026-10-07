@@ -256,9 +256,14 @@ async function fetchAddressSuggestions() {
     
     showSuggestions.value = true
     selectedIndex.value = -1
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching property suggestions:', error)
     suggestions.value = []
+    if (error?.statusCode === 429 || error?.status === 429) {
+      // Rate limited — keep suggestions closed; user can retry shortly
+      showSuggestions.value = false
+      return
+    }
   } finally {
     loading.value = false
   }
@@ -455,12 +460,9 @@ function showSearchResults(properties: any[]) {
         </div>
         <div class="text-right">
           <span class="inline-block px-2 py-1 text-xs font-medium bg-[#f0f9fb] text-[#03045e] rounded-full">
-            ${property.property_type}
+            ${property.property_type || 'Property'}
           </span>
-          ${property.emergency_access_enabled ? 
-            '<span class="block mt-1 text-xs text-[#8ee0ee] font-medium">Emergency Access Available</span>' : 
-            '<span class="block mt-1 text-xs text-red-600 font-medium">Emergency Access Disabled</span>'
-          }
+          <span class="block mt-1 text-xs text-[#8ee0ee] font-medium">Registered property</span>
         </div>
       </div>
       <div class="mt-2 text-sm text-[#8ee0ee] font-medium">

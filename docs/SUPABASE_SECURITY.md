@@ -40,6 +40,24 @@ Before concluding that user records are protected, review RLS on all `safehouse_
 
 Repo note: `fix_rls_for_public_access.sql` contains a **public read-all profiles** policy (`USING (true)`). That is unsafe for production PII and should not be applied without a strong reason.
 
+## Public property search (`GET /api/properties/search`)
+
+Used by the homepage address autocomplete for unauthenticated visitors.
+
+Hardening applied:
+
+- Minimum query length (3) and maximum length (120)
+- Result cap (8 properties)
+- Best-effort per-IP rate limit (30 requests / minute)
+- ILIKE wildcard characters from user input are escaped
+- Response is a **minimized public projection** only:
+  `id`, `property_name`, `address`, `city`, `state`, `postal_code`, `country`, `property_type`
+- Does **not** return timestamps, relevance scores, or other owner metadata
+- Only properties with `emergency_access_enabled = true` are searchable
+- Response `count` reflects the returned page size only (not full DB match cardinality)
+
+Visitors still need an `id` to open `/property/[id]`. Further detail exposure on that detail endpoint should be reviewed separately.
+
 ## Related code hardening in this change set
 
 Debug / test API routes that could expose configuration or data are blocked outside local development via `assertDebugEndpointAllowed()`:

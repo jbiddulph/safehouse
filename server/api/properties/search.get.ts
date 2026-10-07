@@ -1,19 +1,66 @@
 import { createClient } from '@supabase/supabase-js'
+import { consumeRateLimit } from '../../utils/rate-limit'
 
+const MIN_QUERY_LENGTH = 3
+const MAX_QUERY_LENGTH = 120
+const MAX_RESULTS = 8
+const RATE_LIMIT = 30
+const RATE_WINDOW_MS = 60_000
+
+/** Escape characters that are special in Postgres ILIKE patterns. */
+function escapeIlike(value: string): string {
+  return value.replace(/([\\%_])/g, '\\$1')
+}
+
+function clientKey(event: any): string {
+  const forwarded = getHeader(event, 'x-forwarded-for')
+  if (forwarded) return String(forwarded).split(',')[0].trim()
+  return getRequestIP(event, { xForwardedFor: true }) || 'unknown'
+}
+
+/**
+ * Public property search used by the homepage autocomplete.
+ * Returns only the minimum fields needed to identify and open a property.
+ * Enforces query length, result caps, and basic rate limiting to reduce bulk enumeration.
+ */
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
-  const { address, city, state, postal_code, country } = query
+  const rawAddress = typeof query.address === 'string' ? query.address.trim() : ''
+  const city = typeof query.city === 'string' ? query.city.trim() : ''
+  const state = typeof query.state === 'string' ? query.state.trim() : ''
+  const postalCode = typeof query.postal_code === 'string' ? query.postal_code.trim() : ''
+  const country = typeof query.country === 'string' ? query.country.trim() : ''
 
-  if (!address) {
-    return {
-      success: false,
-      message: 'Address is required for property search'
-    }
+  if (!rawAddress || rawAddress.length < MIN_QUERY_LENGTH) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: `Address must be at least ${MIN_QUERY_LENGTH} characters`
+    })
+  }
+
+  if (rawAddress.length > MAX_QUERY_LENGTH) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: `Address must be at most ${MAX_QUERY_LENGTH} characters`
+    })
+  }
+
+  const rate = consumeRateLimit(`properties-search:${clientKey(event)}`, RATE_LIMIT, RATE_WINDOW_MS)
+  setHeader(event, 'X-RateLimit-Limit', String(RATE_LIMIT))
+  setHeader(event, 'X-RateLimit-Remaining', String(rate.remaining))
+  setHeader(event, 'Cache-Control', 'no-store')
+
+  if (!rate.allowed) {
+    setHeader(event, 'Retry-After', String(rate.retryAfterSec))
+    throw createError({
+      statusCode: 429,
+      statusMessage: 'Too many search requests. Please try again shortly.'
+    })
   }
 
   const config = useRuntimeConfig()
-  // Prefer service role key when available (production),
-  // but gracefully fall back to public anon key (useful in local/dev)
+  // Service role is used so emergency_access_enabled filtering works reliably.
+  // Only a minimized public projection is returned below.
   const supabaseKey = config.supabaseServiceRoleKey || config.public.supabaseKey
 
   if (!config.public.supabaseUrl || !supabaseKey) {
@@ -22,28 +69,24 @@ export default defineEventHandler(async (event) => {
       hasServiceRoleKey: !!config.supabaseServiceRoleKey,
       hasPublicKey: !!config.public.supabaseKey
     })
-    return {
-      success: false,
-      message: 'Failed to search properties',
-      properties: []
-    }
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to search properties'
+    })
   }
 
-  const supabase = createClient(
-    config.public.supabaseUrl,
-    supabaseKey,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
+  const supabase = createClient(config.public.supabaseUrl, supabaseKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
     }
-  )
+  })
 
   try {
-    console.log('Searching properties for:', { address, city, state, postal_code, country })
+    const escapedAddress = escapeIlike(rawAddress)
 
-    // Build search query with multiple criteria
+    // Prefer matching against the full typed query; avoid OR-ing common short words
+    // that would enumerate large sets (e.g. "Road", "Street").
     let searchQuery = supabase
       .from('safehouse_properties')
       .select(`
@@ -54,102 +97,77 @@ export default defineEventHandler(async (event) => {
         state,
         postal_code,
         country,
-        property_type,
-        emergency_access_enabled,
-        created_at,
-        updated_at
+        property_type
       `)
-      .eq('emergency_access_enabled', true) // Only show properties with emergency access enabled
+      .eq('emergency_access_enabled', true)
+      .ilike('address', `%${escapedAddress}%`)
+      .limit(MAX_RESULTS)
 
-    // Flexible search - try multiple variations
-    if (address) {
-      // Extract key parts from the full address
-      const addressParts = address.split(',').map(part => part.trim()).filter(part => part.length > 3)
-      
-      if (addressParts.length > 0) {
-        const searchTerms = []
-        
-        // Add the first meaningful part
-        searchTerms.push(addressParts[0])
-        
-        // Try to extract street name from the first part
-        const firstPart = addressParts[0]
-        const words = firstPart.split(' ').filter(word => word.length > 2)
-        
-        // Add individual words that might be street names
-        words.forEach(word => {
-          if (word.length > 3 && !word.match(/^\d+$/)) { // Not just numbers
-            searchTerms.push(word)
-          }
-        })
-        
-        console.log('Search terms:', searchTerms)
-        
-        // Try each search term
-        const conditions = searchTerms.map(term => `address.ilike.%${term}%`)
-        if (conditions.length > 0) {
-          searchQuery = searchQuery.or(conditions.join(','))
-        }
-      }
+    if (city) {
+      searchQuery = searchQuery.ilike('city', `%${escapeIlike(city)}%`)
     }
-
-    // Order by relevance (exact matches first, then partial matches)
-    searchQuery = searchQuery.order('created_at', { ascending: false })
+    if (state) {
+      searchQuery = searchQuery.ilike('state', `%${escapeIlike(state)}%`)
+    }
+    if (postalCode) {
+      searchQuery = searchQuery.ilike('postal_code', `%${escapeIlike(postalCode)}%`)
+    }
+    if (country) {
+      searchQuery = searchQuery.ilike('country', `%${escapeIlike(country)}%`)
+    }
 
     const { data: properties, error } = await searchQuery
 
     if (error) {
       console.error('Property search error:', error)
-      return {
-        success: false,
-        message: 'Failed to search properties',
-        properties: []
-      }
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'Failed to search properties'
+      })
     }
 
-    // Score and rank results by relevance
-    const scoredProperties = (properties || []).map(property => {
+    const scored = (properties || []).map((property) => {
       let score = 0
+      const addressLower = property.address?.toLowerCase() || ''
+      const queryLower = rawAddress.toLowerCase()
 
-      // Exact matches get highest scores
-      if (address && property.address?.toLowerCase().includes(String(address).toLowerCase())) {
-        score += 10
-      }
-      if (city && property.city?.toLowerCase().includes(String(city).toLowerCase())) {
-        score += 8
-      }
-      if (state && property.state?.toLowerCase().includes(String(state).toLowerCase())) {
-        score += 6
-      }
-      if (postal_code && property.postal_code?.toLowerCase().includes(String(postal_code).toLowerCase())) {
-        score += 5
-      }
-      if (country && property.country?.toLowerCase().includes(String(country).toLowerCase())) {
-        score += 3
-      }
+      if (addressLower === queryLower) score += 20
+      else if (addressLower.startsWith(queryLower)) score += 12
+      else if (addressLower.includes(queryLower)) score += 8
 
-      return {
-        ...property,
-        relevance_score: score
-      }
+      if (city && property.city?.toLowerCase().includes(city.toLowerCase())) score += 5
+      if (postalCode && property.postal_code?.toLowerCase().includes(postalCode.toLowerCase())) score += 5
+
+      return { property, score }
     })
 
-    // Sort by relevance score (highest first)
-    const sortedProperties = scoredProperties.sort((a, b) => b.relevance_score - a.relevance_score)
+    scored.sort((a, b) => b.score - a.score)
 
-    console.log(`Found ${sortedProperties.length} properties`)
+    // Public projection only — no created_at/updated_at/emergency flags/scores
+    const publicProperties = scored.slice(0, MAX_RESULTS).map(({ property }) => ({
+      id: property.id,
+      property_name: property.property_name,
+      address: property.address,
+      city: property.city,
+      state: property.state,
+      postal_code: property.postal_code,
+      country: property.country,
+      property_type: property.property_type
+    }))
 
     return {
       success: true,
-      properties: sortedProperties,
-      total: sortedProperties.length
+      properties: publicProperties,
+      // Reflect returned page size only (do not expose full match cardinality)
+      count: publicProperties.length,
+      capped: true
     }
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.statusCode) throw error
     console.error('Property search error:', error)
-    return {
-      success: false,
-      message: 'Failed to search properties',
-      properties: []
-    }
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to search properties'
+    })
   }
 })
