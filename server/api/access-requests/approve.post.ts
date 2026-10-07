@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { logAccessEvent } from '../../utils/access-logger'
+import { logAccessEvent, logAdminAccessDecision } from '../../utils/access-logger'
 import { 
   sendAccessRequestApprovedEmail, 
   sendAccessRequestDeniedEmail 
@@ -118,6 +118,14 @@ export default defineEventHandler(async (event) => {
         approved_by: approved_by_user_id,
         action: action 
       }
+    })
+
+    await logAdminAccessDecision(config, {
+      propertyId: request.property_id,
+      requestId: request.id,
+      action: action as 'approve' | 'deny',
+      userEmail: request.requester_email || request.requester_phone,
+      source: '/api/access-requests/approve'
     })
 
     // 6. If approved, log the access code usage

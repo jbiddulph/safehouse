@@ -104,3 +104,61 @@ export async function logAccessCodeUsage(
     location_data: locationData
   })
 }
+
+/**
+ * Dual-write owner approve/deny decisions into the admin analytics table
+ * (safehouse_access_logs), which powers /admin/access-logs stats and filters.
+ * Session IDs are prefixed so stats can avoid double-counting with
+ * REQUEST_APPROVED / REQUEST_DENIED rows in safehouse_access_logs_new.
+ */
+export async function logAdminAccessDecision(
+  config: any,
+  params: {
+    propertyId: string
+    requestId: string
+    action: 'approve' | 'deny'
+    userEmail?: string | null
+    source?: string
+  }
+): Promise<boolean> {
+  const supabase = createClient(
+    config.public.supabaseUrl,
+    config.supabaseServiceRoleKey,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  )
+
+  const accessType = params.action === 'approve' ? 'access_granted' : 'access_denied'
+  const source = params.source || 'access-request-decision'
+
+  try {
+    const { error } = await supabase
+      .from('safehouse_access_logs')
+      .insert({
+        property_id: params.propertyId,
+        user_email: params.userEmail || null,
+        access_type: accessType,
+        url: source,
+        device_type: 'unknown',
+        is_mobile: false,
+        request_method: 'GET',
+        response_status: 200,
+        session_id: `access-request:${params.requestId}`
+      })
+
+    if (error) {
+      console.error('Failed to log admin access decision:', error)
+      return false
+    }
+
+    console.log(`Admin access decision logged: ${accessType} for property ${params.propertyId}`)
+    return true
+  } catch (error) {
+    console.error('Admin access decision logging error:', error)
+    return false
+  }
+}

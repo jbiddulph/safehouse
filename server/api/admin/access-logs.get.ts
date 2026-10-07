@@ -167,35 +167,82 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Get summary statistics
+    // Get summary statistics (last 30 days)
+    const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+
     const { data: stats, error: statsError } = await supabase
       .from('safehouse_access_logs')
-      .select('access_type, device_type, created_at')
-      .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()) // Last 30 days
+      .select('access_type, device_type, created_at, session_id')
+      .gte('created_at', since)
 
     if (statsError) {
       console.error('Error getting access logs stats:', statsError)
     }
 
+    // Owner approve/deny historically only wrote to safehouse_access_logs_new
+    // (REQUEST_APPROVED / REQUEST_DENIED). Include those so Access Granted
+    // reflects real decisions, without double-counting dual-written rows.
+    const { data: decisionStats, error: decisionStatsError } = await supabase
+      .from('safehouse_access_logs_new')
+      .select('access_method, used_at')
+      .in('access_method', ['REQUEST_APPROVED', 'REQUEST_DENIED'])
+      .gte('used_at', since)
+
+    if (decisionStatsError) {
+      console.error('Error getting access decision stats:', decisionStatsError)
+    }
+
     // Process stats
     const summaryStats = {
-      totalAccesses: stats?.length || 0,
+      totalAccesses: 0,
       accessTypes: {} as Record<string, number>,
       deviceTypes: {} as Record<string, number>,
       dailyAccesses: {} as Record<string, number>
     }
 
     stats?.forEach(stat => {
-      // Count by access type
+      const isDualWrite =
+        (stat.access_type === 'access_granted' || stat.access_type === 'access_denied') &&
+        typeof stat.session_id === 'string' &&
+        stat.session_id.startsWith('access-request:')
+
+      // Skip dual-written rows here; those decisions are counted from
+      // safehouse_access_logs_new below so historical + future stay consistent.
+      if (isDualWrite) {
+        return
+      }
+
       summaryStats.accessTypes[stat.access_type] = (summaryStats.accessTypes[stat.access_type] || 0) + 1
-      
-      // Count by device type
-      summaryStats.deviceTypes[stat.device_type] = (summaryStats.deviceTypes[stat.device_type] || 0) + 1
-      
-      // Count by day
+      summaryStats.totalAccesses += 1
+
+      if (stat.device_type) {
+        summaryStats.deviceTypes[stat.device_type] = (summaryStats.deviceTypes[stat.device_type] || 0) + 1
+      }
+
       const day = new Date(stat.created_at).toISOString().split('T')[0]
       summaryStats.dailyAccesses[day] = (summaryStats.dailyAccesses[day] || 0) + 1
     })
+
+    let approvedFromNew = 0
+    let deniedFromNew = 0
+    decisionStats?.forEach(stat => {
+      if (stat.access_method === 'REQUEST_APPROVED') {
+        approvedFromNew += 1
+      } else if (stat.access_method === 'REQUEST_DENIED') {
+        deniedFromNew += 1
+      }
+    })
+
+    if (approvedFromNew > 0) {
+      summaryStats.accessTypes.access_granted =
+        (summaryStats.accessTypes.access_granted || 0) + approvedFromNew
+      summaryStats.totalAccesses += approvedFromNew
+    }
+    if (deniedFromNew > 0) {
+      summaryStats.accessTypes.access_denied =
+        (summaryStats.accessTypes.access_denied || 0) + deniedFromNew
+      summaryStats.totalAccesses += deniedFromNew
+    }
 
     return {
       success: true,
