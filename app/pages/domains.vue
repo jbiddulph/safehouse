@@ -42,7 +42,7 @@
                 v-model="newAllowedDomain.domain" 
                 type="text" 
                 placeholder="example.com" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0 text-gray-500"
                 required
               />
             </div>
@@ -52,7 +52,7 @@
                 v-model="newAllowedDomain.description" 
                 type="text" 
                 placeholder="Trusted partner domain" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0 text-gray-500"
               />
             </div>
             <div>
@@ -60,7 +60,7 @@
               <input 
                 v-model="newAllowedDomain.expires_at" 
                 type="datetime-local" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0 text-gray-500"
               />
             </div>
           </div>
@@ -128,7 +128,7 @@
                 v-model="newBlockedDomain.domain" 
                 type="text" 
                 placeholder="malicious.com" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0 text-gray-500"
                 required
               />
             </div>
@@ -138,7 +138,7 @@
                 v-model="newBlockedDomain.reason" 
                 type="text" 
                 placeholder="Known malware distribution" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0 text-gray-500"
               />
             </div>
             <div>
@@ -146,7 +146,7 @@
               <input 
                 v-model="newBlockedDomain.expires_at" 
                 type="datetime-local" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0 text-gray-500"
               />
             </div>
           </div>
@@ -235,7 +235,7 @@
               <input 
                 v-model="editingAllowedData.domain" 
                 type="text" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0 text-gray-500"
                 required
               />
             </div>
@@ -244,7 +244,7 @@
               <input 
                 v-model="editingAllowedData.description" 
                 type="text" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0 text-gray-500"
               />
             </div>
             <div>
@@ -252,7 +252,7 @@
               <input 
                 v-model="editingAllowedData.expires_at" 
                 type="datetime-local" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0 text-gray-500"
               />
             </div>
             <div class="flex items-center">
@@ -301,7 +301,7 @@
               <input 
                 v-model="editingBlockedData.domain" 
                 type="text" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0 text-gray-500"
                 required
               />
             </div>
@@ -310,7 +310,7 @@
               <input 
                 v-model="editingBlockedData.reason" 
                 type="text" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0 text-gray-500"
               />
             </div>
             <div>
@@ -318,7 +318,7 @@
               <input 
                 v-model="editingBlockedData.expires_at" 
                 type="datetime-local" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0 text-gray-500"
               />
             </div>
             <div class="flex items-center">

@@ -130,7 +130,7 @@
                 type="number"
                 min="1"
                 max="5"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500"
               />
               <p class="text-xs text-gray-500 mt-1">Maximum 5 properties per account. Each credit = 1 property.</p>
             </div>

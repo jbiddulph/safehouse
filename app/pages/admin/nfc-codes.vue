@@ -28,7 +28,7 @@
               v-model="searchQuery"
               type="text"
               placeholder="e.g., 26-1, 26-100"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee] text-gray-500"
               @input="searchNfcCodes"
             />
           </div>
@@ -209,7 +209,7 @@
             v-model="propertySearchQuery"
             type="text"
             placeholder="Search property name, address, city, state or post code"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee] text-gray-500"
           />
         </div>
 

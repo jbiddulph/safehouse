@@ -704,7 +704,7 @@
                     v-model="tempPhoneNumber"
                     type="tel"
                     :placeholder="tempPhonePlaceholder"
-                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500"
                     @input="formatPhoneNumberForModal"
                   />
                 </div>
@@ -763,7 +763,7 @@
             <form @submit.prevent="createProperty" novalidate class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-700">Property Name</label>
-              <input v-model="newProperty.property_name" type="text" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900">
+              <input v-model="newProperty.property_name" type="text" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500">
             </div>
             <div class="relative">
               <label class="block text-sm font-medium text-gray-700">Address</label>
@@ -774,7 +774,7 @@
                 @blur="hideAddressSuggestions"
                 type="text" 
                 placeholder="Start typing an address..."
-                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500"
                 autocomplete="off"
               >
               
@@ -812,16 +812,16 @@
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700">City</label>
-                <input v-model="newProperty.city" type="text" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900">
+                <input v-model="newProperty.city" type="text" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500">
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700">State</label>
-                <input v-model="newProperty.state" type="text" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900">
+                <input v-model="newProperty.state" type="text" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500">
               </div>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700">Postal Code</label>
-              <input v-model="newProperty.postal_code" type="text" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900">
+              <input v-model="newProperty.postal_code" type="text" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500">
             </div>
             <!-- Country is hidden, defaults to GB (United Kingdom) -->
             <input type="hidden" v-model="newProperty.country">
@@ -864,7 +864,7 @@
                     v-model="newProperty.keysafe_location" 
                     type="text" 
                     placeholder="e.g., Front door, Garage, Side entrance"
-                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500"
                   >
                   <p class="mt-1 text-xs text-gray-500">Where is the keysafe located?</p>
                 </div>
@@ -874,7 +874,7 @@
                     v-model="newProperty.keysafe_code" 
                     type="text" 
                     placeholder="Enter the keysafe access code"
-                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500"
                   >
                 </div>
                 <div>
@@ -883,7 +883,7 @@
                     v-model="newProperty.keysafe_what3words" 
                     type="text" 
                     placeholder="e.g., ///filled.count.soap"
-                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500"
                   >
                   <p class="mt-1 text-xs text-gray-500">Enter the What 3 Words location (format: ///word1.word2.word3)</p>
                 </div>
@@ -895,7 +895,7 @@
                       type="number" 
                       step="any"
                       placeholder="e.g., 51.5074"
-                      class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                      class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500"
                     >
                   </div>
                   <div>
@@ -905,7 +905,7 @@
                       type="number" 
                       step="any"
                       placeholder="e.g., -0.1278"
-                      class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                      class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500"
                     >
                   </div>
                 </div>
@@ -915,7 +915,7 @@
                     v-model="newProperty.keysafe_notes" 
                     rows="3"
                     placeholder="Any additional notes about the keysafe..."
-                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500"
                   ></textarea>
                 </div>
                 <div>
@@ -961,7 +961,7 @@
                     v-model="propertyFormContact.contact_name" 
                     type="text" 
                     placeholder="Enter contact name"
-                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500"
                   >
                 </div>
                 <div>
@@ -970,7 +970,7 @@
                     v-model="propertyFormContact.email" 
                     type="email" 
                     placeholder="Enter email address"
-                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500"
                   >
                 </div>
                 <div>
@@ -979,7 +979,7 @@
                     v-model="propertyFormContact.phone" 
                     type="tel" 
                     placeholder="Enter phone number"
-                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500"
                   >
                 </div>
                 <div>
@@ -1075,15 +1075,15 @@
           <form @submit.prevent="updateContact" class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-700">Contact Name</label>
-              <input v-model="editingContact.contact_name" type="text" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+              <input v-model="editingContact.contact_name" type="text" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500">
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700">Email</label>
-              <input v-model="editingContact.email" type="email" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+              <input v-model="editingContact.email" type="email" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500">
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700">Phone (Optional)</label>
-              <input v-model="editingContact.phone" type="tel" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+              <input v-model="editingContact.phone" type="tel" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500">
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700">Relationship</label>
@@ -1157,15 +1157,15 @@
           <form @submit.prevent="createContact" class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-700">Contact Name</label>
-              <input v-model="newContact.contact_name" type="text" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+              <input v-model="newContact.contact_name" type="text" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500">
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700">Email</label>
-              <input v-model="newContact.email" type="email" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+              <input v-model="newContact.email" type="email" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500">
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700">Phone (Optional)</label>
-              <input v-model="newContact.phone" type="tel" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+              <input v-model="newContact.phone" type="tel" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500">
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700">Relationship</label>
@@ -1459,7 +1459,7 @@
           <form @submit.prevent="updateProperty" class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-700">Property Name</label>
-              <input v-model="editingProperty.property_name" type="text" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900">
+              <input v-model="editingProperty.property_name" type="text" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500">
             </div>
             <div class="relative">
               <label class="block text-sm font-medium text-gray-700">Address</label>
@@ -1471,7 +1471,7 @@
                 type="text" 
                 required 
                 placeholder="Start typing an address..."
-                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500"
                 autocomplete="off"
               >
               
@@ -1509,16 +1509,16 @@
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700">City</label>
-                <input v-model="editingProperty.city" type="text" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900">
+                <input v-model="editingProperty.city" type="text" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500">
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700">State</label>
-                <input v-model="editingProperty.state" type="text" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900">
+                <input v-model="editingProperty.state" type="text" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500">
               </div>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700">Postal Code</label>
-              <input v-model="editingProperty.postal_code" type="text" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900">
+              <input v-model="editingProperty.postal_code" type="text" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500">
             </div>
             <!-- Country is hidden, defaults to GB (United Kingdom) -->
             <input type="hidden" v-model="editingProperty.country">
@@ -1564,7 +1564,7 @@
                     v-model="editingProperty.keysafe_location" 
                     type="text" 
                     placeholder="e.g., Front door, Garage, Side entrance"
-                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500"
                   >
                   <p class="mt-1 text-xs text-gray-500">Where is the keysafe located?</p>
                 </div>
@@ -1574,7 +1574,7 @@
                     v-model="editingProperty.keysafe_code" 
                     type="text" 
                     placeholder="Enter the keysafe access code"
-                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500"
                   >
                 </div>
                 <div>
@@ -1583,7 +1583,7 @@
                     v-model="editingProperty.keysafe_what3words" 
                     type="text" 
                     placeholder="e.g., ///filled.count.soap"
-                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500"
                   >
                   <p class="mt-1 text-xs text-gray-500">Enter the What 3 Words location (format: ///word1.word2.word3)</p>
                 </div>
@@ -1595,7 +1595,7 @@
                       type="number" 
                       step="any"
                       placeholder="e.g., 51.5074"
-                      class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                      class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500"
                     >
                   </div>
                   <div>
@@ -1605,7 +1605,7 @@
                       type="number" 
                       step="any"
                       placeholder="e.g., -0.1278"
-                      class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                      class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500"
                     >
                   </div>
                 </div>
@@ -1615,7 +1615,7 @@
                     v-model="editingProperty.keysafe_notes" 
                     rows="3"
                     placeholder="Any additional notes about the keysafe..."
-                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900"
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-500"
                   ></textarea>
                 </div>
                 <div>

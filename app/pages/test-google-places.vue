@@ -8,7 +8,7 @@
           v-model="searchQuery" 
           type="text" 
           placeholder="Enter an address..." 
-          class="border p-2 rounded w-full"
+          class="border p-2 rounded w-full text-gray-500"
           @input="searchAddresses"
         />
       </div>

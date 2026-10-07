@@ -25,7 +25,7 @@
                 type="email" 
                 placeholder="Enter your email address" 
                 required 
-                class="w-full"
+                class="w-full text-gray-500"
               />
               <p v-if="error" class="mt-1 text-xs text-red-600">{{ error }}</p>
               <p v-if="success" class="mt-1 text-xs text-green-600">{{ success }}</p>

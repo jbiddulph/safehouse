@@ -25,7 +25,7 @@
                 type="password" 
                 placeholder="Enter your new password" 
                 required 
-                class="w-full"
+                class="w-full text-gray-500"
                 @input="validatePassword"
               />
               <p class="mt-1 text-xs text-gray-500">Minimum 6 characters</p>
@@ -41,7 +41,7 @@
                 type="password" 
                 placeholder="Confirm your new password" 
                 required 
-                class="w-full"
+                class="w-full text-gray-500"
                 @input="validatePassword"
               />
               <p v-if="passwordMatchError" class="mt-1 text-xs text-red-600">{{ passwordMatchError }}</p>

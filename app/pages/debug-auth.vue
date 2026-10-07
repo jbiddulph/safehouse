@@ -4,11 +4,11 @@
     <div class="space-y-4">
       <div>
         <label class="block text-sm font-medium mb-1">Email:</label>
-        <input v-model="email" type="email" class="border p-2 rounded w-full" />
+        <input v-model="email" type="email" class="border p-2 rounded w-full text-gray-500" />
       </div>
       <div>
         <label class="block text-sm font-medium mb-1">Password:</label>
-        <input v-model="password" type="password" class="border p-2 rounded w-full" />
+        <input v-model="password" type="password" class="border p-2 rounded w-full text-gray-500" />
       </div>
       <button @click="testDirectAuth" class="bg-[#f0f9fb]0 text-white px-4 py-2 rounded">
         Test Direct Supabase Auth

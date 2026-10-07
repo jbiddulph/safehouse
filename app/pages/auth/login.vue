@@ -25,7 +25,7 @@
               type="email" 
               placeholder="Enter your email" 
               required 
-              class="w-full"
+              class="w-full text-gray-500"
             />
           </div>
 
@@ -46,7 +46,7 @@
               type="password" 
               placeholder="Enter your password" 
               required 
-              class="w-full"
+              class="w-full text-gray-500"
             />
           </div>
 

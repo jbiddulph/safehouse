@@ -33,7 +33,7 @@
               v-model="manualQrCode"
               type="text"
               placeholder="Enter QR code"
-              class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+              class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-500"
               @keyup.enter="processQrCode(manualQrCode)"
             />
             <button
@@ -66,7 +66,7 @@
                 v-model="requestForm.requester_email"
                 type="email"
                 required
-                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
+                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0 text-gray-500"
                 placeholder="Enter your email address"
               />
             </div>
@@ -79,7 +79,7 @@
                 id="requester_name"
                 v-model="requestForm.requester_name"
                 type="text"
-                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
+                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0 text-gray-500"
                 placeholder="Enter your name"
               />
             </div>

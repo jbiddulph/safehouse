@@ -121,7 +121,7 @@
                 type="number"
                 min="1"
                 max="100000"
-                class="w-32 px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
+                class="w-32 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0 text-gray-500"
               />
               <span class="text-sm text-gray-600">meters</span>
               <button
@@ -180,7 +180,7 @@
                 v-model="searchQuery" 
                 type="text" 
                 placeholder="Search by email or name..." 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#8ee0ee] focus:border-[#8ee0ee]0 text-gray-500"
                 @input="searchUsers"
               />
             </div>

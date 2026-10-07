@@ -39,7 +39,7 @@
               v-model="manualQrCode"
               type="text"
               placeholder="Enter QR code"
-              class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+              class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-500"
               @keyup.enter="processQrCode(manualQrCode)"
             />
             <button
@@ -98,7 +98,7 @@
                 v-model="requestForm.requester_phone"
                 type="tel"
                 placeholder="+1 (555) 123-4567"
-                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-500"
               />
             </div>
 
@@ -108,7 +108,7 @@
                 v-model="requestForm.requester_name"
                 type="text"
                 placeholder="Your full name"
-                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-500"
               />
             </div>
 
@@ -119,7 +119,7 @@
                 v-model="requestForm.access_code_entered"
                 type="text"
                 placeholder="Enter the access code"
-                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-500"
                 required
               />
             </div>
@@ -149,7 +149,7 @@
                 v-model="requestForm.requester_phone"
                 type="tel"
                 placeholder="+1 (555) 123-4567"
-                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-500"
               />
             </div>
 
@@ -159,7 +159,7 @@
                 v-model="requestForm.requester_email"
                 type="email"
                 placeholder="your@email.com"
-                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-500"
               />
             </div>
 
@@ -169,7 +169,7 @@
                 v-model="requestForm.requester_name"
                 type="text"
                 placeholder="Your full name"
-                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-500"
               />
             </div>
 
@@ -180,7 +180,7 @@
                 v-model="requestForm.access_code_entered"
                 type="text"
                 placeholder="Enter the access code"
-                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-500"
                 required
               />
             </div>
@@ -217,7 +217,7 @@
                 type="text"
                 placeholder="Enter 6-digit code"
                 maxlength="6"
-                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-center text-lg tracking-widest"
+                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-center text-lg tracking-widest text-gray-500"
                 required
               />
             </div>

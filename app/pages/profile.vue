@@ -122,11 +122,11 @@
           <div class="grid grid-cols-1 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-              <UInput v-model="profileForm.full_name" type="text" placeholder="Full Name" class="w-full h-10" />
+              <UInput v-model="profileForm.full_name" type="text" placeholder="Full Name" class="w-full h-10 text-gray-500" />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-              <UInput v-model="profileForm.email" type="email" placeholder="Email" disabled class="w-full h-10" />
+              <UInput v-model="profileForm.email" type="email" placeholder="Email" disabled class="w-full h-10 text-gray-500" />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Mobile Phone</label>
@@ -148,7 +148,7 @@
                     v-model="phoneNumber" 
                     type="tel" 
                     :placeholder="phonePlaceholder" 
-                    class="w-full h-10"
+                    class="w-full h-10 text-gray-500"
                     @input="formatPhoneNumber"
                   />
                 </div>
