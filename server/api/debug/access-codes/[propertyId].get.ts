@@ -1,6 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 
 export default defineEventHandler(async (event) => {
+  assertDebugEndpointAllowed(event)
+
   const propertyId = getRouterParam(event, 'propertyId')
 
   if (!propertyId) {

@@ -1,6 +1,8 @@
 export default defineEventHandler(async (event) => {
+  assertDebugEndpointAllowed(event)
+
   const config = useRuntimeConfig()
-  
+
   return {
     supabase: {
       url: config.public.supabaseUrl ? 'Set' : 'Missing',
