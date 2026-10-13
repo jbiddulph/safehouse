@@ -660,10 +660,10 @@ function initBackgroundMap() {
         const mapboxModule = await import('~/composables/useMapbox')
         const { initMap } = mapboxModule.useMapbox()
       
-      // Worthing, UK coordinates: -0.3750, 50.8175
+      // Piccadilly Circus, London coordinates: -0.1340, 51.5101
       backgroundMap.value = initMap(backgroundMapContainer.value, {
-        center: [-0.3750, 50.8175], // Worthing, UK
-        zoom: 14,
+        center: [-0.1340, 51.5101], // Piccadilly Circus, London
+        zoom: 15,
         // Disable all interactions for locked map
         touchZoomRotate: false,
         touchPitch: false,
