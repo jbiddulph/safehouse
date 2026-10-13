@@ -243,7 +243,14 @@
                 <td class="px-4 py-3 text-sm text-gray-700">{{ property.state || '-' }}</td>
                 <td class="px-4 py-3 text-sm text-gray-700">{{ property.postal_code || '-' }}</td>
                 <td class="px-4 py-3 text-sm">
+                  <span
+                    v-if="isPropertyAssignedToSelectedNfc(property.id)"
+                    class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-green-800 bg-green-100 rounded-md"
+                  >
+                    Assigned
+                  </span>
                   <button
+                    v-else
                     @click="assignPropertyById(property.id)"
                     :disabled="assigning"
                     class="px-3 py-1.5 text-xs font-medium text-white bg-[#03045e] rounded-md hover:bg-[#023e8a] disabled:opacity-50 disabled:cursor-not-allowed"
@@ -310,8 +317,9 @@
               v-for="property in availableProperties"
               :key="property.id"
               :value="property.id"
+              :disabled="isPropertyAssignedToSelectedNfc(property.id)"
             >
-              {{ property.property_name }} - {{ property.address }}
+              {{ property.property_name }} - {{ property.address }}{{ isPropertyAssignedToSelectedNfc(property.id) ? ' (Assigned)' : '' }}
             </option>
           </select>
           <p v-if="availableProperties.length === 0" class="mt-1 text-xs text-gray-500">
@@ -482,6 +490,11 @@ function closeAssignListModal() {
   selectedNfcCode.value = null
   propertySearchQuery.value = ''
   propertyListCurrentPage.value = 1
+}
+
+function isPropertyAssignedToSelectedNfc(propertyId: string) {
+  const assignedProperties = selectedNfcCode.value?.properties || []
+  return assignedProperties.some((property: any) => property.id === propertyId)
 }
 
 async function assignPropertyToNfc() {
