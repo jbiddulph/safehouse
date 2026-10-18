@@ -81,7 +81,7 @@ export async function sendAccessRequestNotification(
     const titleText = isEmergency ? 'Emergency Access Request' : 'Standard Access Request'
 
     const mailOptions = {
-      from: 'MySafeHouse <noreply@safehouse.app>',
+      from: 'MySafeHouse <info@mysafehouse.co.uk>',
       to: toEmail,
       subject: `${subjectEmoji} ${subjectText} Access Request - ${propertyName}`,
       html: `
@@ -152,7 +152,7 @@ export async function sendAccessRequestEmail(
 
   try {
     const mailOptions = {
-      from: 'MySafeHouse <noreply@safehouse.app>',
+      from: 'MySafeHouse <info@mysafehouse.co.uk>',
       to: toEmail,
       subject: `🔓 Emergency Access Request - ${propertyName}`,
       html: `
@@ -222,7 +222,7 @@ export async function sendAccessRequestConfirmation(
 
   try {
     const mailOptions = {
-      from: 'MySafeHouse <noreply@safehouse.app>',
+      from: 'MySafeHouse <info@mysafehouse.co.uk>',
       to: toEmail,
       subject: `Access Code for ${propertyName}`,
       html: `
@@ -325,7 +325,7 @@ export async function sendAccessRequestApprovedEmail(
     }
 
     const mailOptions = {
-      from: 'MySafeHouse <noreply@safehouse.app>',
+      from: 'MySafeHouse <info@mysafehouse.co.uk>',
       to: toEmail,
       subject: `✅ Access Approved for ${propertyName}`,
       html: `
@@ -381,7 +381,7 @@ export async function sendAccessRequestDeniedEmail(
   try {
     const greetingName = requesterName?.trim() || 'there'
     const mailOptions = {
-      from: 'MySafeHouse <noreply@safehouse.app>',
+      from: 'MySafeHouse <info@mysafehouse.co.uk>',
       to: toEmail,
       subject: `⚠️ Access Request Update for ${propertyName}`,
       html: `
@@ -432,7 +432,7 @@ export async function sendPasswordResetEmail(
 
   try {
     const mailOptions = {
-      from: 'MySafeHouse <noreply@safehouse.app>',
+      from: 'MySafeHouse <info@mysafehouse.co.uk>',
       to: toEmail,
       subject: '🔐 Reset Your MySafeHouse Password',
       html: `

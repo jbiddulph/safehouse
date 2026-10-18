@@ -243,7 +243,14 @@
                 <td class="px-4 py-3 text-sm text-gray-700">{{ property.state || '-' }}</td>
                 <td class="px-4 py-3 text-sm text-gray-700">{{ property.postal_code || '-' }}</td>
                 <td class="px-4 py-3 text-sm">
+                  <span
+                    v-if="isPropertyAssignedToSelectedNfc(property.id)"
+                    class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-green-800 bg-green-100 rounded-md"
+                  >
+                    Assigned
+                  </span>
                   <button
+                    v-else
                     @click="assignPropertyById(property.id)"
                     :disabled="assigning"
                     class="px-3 py-1.5 text-xs font-medium text-white bg-[#03045e] rounded-md hover:bg-[#023e8a] disabled:opacity-50 disabled:cursor-not-allowed"
@@ -310,8 +317,9 @@
               v-for="property in availableProperties"
               :key="property.id"
               :value="property.id"
+              :disabled="isPropertyAssignedToSelectedNfc(property.id)"
             >
-              {{ property.property_name }} - {{ property.address }}
+              {{ property.property_name }} - {{ property.address }}{{ isPropertyAssignedToSelectedNfc(property.id) ? ' (Assigned)' : '' }}
             </option>
           </select>
           <p v-if="availableProperties.length === 0" class="mt-1 text-xs text-gray-500">
@@ -401,6 +409,9 @@ async function loadNfcCodes() {
     })
     if (response.success) {
       nfcCodes.value = response.nfcCodes || []
+      if (selectedNfcCode.value?.id) {
+        selectedNfcCode.value = nfcCodes.value.find((code: any) => code.id === selectedNfcCode.value.id) || selectedNfcCode.value
+      }
       filterNfcCodes()
     } else {
       console.error('API returned success:false', response)
@@ -484,8 +495,18 @@ function closeAssignListModal() {
   propertyListCurrentPage.value = 1
 }
 
+function isPropertyAssignedToSelectedNfc(propertyId: string) {
+  const assignedProperties = selectedNfcCode.value?.properties || []
+  return assignedProperties.some((property: any) => property.id === propertyId)
+}
+
 async function assignPropertyToNfc() {
   if (!selectedNfcCode.value || !selectedPropertyId.value) return false
+
+  if (isPropertyAssignedToSelectedNfc(selectedPropertyId.value)) {
+    alert('Property is already assigned to this NFC code')
+    return false
+  }
   
   assigning.value = true
   try {
@@ -498,6 +519,11 @@ async function assignPropertyToNfc() {
     })
     
     if (response.success) {
+      if (response.alreadyAssigned || response.message?.includes('already assigned')) {
+        alert('Property is already assigned to this NFC code')
+        await loadNfcCodes()
+        return false
+      }
       // Show success message
       const propertyName = availableProperties.value.find((p: any) => p.id === selectedPropertyId.value)?.property_name || 'Property'
       alert(`Success! ${propertyName} has been assigned to NFC code ${selectedNfcCode.value.code_id}`)

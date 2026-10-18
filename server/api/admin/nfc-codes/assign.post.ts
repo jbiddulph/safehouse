@@ -63,6 +63,7 @@ export default defineEventHandler(async (event) => {
     if (existingAssignment) {
       return {
         success: true,
+        alreadyAssigned: true,
         message: 'Property is already assigned to this NFC code'
       }
     }

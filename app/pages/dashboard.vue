@@ -214,12 +214,12 @@
                 Subscribe
               </NuxtLink>
               <NuxtLink
-                v-else
+                v-if="hasActiveSubscription && creditsInfo.canAddMore"
                 to="/payments?action=buy-credits"
-                class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-semibold text-[#03045e] bg-[#8ee0ee] hover:bg-[#7dd3e0] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8ee0ee]"
+                class="inline-flex items-center px-4 py-2 bg-white text-[#03045e] rounded-lg font-semibold hover:bg-gray-100 transition-colors"
               >
-                <Icon name="mdi:plus-circle" class="-ml-1 mr-2 h-4 w-4" />
-                Buy Credits
+                <Icon name="mdi:plus-circle" class="mr-2 h-5 w-5" />
+                Buy Extra Credit
               </NuxtLink>
               <button 
                 @click="showAddContact = true" 
@@ -228,12 +228,6 @@
                 <Icon name="mdi:account-plus" class="-ml-1 mr-2 h-4 w-4" />
                 Add Contact
               </button>
-              <div v-if="hasActiveSubscription && creditsInfo.availableCredits === 0 && creditsInfo.canAddMore" class="flex items-center">
-                <NuxtLink to="/payments?action=buy-credits" class="inline-flex items-center px-4 py-2 bg-white text-[#03045e] rounded-lg font-semibold hover:bg-gray-100 transition-colors">
-                  <Icon name="mdi:plus-circle" class="mr-2 h-5 w-5" />
-                  Buy More Credits
-                </NuxtLink>
-              </div>
             </div>
           </div>
           <div v-if="!hasActiveSubscription" class="mt-3 pt-3 border-t border-white/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -396,7 +390,7 @@
                 </NuxtLink>
                 <NuxtLink v-else to="/payments?action=buy-credits" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#03045e] hover:bg-[#023e8a]">
                   <Icon name="mdi:plus-circle" class="-ml-1 mr-2 h-5 w-5" />
-                  Buy Credits
+                  Buy Extra Credit
                 </NuxtLink>
               </div>
             </div>
